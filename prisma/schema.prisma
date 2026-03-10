@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  OWNER
+  STAFF
+  CUSTOMER
+}
+
+enum TenantPlan {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  READY
+  SHIPPED
+  COMPLETED
+  CANCELLED
+}
+
+enum DeliveryMethod {
+  PICKUP
+  DELIVERY
+}
+
+// ─── Tenant (White-Label) ─────────────────────────────────────────────────────
+
+model Tenant {
+  id        String     @id @default(cuid())
+  slug      String     @unique          // URL / subdomain identifier: "brand-a"
+  name      String                      // Display name: "Sweet Cakes Jakarta"
+  domain    String?    @unique          // Custom domain (optional): "sweetcakes.com"
+  logoUrl   String?
+  faviconUrl String?
+  plan      TenantPlan @default(FREE)
+  isActive  Boolean    @default(true)
+  
+  // Theming – stored as JSON, injected as CSS variables
+  theme     Json       @default("{\"primary\":\"#FF69B4\",\"secondary\":\"#8B4513\",\"accent\":\"#FFB6C1\",\"background\":\"#FFF5F7\",\"font\":\"Inter\"}")
+  
+  // Business config – currency, timezone, delivery fee etc.
+  config    Json       @default("{\"currency\":\"IDR\",\"timezone\":\"Asia/Jakarta\",\"language\":\"id\",\"deliveryFee\":25000,\"minPreOrderDays\":1}")
+
+  users     User[]
+  products  Product[]
+  orders    Order[]
+  inventory Inventory[]
+  testimonies Testimony[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String?                     // null = SUPER_ADMIN (platform-level)
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+  email     String
+  password  String
+  name      String?
+  role      Role     @default(CUSTOMER)
+  orders    Order[]
+  testimonies Testimony[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, email])           // email unique per tenant
+}
+
+// ─── Product ──────────────────────────────────────────────────────────────────
+
+model Product {
+  id          String      @id @default(cuid())
+  tenantId    String
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  name        String
+  price       Float
+  description String
+  stock       Int         @default(0)
+  imageUrl    String?
+  category    String?
+  isActive    Boolean     @default(true)
+  items       OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// ─── Order ────────────────────────────────────────────────────────────────────
+
+model Order {
+  id            String         @id @default(cuid())
+  tenantId      String
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  userId        String?
+  user          User?          @relation(fields: [userId], references: [id])
+  status        OrderStatus    @default(PENDING)
+  total         Float
+  paymentStatus String         @default("UNPAID")
+  paymentToken  String?
+  method        DeliveryMethod @default(DELIVERY)
+  orderItems    OrderItem[]
+  delivery      Delivery?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+// ─── OrderItem ────────────────────────────────────────────────────────────────
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  custom    Json?   // { flavor, size, topping, message }
+}
+
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+model Inventory {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  material      String
+  quantity      Float
+  unit          String
+  lowStockAlert Float    @default(10)
+  updatedAt     DateTime @updatedAt
+
+  @@unique([tenantId, material])
+}
+
+// ─── Delivery ─────────────────────────────────────────────────────────────────
+
+model Delivery {
+  id             String  @id @default(cuid())
+  orderId        String  @unique
+  order          Order   @relation(fields: [orderId], references: [id])
+  address        String
+  method         String
+  status         String  @default("PENDING")
+  trackingNumber String?
+  qrCode         String?
+}
+// ─── Testimony ────────────────────────────────────────────────────────────────
+
+model Testimony {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  rating    Int      @default(5)
+  isPublished Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

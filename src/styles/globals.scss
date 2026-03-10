@@ -1,0 +1,67 @@
+@use "./variables.scss" as *;
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html,
+body {
+    max-width: 100vw;
+    overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    background-color: $color-background;
+    color: $color-text;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: $color-secondary;
+}
+
+.container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+
+    @media (min-width: $breakpoint-md) {
+        max-width: $breakpoint-md;
+    }
+
+    @media (min-width: $breakpoint-lg) {
+        max-width: $breakpoint-lg;
+    }
+
+    @media (min-width: $breakpoint-xl) {
+        max-width: $breakpoint-xl;
+    }
+}
+
+.btn-primary {
+    background-color: $color-primary;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 0.9;
+    }
+}

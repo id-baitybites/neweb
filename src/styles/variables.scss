@@ -1,0 +1,31 @@
+// ─── CSS Custom Properties (White-Label Theming) ──────────────────────────────
+// All colors reference CSS variables injected by TenantProvider at runtime.
+// SCSS variables are aliases so existing code keeps working.
+
+$color-primary: var(--color-primary);
+$color-secondary: var(--color-secondary);
+$color-accent: var(--color-accent);
+$color-background: var(--color-background);
+$color-text: var(--color-text);
+$color-muted: var(--color-muted);
+$color-success: var(--color-success);
+$color-error: var(--color-error);
+
+// ─── Default Fallback Values (pink-chocolate — can be overridden per tenant) ──
+:root {
+    --color-primary: #FF69B4;
+    --color-secondary: #8B4513;
+    --color-accent: #FFB6C1;
+    --color-background: #FFF5F7;
+    --color-text: #4E342E;
+    --color-muted: #A1887F;
+    --color-success: #4CAF50;
+    --color-error: #F44336;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+// ─── Breakpoints ──────────────────────────────────────────────────────────────
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;

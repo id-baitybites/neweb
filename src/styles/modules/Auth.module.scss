@@ -1,0 +1,76 @@
+@use "../variables.scss" as *;
+
+
+
+.authPage {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $color-background;
+}
+
+.authCard {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+
+    h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        color: $color-muted;
+        margin-bottom: 2rem;
+    }
+
+    .form {
+        text-align: left;
+
+        .inputGroup {
+            margin-bottom: 1.5rem;
+
+            label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+            }
+
+            input {
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+
+                &:focus {
+                    border-color: $color-primary;
+                    outline: none;
+                }
+            }
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+    }
+
+    .switch {
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        color: $color-muted;
+
+        a {
+            color: $color-primary;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+    }
+}

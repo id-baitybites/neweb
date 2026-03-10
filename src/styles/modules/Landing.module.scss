@@ -1,0 +1,342 @@
+@use "../variables.scss" as *;
+
+.hero {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: -6rem;
+    padding-top: 6rem;
+    text-align: center;
+    overflow: hidden;
+
+    // Setup generic dark overlay on top of whatever background image
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        // High quality bakery / pastry background image
+        background-image: url('https://images.unsplash.com/photo-1555507036-ab1f40ce88cb?q=80&w=2600&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        z-index: -2;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(10, 15, 30, 0.4), rgba(10, 15, 30, 0.8));
+        z-index: -1;
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
+
+    h1 {
+        font-size: 5rem;
+        font-weight: 700;
+        color: white;
+        line-height: 1.1;
+        margin: 1em auto;
+        margin-bottom: 1.5rem;
+        max-width: 900px;
+
+        @media (max-width: $breakpoint-md) {
+            font-size: 3rem;
+        }
+    }
+
+    p {
+        margin: 2em auto;
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.8);
+        max-width: 600px;
+        margin-bottom: 3rem;
+    }
+
+    .actions {
+        display: flex;
+        gap: 1rem;
+
+        .btnSolid,
+        .btnOutline {
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btnSolid {
+            background: $color-primary;
+            color: white;
+            border: 1px solid $color-primary;
+
+            &:hover {
+                filter: brightness(0.9);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        .btnOutline {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+        }
+    }
+
+    // Floating info cards as seen in the design
+    .floatingCards {
+        position: absolute;
+        bottom: 2rem;
+        width: 100%;
+        max-width: 1440px;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none; // let clicks pass through center
+
+        @media (max-width: $breakpoint-md) {
+            display: none;
+        }
+
+        .card {
+            background: rgba(10, 15, 30, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            width: 300px;
+            color: white;
+            text-align: left;
+            pointer-events: auto;
+
+            h4 {
+                margin: 0 0 0.5rem 0;
+                font-size: 1rem;
+            }
+
+            p {
+                font-size: 0.85rem;
+                color: rgba(255, 255, 255, 0.6);
+                margin: 0 0 1rem 0;
+            }
+
+            .cardImage {
+                width: 100%;
+                height: 100px;
+                border-radius: 12px;
+                object-fit: cover;
+            }
+        }
+    }
+}
+
+.section {
+    padding: 6rem 2rem;
+    background: white;
+
+    &.alt {
+        background: #F8F9FA;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 4rem;
+
+        h2 {
+            font-size: 2.5rem;
+            color: $color-secondary;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: $color-muted;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    }
+}
+
+.testimonyGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.testimonyCard {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+
+    .rating {
+        color: #F59E0B;
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 0.2rem;
+    }
+
+    .content {
+        color: #4A5568;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+        font-style: italic;
+    }
+
+    .user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: $color-primary;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .info {
+            h4 {
+                margin: 0;
+                color: $color-secondary;
+                font-size: 0.95rem;
+            }
+
+            span {
+                font-size: 0.8rem;
+                color: $color-muted;
+            }
+        }
+    }
+}
+
+.addTestimony {
+    max-width: 600px;
+    margin: 4rem auto 0;
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+
+    h3 {
+        margin-bottom: 1.5rem;
+        color: $color-secondary;
+    }
+
+    textarea {
+        width: 100%;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 1rem;
+        min-height: 120px;
+        margin-bottom: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        outline: none;
+
+        &:focus {
+            border-color: $color-primary;
+        }
+    }
+}
+
+.footer {
+    background: #0A0F1E;
+    color: white;
+    padding: 4rem 2rem 2rem;
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 4rem;
+        margin-bottom: 4rem;
+
+        @media (max-width: $breakpoint-md) {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    .brand {
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+        }
+    }
+
+    .links {
+        h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+                margin-bottom: 0.8rem;
+
+                a {
+                    color: rgba(255, 255, 255, 0.6);
+                    text-decoration: none;
+                    transition: color 0.2s;
+
+                    &:hover {
+                        color: white;
+                    }
+                }
+            }
+        }
+    }
+
+    .bottom {
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 2rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+    }
+}
