@@ -31,7 +31,7 @@ export const login = async (formData: FormData) => {
     if (!isValid) return { error: 'Invalid password' }
 
     const cookieStore = await cookies()
-    const token = generateToken({ id: user.id, email: user.email, role: user.role })
+    const token = generateToken({ id: user.id, email: user.email, role: user.role, tenantId: user.tenantId })
     cookieStore.set('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -77,7 +77,7 @@ export const register = async (formData: FormData) => {
     })
 
     const cookieStore = await cookies()
-    const token = generateToken({ id: user.id, email: user.email, role: user.role })
+    const token = generateToken({ id: user.id, email: user.email, role: user.role, tenantId: user.tenantId })
     cookieStore.set('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

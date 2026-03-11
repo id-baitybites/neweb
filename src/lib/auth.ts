@@ -12,13 +12,13 @@ export const comparePassword = async (password: string, hash: string) => {
     return await bcrypt.compare(password, hash)
 }
 
-export const generateToken = (payload: { id: string; email: string; role: Role }) => {
+export const generateToken = (payload: { id: string; email: string; role: Role; tenantId: string | null }) => {
     return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
 }
 
 export const verifyToken = (token: string) => {
     try {
-        return jwt.verify(token, JWT_SECRET) as { id: string; email: string; role: Role }
+        return jwt.verify(token, JWT_SECRET) as { id: string; email: string; role: Role; tenantId: string | null }
     } catch (error) {
         return null
     }

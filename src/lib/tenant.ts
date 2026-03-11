@@ -51,6 +51,7 @@ export async function resolveTenant(): Promise<TenantData | null> {
     const headersList = await headers()
     const host = headersList.get('x-forwarded-host') || headersList.get('host') || ''
     const tenantIdHeader = headersList.get('x-tenant-id')
+    const tenantSlugHeader = headersList.get('x-tenant-slug')
 
     // 1. Middleware already resolved via header (fastest path)
     if (tenantIdHeader) {
@@ -67,7 +68,14 @@ export async function resolveTenant(): Promise<TenantData | null> {
     })
     if (byDomain) return normalizeTenant(byDomain)
 
-    // 3. Subdomain match (e.g., "brand-a.platform.com")
+    // 3. Path SLUG match (e.g., "bitespace.netlify.app/bakery" -> "bakery")
+    if (tenantSlugHeader) {
+        const byPathSlug = await prisma.tenant.findFirst({
+            where: { slug: tenantSlugHeader, isActive: true },
+        })
+        if (byPathSlug) return normalizeTenant(byPathSlug)
+    }
+
     const subdomain = domain.split('.')[0]
     if (subdomain && subdomain !== 'www' && subdomain !== 'localhost') {
         const bySlug = await prisma.tenant.findFirst({
