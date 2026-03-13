@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { snap } from '@/lib/midtrans'
 import crypto from 'crypto'
+import { sendOrderEmail } from '@/lib/mail'
 
 export async function POST(req: Request) {
     try {
@@ -41,13 +42,28 @@ export async function POST(req: Request) {
             paymentStatus = 'PENDING'
         }
 
-        await prisma.order.update({
+        const updatedOrder = await prisma.order.update({
             where: { id: orderId },
             data: {
                 paymentStatus,
                 status: orderStatus as any
+            },
+            include: {
+                tenant: true
             }
         })
+
+        // 3. Send Notification Email if Payment logic is completed/paid
+        if (paymentStatus === 'PAID') {
+            // @ts-ignore - types may be outdated until next prisma generate
+            const email = updatedOrder.customerEmail || updatedOrder.user?.email;
+            if (email) {
+                // @ts-ignore
+                sendOrderEmail(email, updatedOrder.id, updatedOrder.total, updatedOrder.tenant as any, 'CONFIRMED').catch(e => {
+                    console.error('[Callback Notification] Failed to send payment confirmation email:', e);
+                });
+            }
+        }
 
         return NextResponse.json({ message: 'OK' })
     } catch (error: any) {

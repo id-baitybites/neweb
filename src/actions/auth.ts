@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { hashPassword, comparePassword, generateToken, verifyToken } from '@/lib/auth'
 import { resolveTenant } from '@/lib/tenant'
+import { uploadImageToCloudinary } from '@/lib/cloudinary'
 type Role = 'CUSTOMER' | 'STAFF' | 'OWNER' | 'SUPER_ADMIN'
 
 export const login = async (formData: FormData) => {
@@ -46,12 +47,12 @@ export const register = async (formData: FormData) => {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     const name = formData.get('name') as string
+    const phone = formData.get('phone') as string
 
-    if (!email || !password) return { error: 'Email and password are required' }
+    if (!email || !password || !name) return { error: 'Nama, email, dan password wajib diisi.' }
 
     const tenant = await resolveTenant()
 
-    // Safety check - cannot register without a tenant unless system is completely empty
     if (!tenant) {
         const adminCount = await prisma.user.count({ where: { role: 'SUPER_ADMIN' } })
         if (adminCount > 0) return { error: 'No active store found for registration.' }
@@ -63,7 +64,7 @@ export const register = async (formData: FormData) => {
         where: { email, tenantId }
     })
 
-    if (existingUser) return { error: 'User already exists' }
+    if (existingUser) return { error: 'Email sudah terdaftar di toko ini.' }
 
     const hashedPassword = await hashPassword(password)
     const user = await prisma.user.create({
@@ -71,8 +72,14 @@ export const register = async (formData: FormData) => {
             email,
             name,
             password: hashedPassword,
-            role: tenantId ? 'CUSTOMER' : 'SUPER_ADMIN', // Empty system bootstrapping
+            role: tenantId ? 'CUSTOMER' : 'SUPER_ADMIN',
             tenantId,
+            // @ts-ignore -- Prisma types stale; profile relation added via db push
+            profile: {
+                create: {
+                    phone: phone || null,
+                }
+            }
         },
     })
 
@@ -86,6 +93,58 @@ export const register = async (formData: FormData) => {
     })
 
     return { success: true, role: user.role }
+}
+
+export const updateCustomerProfile = async (formData: FormData) => {
+    const sessionUser = await getCurrentUser()
+    if (!sessionUser) return { error: 'Belum login.' }
+
+    const name = formData.get('name') as string
+    const phone = formData.get('phone') as string
+    const gender = formData.get('gender') as string
+    const dateOfBirth = formData.get('dateOfBirth') as string
+    const addressLine = formData.get('addressLine') as string
+    const city = formData.get('city') as string
+    const province = formData.get('province') as string
+    const postalCode = formData.get('postalCode') as string
+    const notes = formData.get('notes') as string
+
+    const imageFile = formData.get('image') as File | null
+    let imageUrl: string | undefined
+
+    try {
+        if (imageFile && imageFile.size > 0) {
+            const buffer = Buffer.from(await imageFile.arrayBuffer())
+            imageUrl = await uploadImageToCloudinary(buffer, 'profiles')
+        }
+
+        await prisma.user.update({
+            where: { id: sessionUser.id },
+            data: { 
+                name,
+                image: imageUrl || undefined
+            }
+        })
+
+        // @ts-ignore -- Prisma types stale; CustomerProfile model added via db push
+        await (prisma as any).customerProfile.upsert({
+            where: { userId: sessionUser.id },
+            update: {
+                phone, gender, addressLine, city, province, postalCode, notes,
+                dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+            },
+            create: {
+                userId: sessionUser.id,
+                phone, gender, addressLine, city, province, postalCode, notes,
+                dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+            }
+        })
+
+        return { success: true }
+    } catch (error: any) {
+        console.error('Profile update error:', error)
+        return { error: error.message }
+    }
 }
 
 export const logout = async () => {

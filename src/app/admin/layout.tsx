@@ -9,7 +9,9 @@ import {
     LogOut,
     ArrowLeft,
     Bell,
-    ShoppingCart
+    ShoppingCart,
+    ClipboardList,
+    Receipt
 } from 'lucide-react'
 import styles from '@/styles/modules/Admin.module.scss'
 import { getCurrentUser } from '@/actions/auth'
@@ -33,7 +35,8 @@ export default async function AdminLayout({
 
                 <nav className={styles.nav}>
                     <Link href="/admin"><LayoutDashboard size={20} /> Dashboard</Link>
-                    <Link href="/admin/pos"><ShoppingCart size={20} /> Cashier / POS</Link>
+                    <Link href="/admin/orders"><ClipboardList size={20} /> Orders</Link>
+                    <Link href="/admin/pos"><Receipt size={20} /> Cashier / POS</Link>
                     <Link href="/admin/kitchen"><Utensils size={20} /> Kitchen Display</Link>
                     <Link href="/admin/inventory"><Package size={20} /> Inventory</Link>
                     <Link href="/admin/reports"><BarChart size={20} /> Reports</Link>

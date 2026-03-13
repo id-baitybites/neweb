@@ -85,11 +85,15 @@ export async function resolveTenant(): Promise<TenantData | null> {
     }
 
     // 4. Fallback: first active tenant (dev/single-tenant mode)
-    const fallback = await prisma.tenant.findFirst({
-        where: { isActive: true },
-        orderBy: { createdAt: 'asc' },
-    })
-    if (fallback) return normalizeTenant(fallback)
+    // Prevent fallback on the main platform domain so the multi-tenant landing page shows up.
+    const isPlatformDomain = domain === 'bitespace.netlify.app' || domain === 'localhost:7277' || domain === 'localhost'
+    if (!isPlatformDomain) {
+        const fallback = await prisma.tenant.findFirst({
+            where: { isActive: true },
+            orderBy: { createdAt: 'asc' },
+        })
+        if (fallback) return normalizeTenant(fallback)
+    }
 
     return null
 }

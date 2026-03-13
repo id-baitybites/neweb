@@ -6,6 +6,7 @@ import { getCurrentUser } from '@/actions/auth'
 
 
 import { resolveTenant } from '@/lib/tenant'
+import { sendOrderEmail } from '@/lib/mail'
 
 export const createOrder = async (orderData: any, cartItems: any[]) => {
     const user = await getCurrentUser()
@@ -24,6 +25,14 @@ export const createOrder = async (orderData: any, cartItems: any[]) => {
             data: {
                 tenantId: tenant.id,
                 userId: user?.id || null,
+                // @ts-ignore
+                customerName: orderData.name,
+                // @ts-ignore
+                customerPhone: orderData.phone,
+                // @ts-ignore
+                customerEmail: orderData.email,
+                // @ts-ignore
+                customerDate: orderData.date,
                 total,
                 method: orderData.method,
                 status: 'PENDING',
@@ -95,6 +104,13 @@ export const createOrder = async (orderData: any, cartItems: any[]) => {
             data: { paymentToken: transaction.token }
         })
 
+        // 4. Send Initial Confirmation Email to customer (Don't let email errors block the response)
+        if (orderData.email) {
+            sendOrderEmail(orderData.email, order.id, total, tenant, 'RECEIVED').catch(err => {
+                console.error('[Email Action] Failed to send initial order email:', err);
+            });
+        }
+
         return {
             success: true,
             token: transaction.token,
@@ -103,6 +119,68 @@ export const createOrder = async (orderData: any, cartItems: any[]) => {
 
     } catch (error: any) {
         console.error('Checkout error:', error)
+        return { success: false, error: error.message }
+    }
+}
+
+/**
+ * Fetch all orders for the current tenant (Admin only)
+ */
+export const getAdminOrders = async () => {
+    const user = await getCurrentUser()
+    const tenant = await resolveTenant()
+
+    if (!tenant) throw new Error("No active store found")
+    if (!user || (user.role !== 'OWNER' && user.role !== 'STAFF')) {
+        throw new Error("Unauthorized access")
+    }
+
+    try {
+        const orders = await prisma.order.findMany({
+            where: { tenantId: tenant.id },
+            include: {
+                orderItems: {
+                    include: {
+                        product: true
+                    }
+                },
+                user: true,
+                delivery: true
+            },
+            orderBy: { createdAt: 'desc' }
+        })
+
+        return { success: true, orders }
+    } catch (error: any) {
+        console.error('Error fetching admin orders:', error)
+        return { success: false, error: error.message }
+    }
+}
+
+/**
+ * Update the status of an order (Admin only)
+ */
+export const updateOrderStatus = async (orderId: string, status: any) => {
+    const user = await getCurrentUser()
+    const tenant = await resolveTenant()
+
+    if (!tenant) throw new Error("No active store found")
+    if (!user || (user.role !== 'OWNER' && user.role !== 'STAFF')) {
+        throw new Error("Unauthorized access")
+    }
+
+    try {
+        const order = await prisma.order.update({
+            where: { 
+                id: orderId,
+                tenantId: tenant.id // Ensure we only update our own orders
+            },
+            data: { status }
+        })
+
+        return { success: true, order }
+    } catch (error: any) {
+        console.error('Error updating order status:', error)
         return { success: false, error: error.message }
     }
 }

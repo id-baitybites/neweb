@@ -1,19 +1,45 @@
 @use "../variables.scss" as *;
 
-
-
 .checkoutPage {
     padding: 3rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
 
-    h1 {
-        margin-bottom: 2rem;
+    .header {
+        margin-bottom: 3rem;
         text-align: center;
+
+        .backBtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: $color-muted;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+
+            &:hover {
+                color: var(--color-primary);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: $color-muted;
+            font-size: 1.1rem;
+        }
     }
 
     .grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 2.5rem;
 
         @media (min-width: $breakpoint-lg) {
             grid-template-columns: 1.5fr 1fr;
@@ -22,154 +48,331 @@
 
     section {
         background: white;
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
         margin-bottom: 2rem;
+        border: 1px solid rgba(0,0,0,0.05);
 
-        h2 {
-            margin-bottom: 1.5rem;
-            font-size: 1.3rem;
+        .sectionHeader {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
+            margin-bottom: 2rem;
+
+            .iconBox {
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            h2 {
+                margin: 0;
+                font-size: 1.4rem;
+                font-weight: 700;
+            }
         }
     }
 
     .methodToggle {
         display: flex;
         gap: 1rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
 
         button {
             flex: 1;
-            padding: 1rem;
-            border: 2px solid $color-accent;
-            border-radius: 10px;
-            font-weight: 600;
-            color: $color-secondary;
-            background: white;
-            transition: all 0.2s;
+            padding: 1.25rem;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-weight: 700;
+            color: $color-muted;
+            background: #fafafa;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+
+            span {
+                display: block;
+            }
+
+            &:hover {
+                border-color: var(--color-accent);
+            }
 
             &.active {
-                background: $color-primary;
-                border-color: $color-primary;
+                background: var(--color-primary);
+                border-color: var(--color-primary);
                 color: white;
+                box-shadow: 0 10px 20px var(--color-primary-44);
+                transform: translateY(-2px);
             }
         }
     }
 
     .formGrid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+
+        @media (min-width: $breakpoint-md) {
+            grid-template-columns: 1fr 1fr;
+        }
 
         .full {
-            grid-column: span 2;
+            grid-column: span 1;
+            @media (min-width: $breakpoint-md) {
+                grid-column: span 2;
+            }
         }
     }
 
     .inputGroup {
-        margin-bottom: 1.2rem;
-
         label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: $color-muted;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: $color-secondary;
         }
 
         input,
         select,
         textarea {
             width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 1rem;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
             font-family: inherit;
+            font-size: 1rem;
+            background: #fafafa;
+            transition: all 0.2s;
 
             &:focus {
-                border-color: $color-primary;
+                border-color: var(--color-primary);
+                background: white;
                 outline: none;
+                box-shadow: 0 0 0 4px var(--color-primary-22);
+            }
+
+            &::placeholder {
+                color: #ccc;
+            }
+        }
+
+        .inputWrapper {
+            position: relative;
+
+            .inputIcon {
+                position: absolute;
+                left: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #aaa;
+            }
+
+            input {
+                padding-left: 2.75rem;
             }
         }
     }
 
-    .orderSummary {
-        height: fit-content;
-        position: sticky;
-        top: 100px;
+    .infoNote {
+        margin-top: 1rem;
+        background: #fdf2f2;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: #b91c1c;
+        border-left: 4px solid #ef4444;
+    }
 
-        .itemMini {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.8rem;
-            font-size: 0.9rem;
-            color: $color-muted;
+    .right {
+        .orderSummary {
+            position: sticky;
+            top: 100px;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0,0,0,0.05);
 
-            .qty {
-                font-weight: 600;
-                margin-right: 4px;
+            .summaryTop {
+                margin-bottom: 2rem;
+                h2 {
+                    font-size: 1.5rem;
+                    margin-bottom: 0.25rem;
+                }
+                p {
+                    color: $color-muted;
+                    font-size: 0.9rem;
+                }
             }
-        }
 
-        .divider {
-            height: 1px;
-            background: #eee;
-            margin: 1.5rem 0;
-        }
+            .itemList {
+                max-height: 250px;
+                overflow-y: auto;
+                margin-bottom: 1.5rem;
+                padding-right: 0.5rem;
 
-        .priceRow {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.8rem;
+                &::-webkit-scrollbar {
+                    width: 4px;
+                }
+                &::-webkit-scrollbar-thumb {
+                    background: #eee;
+                    border-radius: 2px;
+                }
 
-            &.grandTotal {
-                font-weight: bold;
-                font-size: 1.2rem;
-                color: $color-secondary;
-                margin-top: 1rem;
+                .itemMini {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1rem;
+
+                    .itemInfo {
+                        display: flex;
+                        gap: 0.5rem;
+                        align-items: center;
+
+                        .itemQty {
+                            font-weight: 800;
+                            color: var(--color-primary);
+                            font-size: 0.9rem;
+                            background: rgba(var(--color-primary-rgb), 0.1);
+                            padding: 2px 6px;
+                            border-radius: 4px;
+                        }
+
+                        .itemName {
+                            font-size: 0.95rem;
+                            font-weight: 500;
+                        }
+                    }
+
+                    .itemPrice {
+                        font-weight: 600;
+                        font-size: 0.95rem;
+                    }
+                }
             }
-        }
 
-        .payBtn {
-            width: 100%;
-            padding: 1.2rem;
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-top: 2rem;
-            border-radius: 12px;
+            .divider {
+                height: 1px;
+                background: linear-gradient(to right, transparent, #eee, transparent);
+                margin: 1.5rem 0;
+            }
+
+            .priceDetails {
+                margin-bottom: 1.5rem;
+                .priceRow {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 0.75rem;
+                    font-size: 1rem;
+                    color: $color-muted;
+
+                    .freeText {
+                        color: #10b981;
+                        font-weight: 700;
+                    }
+                }
+            }
+
+            .totalSection {
+                background: #fcfcfc;
+                padding: 1.5rem;
+                border-radius: 12px;
+                margin-bottom: 2rem;
+                border: 1px solid #f5f5f5;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .totalLabel {
+                    font-weight: 700;
+                    color: $color-secondary;
+                    font-size: 1.1rem;
+                }
+                
+                .totalValue {
+                    font-size: 1.5rem;
+                    font-weight: 800;
+                    color: var(--color-primary);
+                }
+            }
+
+            .payBtn {
+                width: 100%;
+                padding: 1.2rem;
+                background: var(--color-primary);
+                color: white;
+                border: none;
+                border-radius: 15px;
+                font-size: 1.25rem;
+                font-weight: 800;
+                cursor: pointer;
+                transition: all 0.3s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.75rem;
+                box-shadow: 0 10px 25px rgba(var(--color-primary-rgb), 0.3);
+
+                &:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 15px 30px rgba(var(--color-primary-rgb), 0.4);
+                }
+
+                &:active {
+                    transform: translateY(-1px);
+                }
+
+                &:disabled {
+                    background: #ccc;
+                    cursor: not-allowed;
+                    transform: none;
+                    box-shadow: none;
+                }
+            }
+
+            .secureNote {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                justify-content: center;
+                margin-top: 1.5rem;
+                color: #999;
+                font-size: 0.8rem;
+                font-weight: 500;
+            }
         }
     }
 }
 
-.datePicker {
-    .slots {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-        gap: 0.5rem;
-        margin-top: 1rem;
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+}
 
-        .slot {
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 0.8rem;
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 
-            &.active {
-                background: $color-primary;
-                border-color: $color-primary;
-                color: white;
-            }
+.animateIn {
+    animation: slideUp 0.4s ease-out;
+}
 
-            &.full {
-                background: #f5f5f5;
-                color: #ccc;
-                cursor: not-allowed;
-            }
-        }
-    }
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
