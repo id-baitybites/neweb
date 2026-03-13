@@ -118,7 +118,7 @@ export const updateCustomerProfile = async (formData: FormData) => {
             imageUrl = await uploadImageToCloudinary(buffer, 'profiles')
         }
 
-        await prisma.user.update({
+        await (prisma.user.update as any)({
             where: { id: sessionUser.id },
             data: { 
                 name,
