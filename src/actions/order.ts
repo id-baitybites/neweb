@@ -93,7 +93,7 @@ export const createOrder = async (orderData: any, cartItems: any[]) => {
                 }
             },
             // Callbacks for Snap
-            enabled_payments: ["credit_card", "cimb_clicks", "mandiri_clickpay", "kb_bukopin_click", "bca_klikbca", "bca_klikpay", "bri_epay", "echannel", "permata_va", "bca_va", "bni_va", "bri_va", "cimb_va", "other_va", "gopay", "indomaret", "alfamart", "shopeepay", "kredivo", "akulaku"],
+            enabled_payments: ["qris"],
         }
 
         const transaction = await snap.createTransaction(parameter)

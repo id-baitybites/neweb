@@ -28,7 +28,6 @@ export default function LoginPage() {
             } else {
                 router.push(returnUrl)
             }
-            setTimeout(() => window.location.reload(), 500)
         } else {
             toast.error(result.error)
         }

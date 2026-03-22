@@ -28,10 +28,10 @@ export interface TenantData {
 }
 
 const DEFAULT_THEME: TenantTheme = {
-    primary: '#FF69B4',
-    secondary: '#8B4513',
-    accent: '#FFB6C1',
-    background: '#FFF5F7',
+    primary: '#4F46E5',
+    secondary: '#334155',
+    accent: '#818CF8',
+    background: '#F8FAFC',
     font: 'Inter',
 }
 

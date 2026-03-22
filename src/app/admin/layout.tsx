@@ -23,8 +23,10 @@ export default async function AdminLayout({
     children: React.ReactNode
 }) {
     const user = await getCurrentUser()
+    console.log('[AdminLayout] User:', user?.email, 'Role:', user?.role)
 
-    if (!user || (user.role !== 'OWNER' && user.role !== 'STAFF')) {
+    if (!user || (user.role !== 'OWNER' && user.role !== 'STAFF' && user.role !== 'SUPER_ADMIN')) {
+        console.warn('[AdminLayout] Access denied, redirecting...')
         redirect('/login')
     }
 

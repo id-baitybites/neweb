@@ -9,6 +9,7 @@ import { useCartStore } from '@/store/useCartStore'
 import { logout } from '@/actions/auth'
 import { toast } from 'sonner'
 import type { TenantData } from '@/lib/tenant'
+import LanguageSwitcher from './LanguageSwitcher'
 
 type Role = 'CUSTOMER' | 'STAFF' | 'OWNER' | 'SUPER_ADMIN'
 
@@ -21,15 +22,35 @@ interface UserInfo {
 interface NavbarProps {
     user?: UserInfo | null
     tenant?: TenantData | null
+    locale?: 'en' | 'id'
 }
 
-export default function Navbar({ user, tenant }: NavbarProps) {
+const navDict = {
+    en: {
+        home: 'Home',
+        products: 'Products',
+        about: 'About',
+        login: 'Login',
+        logout_success: 'Logged out successfully'
+    },
+    id: {
+        home: 'Beranda',
+        products: 'Produk',
+        about: 'Tentang',
+        login: 'Masuk',
+        logout_success: 'Berhasil keluar'
+    }
+}
+
+export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [isScrolled, setIsScrolled] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
     const totalItems = useCartStore((state) => state.totalItems())
+    
+    const t = navDict[locale]
 
     useEffect(() => {
         setMounted(true)
@@ -62,9 +83,9 @@ export default function Navbar({ user, tenant }: NavbarProps) {
                 </Link>
 
                 <div className={`${styles.navLinks} ${isMenuOpen ? styles.open : ''}`}>
-                    <Link href="/" className={pathname === '/' ? styles.active : ''}>Beranda</Link>
-                    <Link href="/products" className={pathname?.startsWith('/products') ? styles.active : ''}>Produk</Link>
-                    <Link href="/about" className={pathname === '/about' ? styles.active : ''}>Tentang</Link>
+                    <Link href="/" className={pathname === '/' ? styles.active : ''}>{t.home}</Link>
+                    <Link href="/products" className={pathname?.startsWith('/products') ? styles.active : ''}>{t.products}</Link>
+                    <Link href="/about" className={pathname === '/about' ? styles.active : ''}>{t.about}</Link>
                 </div>
 
                 {/* Actions */}
@@ -89,7 +110,7 @@ export default function Navbar({ user, tenant }: NavbarProps) {
                             <button
                                 onClick={async () => {
                                     await logout()
-                                    toast.success('Berhasil keluar')
+                                    toast.success(t.logout_success)
                                     router.push('/')
                                     window.location.reload()
                                 }}
@@ -99,9 +120,11 @@ export default function Navbar({ user, tenant }: NavbarProps) {
                             </button>
                         </div>
                     ) : (
-                        <Link href="/login" className="btn-primary">Masuk</Link>
+                        <Link href="/login" className="btn-primary">{t.login}</Link>
                     )}
 
+                    <LanguageSwitcher currentLocale={locale} />
+                    
                     {/* Mobile hamburger */}
                     <button className={styles.hamburger} onClick={() => setIsMenuOpen(!isMenuOpen)}>
                         {isMenuOpen ? <X size={24} /> : <Menu size={24} />}

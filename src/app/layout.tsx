@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/actions/auth";
 import { SocketProvider } from "@/components/providers/SocketProvider";
 import { resolveTenant, buildThemeCSS } from "@/lib/tenant";
 import Script from "next/script";
+import { getLocale } from "@/i18n";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,12 +27,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [user, tenant] = await Promise.all([getCurrentUser(), resolveTenant()]);
+  const [user, tenant, locale] = await Promise.all([getCurrentUser(), resolveTenant(), getLocale()]);
+  console.log(`[RootLayout] Path: ${tenant ? tenant.slug : 'PLATFORM'}, User: ${user?.email}, Role: ${user?.role}, Locale: ${locale}`)
 
   const themeCSS = tenant ? buildThemeCSS(tenant.theme) : "";
 
   return (
-    <html lang={tenant?.config?.language ?? "id"}>
+    <html lang={locale}>
       <head>
         {themeCSS && (
           <style
@@ -54,7 +56,7 @@ export default async function RootLayout({
           data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         />
         <SocketProvider>
-          <Navbar user={user} tenant={tenant} />
+          <Navbar user={user} tenant={tenant} locale={locale} />
           <main>{children}</main>
           <Toaster position="top-center" richColors />
         </SocketProvider>

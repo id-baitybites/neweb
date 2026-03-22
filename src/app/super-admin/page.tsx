@@ -8,7 +8,12 @@ import { PLATFORM_CONFIG } from '@/lib/config'
 
 export default async function SuperAdminPage() {
     const user = await getCurrentUser()
-    if (!user || user.role !== 'SUPER_ADMIN') redirect('/')
+    console.log('[SuperAdminPage] User:', user?.email, 'Role:', user?.role)
+    
+    if (!user || user.role !== 'SUPER_ADMIN') {
+        console.warn('[SuperAdminPage] Access denied, redirecting...')
+        redirect('/')
+    }
 
     const [tenants, usersCount] = await Promise.all([
         prisma.tenant.findMany({ orderBy: { createdAt: 'desc' } }),

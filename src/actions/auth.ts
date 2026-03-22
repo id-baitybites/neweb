@@ -26,17 +26,22 @@ export const login = async (formData: FormData) => {
         }
     })
 
-    if (!user) return { error: 'User not found' }
+    if (!user) {
+        console.warn(`[Login] No user found for email: ${email}`)
+        return { error: 'User not found' }
+    }
 
     const isValid = await comparePassword(password, user.password)
     if (!isValid) return { error: 'Invalid password' }
 
+    console.log(`[Login] Success: User ${user.email} Role ${user.role}`)
+    
     const cookieStore = await cookies()
     const token = generateToken({ id: user.id, email: user.email, role: user.role, tenantId: user.tenantId })
     cookieStore.set('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: 60 * 60 * 24 * 7,
         path: '/',
     })
 

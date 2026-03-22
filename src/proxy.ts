@@ -2,15 +2,12 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev'
+const JWT_SECRET = process.env.JWT_SECRET || 'baitybites-super-secret-key-2024'
 
-// Tenant slug map for path resolution (loaded once at edge)
-// In production this would be a KV store / edge config for perf
+// Tenant slug map for path resolution
 const resolveSlugFromPath = (pathname: string): string | null => {
-    // If path is /baitybites/about, we want "baitybites"
     const segments = pathname.split('/').filter(Boolean);
     if (segments.length > 0) {
-        // Skip reserved routes from being treated as slugs
         const reserved = ['admin', 'super-admin', 'api', 'login', 'register', '_next', 'profile', 'cart', 'checkout'];
         if (!reserved.includes(segments[0])) {
             return segments[0];
@@ -19,64 +16,82 @@ const resolveSlugFromPath = (pathname: string): string | null => {
     return null;
 }
 
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl
-    const host = request.headers.get('host') || 'localhost'
+    
+    // Ignore static assets and API routes (except those we want to protect)
+    if (
+        pathname.startsWith('/_next') || 
+        pathname.startsWith('/api/') || 
+        pathname.startsWith('/favicon.ico') ||
+        pathname.includes('.') // likely a file
+    ) {
+        return NextResponse.next()
+    }
 
+    console.log(`[Proxy] Checking path: ${pathname}`)
+    
+    const isAdmin = pathname.startsWith('/admin')
+    const isSuperAdmin = pathname.startsWith('/super-admin')
+    const isProfile = pathname.startsWith('/profile')
+    const isProtected = isAdmin || isSuperAdmin || isProfile
+    
     // ── Tenant Resolution ─────────────────────────────────────────────────────
-    // We inject the resolved slug as a header so layout.tsx can pick it up.
-    // Full DB lookup happens in resolveTenant() in lib/tenant.ts (server side).
     const pathSlug = resolveSlugFromPath(pathname)
     const requestHeaders = new Headers(request.headers)
-
-    // Pass the original pathname through headers so resolveTenant can parse it too
     requestHeaders.set('x-forwarded-path', pathname)
-
     if (pathSlug) {
         requestHeaders.set('x-tenant-slug', pathSlug)
     }
 
-    const response = NextResponse.next({ request: { headers: requestHeaders } })
-
     // ── Auth Guard ────────────────────────────────────────────────────────────
     const token = request.cookies.get('token')?.value
 
-    // Protect Admin routes
-    if (pathname.startsWith('/admin')) {
+    if (isProtected) {
         if (!token) {
-            return NextResponse.redirect(new URL(`/login?returnUrl=${pathname}`, request.url))
+            console.warn(`[Proxy] No token for protected path: ${pathname}. Redirecting to /login`)
+            const url = new URL('/login', request.url)
+            url.searchParams.set('returnUrl', pathname)
+            return NextResponse.redirect(url)
         }
+
         try {
             const secret = new TextEncoder().encode(JWT_SECRET)
             const { payload } = await jwtVerify(token, secret)
             const role = payload.role as string
-            if (role !== 'OWNER' && role !== 'STAFF' && role !== 'SUPER_ADMIN') {
-                return NextResponse.redirect(new URL('/', request.url))
+            
+            console.log(`[Proxy] Authenticated: ${payload.email} (${role}) for ${pathname}`)
+
+            if (isSuperAdmin) {
+                if (role !== 'SUPER_ADMIN') {
+                    console.warn(`[Proxy] Role ${role} denied for super-admin area.`)
+                    return NextResponse.redirect(new URL('/', request.url))
+                }
             }
-        } catch {
-            return NextResponse.redirect(new URL('/login', request.url))
+
+            if (isAdmin) {
+                if (role !== 'OWNER' && role !== 'STAFF' && role !== 'SUPER_ADMIN') {
+                    console.warn(`[Proxy] Role ${role} denied for admin area.`)
+                    return NextResponse.redirect(new URL('/', request.url))
+                }
+            }
+        } catch (error: any) {
+            console.error(`[Proxy] JWT verification failed for ${pathname}:`, error.message)
+            const url = new URL('/login', request.url)
+            url.searchParams.set('reason', 'invalid_session')
+            return NextResponse.redirect(url)
         }
     }
 
-    // Protect Super-Admin
-    if (pathname.startsWith('/super-admin')) {
-        if (!token) {
-            return NextResponse.redirect(new URL('/login', request.url))
-        }
-        try {
-            const secret = new TextEncoder().encode(JWT_SECRET)
-            const { payload } = await jwtVerify(token, secret)
-            if (payload.role !== 'SUPER_ADMIN') {
-                return NextResponse.redirect(new URL('/', request.url))
-            }
-        } catch {
-            return NextResponse.redirect(new URL('/login', request.url))
-        }
-    }
-
-    return response
+    return NextResponse.next({
+        request: {
+            headers: requestHeaders,
+        },
+    })
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/super-admin/:path*', '/profile/:path*'],
+    matcher: [
+        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    ],
 }
