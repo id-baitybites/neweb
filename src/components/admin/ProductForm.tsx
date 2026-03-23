@@ -70,7 +70,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
 
             if (result.success) {
                 toast.success(isEdit ? 'Produk berhasil diperbarui!' : 'Produk berhasil dibuat!');
-                router.push('/admin/products');
+                router.push(`/${tenant.slug}/admin/products`);
                 router.refresh();
             } else {
                 toast.error(result.error);
@@ -90,7 +90,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
             const result = await deleteProductAction(product.id);
             if (result.success) {
                 toast.success(result.message || 'Produk berhasil dihapus.');
-                router.push('/admin/products');
+                router.push(`/${tenant.slug}/admin/products`);
                 router.refresh();
             } else {
                 toast.error(result.error);

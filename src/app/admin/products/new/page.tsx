@@ -11,7 +11,7 @@ export default async function NewProductPage() {
     return (
         <div style={{ maxWidth: '800px' }}>
             <div style={{ marginBottom: '2rem' }}>
-                <Link href="/admin/products" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', textDecoration: 'none', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                <Link href={`/${tenant.slug}/admin/products`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', textDecoration: 'none', marginBottom: '1rem', fontSize: '0.9rem' }}>
                     <ArrowLeft size={16} /> Kembali ke daftar produk
                 </Link>
                 <h1>Tambah Produk Baru</h1>

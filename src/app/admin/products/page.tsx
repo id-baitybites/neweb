@@ -21,7 +21,7 @@ export default async function AdminProductsPage() {
                     <h1 style={{ margin: 0 }}>Daftar Produk</h1>
                     <p style={{ color: '#888', marginTop: '0.5rem' }}>Kelola daftar menu dan ketersediaan produk Anda.</p>
                 </div>
-                <Link href="/admin/products/new" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: tenant.theme.primary, color: 'white', textDecoration: 'none', padding: '0.8rem 1.5rem', borderRadius: '10px', fontWeight: 600 }}>
+                <Link href={`/${tenant.slug}/admin/products/new`} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: tenant.theme.primary, color: 'white', textDecoration: 'none', padding: '0.8rem 1.5rem', borderRadius: '10px', fontWeight: 600 }}>
                     <Plus size={18} /> Tambah Produk Baru
                 </Link>
             </div>
@@ -84,7 +84,7 @@ export default async function AdminProductsPage() {
                                 </td>
                                 <td style={{ padding: '1rem 2rem' }}>
                                     <div style={{ display: 'flex', gap: '1rem' }}>
-                                        <Link href={`/admin/products/${p.id}`} style={{ color: '#2563eb' }}><Edit size={18} /></Link>
+                                        <Link href={`/${tenant.slug}/admin/products/${p.id}`} style={{ color: '#2563eb' }}><Edit size={18} /></Link>
                                         <button style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}><Trash2 size={18} /></button>
                                     </div>
                                 </td>
