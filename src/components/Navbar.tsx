@@ -92,7 +92,8 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                     ) : (
                         <>
                             <Link href="/" className={pathname === '/' ? styles.active : ''}>Platform</Link>
-                            <Link href="/#features">Solusi</Link>
+                            <Link href="/#features">Fitur</Link>
+                            <Link href="/pricing" className={pathname === '/pricing' ? styles.active : ''}>Paket</Link>
                             <Link href="/#merchants">Merchant</Link>
                             <Link href="/about" className={pathname === '/about' ? styles.active : ''}>Tentang Kami</Link>
                         </>

@@ -100,6 +100,73 @@ export const register = async (formData: FormData) => {
     return { success: true, role: user.role }
 }
 
+export const registerMerchant = async (formData: FormData) => {
+    const name = formData.get('name') as string
+    const slug = formData.get('slug') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const ownerName = formData.get('ownerName') as string
+    const plan = (formData.get('plan') as string) || 'FREE'
+
+    if (!name || !slug || !email || !password || !ownerName) {
+        return { error: 'Semua field wajib diisi.' }
+    }
+
+    try {
+        const reserved = ['admin', 'super-admin', 'api', 'login', 'register', 'pricing', 'onboarding']
+        if (reserved.includes(slug)) return { error: 'Slug URL ini tidak bisa digunakan.' }
+
+        const existingTenant = await prisma.tenant.findUnique({ where: { slug } })
+        if (existingTenant) return { error: 'Alamat Store (URL) sudah digunakan.' }
+
+        const existingUser = await prisma.user.findFirst({ where: { email } })
+        if (existingUser) return { error: 'Email sudah terdaftar di platform kami.' }
+
+        const hashedPassword = await hashPassword(password)
+
+        const result = await prisma.$transaction(async (tx) => {
+            const newTenant = await tx.tenant.create({
+                data: {
+                    name,
+                    slug,
+                    plan: plan as any,
+                    theme: {
+                        primary: '#FF69B4', secondary: '#1a1a1a', accent: '#4CAF50',
+                        background: '#0a0a0a', font: 'Inter'
+                    },
+                    config: {
+                        currency: 'Rp', language: 'id', deliveryFee: 0, minPreOrderDays: 1
+                    }
+                }
+            })
+
+            const newOwner = await tx.user.create({
+                data: {
+                    name: ownerName, email, password: hashedPassword,
+                    role: 'OWNER', tenantId: newTenant.id
+                }
+            })
+
+            return { newTenant, newOwner }
+        })
+
+        const cookieStore = await cookies()
+        const token = generateToken({ 
+            id: result.newOwner.id, email: result.newOwner.email, 
+            role: result.newOwner.role, tenantId: result.newOwner.tenantId 
+        })
+        cookieStore.set('token', token, {
+            httpOnly: true, secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7, path: '/',
+        })
+
+        return { success: true, slug: result.newTenant.slug }
+    } catch (error: any) {
+        console.error('Merchant Registration Error:', error)
+        return { error: 'Gagal mendaftarkan store. Silakan hubungi support.' }
+    }
+}
+
 export const updateCustomerProfile = async (formData: FormData) => {
     const sessionUser = await getCurrentUser()
     if (!sessionUser) return { error: 'Belum login.' }
