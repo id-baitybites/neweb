@@ -106,7 +106,8 @@ export const registerMerchant = async (formData: FormData) => {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     const ownerName = formData.get('ownerName') as string
-    const plan = (formData.get('plan') as string) || 'FREE'
+    const planRaw = (formData.get('plan') as string) || 'FREE'
+    const plan = planRaw.toUpperCase()
 
     if (!name || !slug || !email || !password || !ownerName) {
         return { error: 'Semua field wajib diisi.' }
@@ -163,7 +164,7 @@ export const registerMerchant = async (formData: FormData) => {
         return { success: true, slug: result.newTenant.slug }
     } catch (error: any) {
         console.error('Merchant Registration Error:', error)
-        return { error: 'Gagal mendaftarkan store. Silakan hubungi support.' }
+        return { error: error.message || 'Gagal mendaftarkan store. Silakan hubungi support.' }
     }
 }
 
