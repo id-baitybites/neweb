@@ -217,7 +217,7 @@ export default async function Home() {
       </section>
 
       {/* ACTIVE TENANTS SECTION */}
-      <section className={styles.section} style={{ background: '#F8F9FA' }}>
+      <section id="merchants" className={styles.section} style={{ background: '#F8F9FA' }}>
         <div className="container" style={{ maxWidth: '1200px' }}>
           <div className={styles.header}>
             <h2>{dict.platform.merchants_title}</h2>

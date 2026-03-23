@@ -26,9 +26,17 @@ export default async function AdminLayout({
     const user = await getCurrentUser()
     console.log('[AdminLayout] User:', user?.email, 'Role:', user?.role)
 
-    if (!user || (user.role !== 'OWNER' && user.role !== 'STAFF' && user.role !== 'SUPER_ADMIN')) {
-        console.warn('[AdminLayout] Access denied, redirecting...')
+    if (!user) {
         redirect('/login')
+    }
+
+    if (user.role === 'SUPER_ADMIN') {
+        redirect('/super-admin')
+    }
+
+    if (user.role !== 'OWNER' && user.role !== 'STAFF') {
+        console.warn('[AdminLayout] Access denied, redirecting...')
+        redirect('/')
     }
 
     const tenant = await resolveTenant()

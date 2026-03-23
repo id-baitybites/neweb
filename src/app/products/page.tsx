@@ -2,27 +2,30 @@ import { prisma } from '@/lib/prisma'
 import { resolveTenant } from '@/lib/tenant'
 import ModernProductList from '@/components/ModernProductList'
 import { getDictionary } from '@/i18n'
+import { redirect } from 'next/navigation'
 
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: 'Menu | StoreOS',
-    description: 'View all our products',
+    title: 'Produk | Bitespace Platform',
+    description: 'Lihat daftar merchant di platform kami',
 }
 
 export default async function ProductsPage() {
     const tenant = await resolveTenant()
     const dict = await getDictionary()
 
-    let products: any[] = []
-    if (tenant) {
-        products = await prisma.product.findMany({
-            where: { tenantId: tenant.id, isActive: true },
-            orderBy: { createdAt: 'desc' },
-        })
+    if (!tenant) {
+        // Redirect globally to merchant directory
+        console.warn('[ProductsPage] No tenant resolved at root, redirecting to merchant list...')
+        redirect('/#merchants')
     }
 
-    // Set up layout container classes defined in SCSS
+    const products = await prisma.product.findMany({
+        where: { tenantId: tenant.id, isActive: true },
+        orderBy: { createdAt: 'desc' },
+    })
+
     return (
         <div style={{ backgroundColor: '#F8F9FA' }}>
             <div className="container" style={{ margin: '0 auto', maxWidth: '1440px' }}>
