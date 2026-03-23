@@ -135,7 +135,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                             </button>
                         </div>
                     ) : (
-                        <Link href="/login" className="btn-primary">{t.login}</Link>
+                        <Link href={tenant ? `/${tenant.slug}/login` : "/login"} className="btn-primary">{t.login}</Link>
                     )}
 
                     <LanguageSwitcher currentLocale={locale} />
