@@ -24,8 +24,13 @@ interface CheckoutContentProps {
 }
 
 export default function CheckoutContent({ tenant, customerProfile }: CheckoutContentProps) {
-    const { items, totalPrice, clearCart } = useCartStore()
+    const { getTenantItems, totalPrice, clearTenantCart } = useCartStore()
     const router = useRouter()
+    
+    // Scoped state
+    const items = getTenantItems(tenant.id)
+    const subtotal = totalPrice(tenant.id)
+    
     const [loading, setLoading] = useState(false)
     const [method, setMethod] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY')
     const [formData, setFormData] = useState({
@@ -40,7 +45,7 @@ export default function CheckoutContent({ tenant, customerProfile }: CheckoutCon
         if (items.length === 0) {
             router.push('/cart')
         }
-    }, [items, router])
+    }, [items.length, router])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -54,7 +59,6 @@ export default function CheckoutContent({ tenant, customerProfile }: CheckoutCon
         }).format(price)
     }
 
-    const subtotal = totalPrice()
     const deliveryFee = method === 'DELIVERY' ? tenant.config.deliveryFee : 0
     const total = subtotal + deliveryFee
 
@@ -79,12 +83,12 @@ export default function CheckoutContent({ tenant, customerProfile }: CheckoutCon
                     window.snap.pay(result.token, {
                         onSuccess: (result: any) => {
                             toast.success('Pembayaran Berhasil!')
-                            clearCart()
+                            clearTenantCart(tenant.id)
                             router.push(`/order/success?id=${result.order_id}`)
                         },
                         onPending: (result: any) => {
                             toast.info('Menunggu Pembayaran...')
-                            clearCart()
+                            clearTenantCart(tenant.id)
                             router.push(`/order/status?id=${result.order_id}`)
                         },
                         onError: (result: any) => {

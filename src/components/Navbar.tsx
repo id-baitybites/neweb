@@ -48,7 +48,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
     const [isScrolled, setIsScrolled] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
-    const totalItems = useCartStore((state) => state.totalItems())
+    const totalItems = useCartStore((state) => state.totalItems(tenant?.id))
     
     const t = navDict[locale]
 

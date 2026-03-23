@@ -29,7 +29,7 @@ export default async function ProductsPage() {
     return (
         <div style={{ backgroundColor: '#F8F9FA' }}>
             <div className="container" style={{ margin: '0 auto', maxWidth: '1440px' }}>
-                <ModernProductList products={products} dictionary={dict} />
+                <ModernProductList products={products} dictionary={dict} tenant={tenant} />
             </div>
         </div>
     )

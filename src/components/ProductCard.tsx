@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 interface ProductProps {
     product: {
         id: string
+        tenantId: string
         name: string
         price: number
         description: string
@@ -24,6 +25,7 @@ export default function ProductCard({ product }: ProductProps) {
         addItem({
             id: Math.random().toString(36).substr(2, 9),
             productId: product.id,
+            tenantId: product.tenantId,
             name: product.name,
             price: product.price,
             quantity: 1,

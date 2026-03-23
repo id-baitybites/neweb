@@ -9,6 +9,7 @@ import Link from 'next/link'
 
 interface Product {
     id: string
+    tenantId: string
     name: string
     price: number
     description: string
@@ -19,13 +20,14 @@ interface Product {
 interface ModernProductListProps {
     products: Product[]
     dictionary: any
+    tenant: any
 }
 
-export default function ModernProductList({ products, dictionary }: ModernProductListProps) {
+export default function ModernProductList({ products, dictionary, tenant }: ModernProductListProps) {
     const t = dictionary.cart
     const [searchQuery, setSearchQuery] = useState('')
     const [activeCategory, setActiveCategory] = useState<string>(t.all)
-    const { items, addItem, removeItem, updateQuantity } = useCartStore()
+    const { items, addItem, removeItem, updateQuantity, getTenantItems, totalItems, totalPrice } = useCartStore()
     const [deliveryType, setDeliveryType] = useState(t.delivery)
     const [mounted, setMounted] = useState(false)
 
@@ -41,7 +43,8 @@ export default function ModernProductList({ products, dictionary }: ModernProduc
         return matchesCategory && matchesSearch
     })
 
-    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    const tenantItems = mounted ? getTenantItems(tenant.id) : []
+    const subtotal = mounted ? totalPrice(tenant.id) : 0
     const discount = 0
     const total = subtotal - discount
 
@@ -66,9 +69,6 @@ export default function ModernProductList({ products, dictionary }: ModernProduc
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <button className={styles.filterBtn}>
-                        <SlidersHorizontal size={18} /> {t.filter}
-                    </button>
                 </div>
 
                 <div className={styles.categories}>
@@ -89,7 +89,7 @@ export default function ModernProductList({ products, dictionary }: ModernProduc
 
                 <div className={styles.productGrid}>
                     {filteredProducts.map(product => (
-                        <ProductCard key={product.id} product={product} onAdd={addItem} t={t} />
+                        <ProductCard key={product.id} product={product} onAdd={addItem} t={t} tenantId={tenant.id} />
                     ))}
 
                     {filteredProducts.length === 0 && (
@@ -101,22 +101,9 @@ export default function ModernProductList({ products, dictionary }: ModernProduc
             </div>
 
             <aside className={styles.cartSidebar}>
-                <div className={styles.userInfo}>
-                    <div className={styles.avatar}>
-                        <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User" style={{ width: '100%', borderRadius: '50%' }} />
-                    </div>
-                    <div className={styles.details}>
-                        <div className={styles.name}>{dictionary.locale === 'id' ? 'Pengguna Tamu' : 'Guest User'}</div>
-                        <div className={styles.email}>guest@example.com</div>
-                    </div>
-                    <button style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#A0AEC0' }}>
-                        <MoreVertical size={20} />
-                    </button>
-                </div>
-
                 <div className={styles.cartHeader}>
                     <h2>{t.title}</h2>
-                    <span className={styles.orderNo}>Order #3243</span>
+                    <span className={styles.orderNo}>Daftar Pesanan</span>
                 </div>
 
                 <div className={styles.deliveryOptions}>
@@ -132,19 +119,19 @@ export default function ModernProductList({ products, dictionary }: ModernProduc
                 </div>
 
                 <div className={styles.cartItems}>
-                    {mounted && items.length === 0 && (
+                    {mounted && tenantItems.length === 0 && (
                         <div style={{ textAlign: 'center', color: '#A0AEC0', marginTop: '2rem' }}>
                             {t.empty}
                         </div>
                     )}
-                    {mounted && items.map(item => (
+                    {mounted && tenantItems.map(item => (
                         <div key={item.id} className={styles.cartItem}>
                             <div className={styles.itemImage}>
                                 {item.imageUrl ? <img src={item.imageUrl} alt={item.name} /> : <div style={{ fontSize: '0.6rem', color: '#A0AEC0' }}>No img</div>}
                             </div>
                             <div className={styles.itemDetails}>
                                 <div className={styles.name}>{item.name.replace(/\(.*\)/, '')}</div>
-                                <div className={styles.meta}>{item.name.match(/\((.*)\)/)?.[1] || (dictionary.locale === 'id' ? 'Reguler' : 'Regular')} • 200g</div>
+                                <div className={styles.meta}>{item.name.match(/\((.*)\)/)?.[1] || (dictionary.locale === 'id' ? 'Reguler' : 'Regular')}</div>
 
                                 <div className={styles.itemActions}>
                                     <div className={styles.price}>{formatPrice(item.price)}</div>
@@ -177,7 +164,7 @@ export default function ModernProductList({ products, dictionary }: ModernProduc
                     </div>
 
                     <Link href="/checkout" style={{ textDecoration: 'none' }}>
-                        <button className={styles.checkoutBtn}>
+                        <button className={styles.checkoutBtn} disabled={tenantItems.length === 0}>
                             {t.checkout}
                         </button>
                     </Link>
@@ -187,7 +174,7 @@ export default function ModernProductList({ products, dictionary }: ModernProduc
     )
 }
 
-function ProductCard({ product, onAdd, t }: { product: Product, onAdd: any, t: any }) {
+function ProductCard({ product, onAdd, t, tenantId }: { product: Product, onAdd: any, t: any, tenantId: string }) {
     const [qty, setQty] = useState(1)
     const [size, setSize] = useState(t.small)
     const [isAdded, setIsAdded] = useState(false)
@@ -196,6 +183,7 @@ function ProductCard({ product, onAdd, t }: { product: Product, onAdd: any, t: a
         onAdd({
             id: Math.random().toString(36).substr(2, 9),
             productId: product.id,
+            tenantId,
             name: `${product.name} (${size})`,
             price: product.price,
             quantity: qty,

@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware'
 export interface CartItem {
     id: string
     productId: string
+    tenantId: string
     name: string
     price: number
     quantity: number
@@ -23,16 +24,24 @@ interface CartStore {
     removeItem: (id: string | number) => void
     updateQuantity: (id: string | number, quantity: number) => void
     clearCart: () => void
-    totalItems: () => number
-    totalPrice: () => number
+    clearTenantCart: (tenantId: string) => void
+    // Scoped helpers
+    getTenantItems: (tenantId: string) => CartItem[]
+    totalItems: (tenantId?: string) => number
+    totalPrice: (tenantId?: string) => number
 }
 
 export const useCartStore = create<CartStore>()(
     persist(
         (set, get) => ({
             items: [],
+            getTenantItems: (tenantId) => get().items.filter(i => i.tenantId === tenantId),
             addItem: (item) => {
-                const existingItem = get().items.find(i => i.productId === item.productId && JSON.stringify(i.customization) === JSON.stringify(item.customization))
+                const existingItem = get().items.find(i => 
+                    i.productId === item.productId && 
+                    i.tenantId === item.tenantId &&
+                    JSON.stringify(i.customization) === JSON.stringify(item.customization)
+                )
                 if (existingItem) {
                     set({
                         items: get().items.map(i =>
@@ -48,8 +57,17 @@ export const useCartStore = create<CartStore>()(
                 items: get().items.map(i => i.id === id ? { ...i, quantity } : i)
             }),
             clearCart: () => set({ items: [] }),
-            totalItems: () => get().items.reduce((total, item) => total + item.quantity, 0),
-            totalPrice: () => get().items.reduce((total, item) => total + (item.price * item.quantity), 0),
+            clearTenantCart: (tenantId) => set({ 
+                items: get().items.filter(i => i.tenantId !== tenantId) 
+            }),
+            totalItems: (tenantId) => {
+                const items = tenantId ? get().items.filter(i => i.tenantId === tenantId) : get().items;
+                return items.reduce((total, item) => total + item.quantity, 0);
+            },
+            totalPrice: (tenantId) => {
+                const items = tenantId ? get().items.filter(i => i.tenantId === tenantId) : get().items;
+                return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+            },
         }),
         {
             name: 'bitespace-cart',
