@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { Role } from '@prisma/client'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev'
+const JWT_SECRET = process.env.JWT_SECRET || 'bitespace-super-secret-key-2024'
 
 export const hashPassword = async (password: string) => {
     return await bcrypt.hash(password, 10)
