@@ -173,7 +173,7 @@ export default function TenantManageClient({ tenant }: TenantManageClientProps) 
                     <h3 style={{ margin: '0 0 1.5rem', fontSize: '1rem', fontWeight: 700 }}>Quick Actions</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                         <a 
-                            href={`https://${tenant.domain || `${tenant.slug}.bitespace.netlify.app`}`} 
+                            href={tenant.domain ? `https://${tenant.domain}` : `/${tenant.slug}`} 
                             target="_blank" 
                             style={actionLinkStyle}
                         >

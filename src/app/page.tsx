@@ -229,7 +229,7 @@ export default async function Home() {
               {allTenants.map((t) => (
                 <Link
                   key={t.id}
-                  href={`https://${t.domain || `${t.slug}.bitespace.netlify.app`}`}
+                  href={t.domain ? `https://${t.domain}` : `/${t.slug}`}
                   className={styles.merchantCard}
                 >
                   <div style={{
