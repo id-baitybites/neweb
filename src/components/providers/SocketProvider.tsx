@@ -20,6 +20,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const [isConnected, setIsConnected] = useState(false)
 
     useEffect(() => {
+        // Skip socket connection in production (Netlify doesn't support raw WebSockets in serverless functions)
+        if (process.env.NODE_ENV === 'production') {
+            console.warn('Socket.io disabled in production (Netlify Environment)')
+            return
+        }
+
         const socketInstance = ClientIO({
             path: '/api/socket',
             addTrailingSlash: false,

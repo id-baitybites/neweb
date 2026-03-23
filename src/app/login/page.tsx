@@ -21,12 +21,19 @@ export default function LoginPage() {
         const result = await login(formData)
         if (result.success) {
             toast.success('Selamat datang kembali!')
+            
+            // Fix: Detect if we are on a tenant-prefixed path
+            const pathSegments = window.location.pathname.split('/').filter(Boolean)
+            const isTenantPath = pathSegments.length > 0 && !['login', 'register', 'admin', 'profile'].includes(pathSegments[0])
+            const tenantSlug = isTenantPath ? pathSegments[0] : null
+            const prefix = tenantSlug ? `/${tenantSlug}` : ''
+
             if (result.role === 'OWNER' || result.role === 'STAFF') {
-                router.push('/admin')
+                router.push(`${prefix}/admin`)
             } else if (result.role === 'SUPER_ADMIN') {
                 router.push('/super-admin')
             } else {
-                router.push(returnUrl)
+                router.push(returnUrl || `${prefix}/profile`)
             }
         } else {
             toast.error(result.error)
@@ -120,11 +127,25 @@ function GoogleLogic({ returnUrl }: { returnUrl: string }) {
                         const { loginWithGoogle } = await import('@/actions/google-auth');
                         const result = await loginWithGoogle(response.credential);
                         if (result.success) {
-                            toast.success('Login Google berhasil!');
+                            toast.success('Login Google berhasil!')
+                            
+                            // Fix: Detect if we are on a tenant-prefixed path
+                            const pathSegments = window.location.pathname.split('/').filter(Boolean)
+                            const isTenantPath = pathSegments.length > 0 && !['login', 'register', 'admin', 'profile'].includes(pathSegments[0])
+                            const tenantSlug = isTenantPath ? pathSegments[0] : null
+                            const prefix = tenantSlug ? `/${tenantSlug}` : ''
+
                             if (result.needsProfileCompletion) {
-                                router.push('/profile?step=complete');
+                                router.push(`${prefix}/profile?step=complete`)
+                                return
+                            }
+                            
+                            if (result.role === 'OWNER' || result.role === 'STAFF') {
+                                router.push(`${prefix}/admin`)
+                            } else if (result.role === 'SUPER_ADMIN') {
+                                router.push('/super-admin')
                             } else {
-                                router.push(returnUrl);
+                                router.push(returnUrl || `${prefix}/profile`)
                             }
                         } else {
                             toast.error(result.error);

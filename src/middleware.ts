@@ -46,7 +46,9 @@ export default async function middleware(request: NextRequest) {
 
     if (isProtected) {
         if (!token) {
-            const url = new URL('/login', request.url)
+            // Fix: Redirect to tenant-aware login path if pathSlug is present
+            const loginPath = pathSlug ? `/${pathSlug}/login` : '/login'
+            const url = new URL(loginPath, request.url)
             url.searchParams.set('returnUrl', pathname)
             return NextResponse.redirect(url)
         }
