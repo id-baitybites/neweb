@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import styles from '@/styles/modules/Admin.module.scss'
 import { getCurrentUser } from '@/actions/auth'
+import { resolveTenant } from '@/lib/tenant'
 import { redirect } from 'next/navigation'
 
 export default async function AdminLayout({
@@ -30,23 +31,26 @@ export default async function AdminLayout({
         redirect('/login')
     }
 
+    const tenant = await resolveTenant()
+    const prefix = tenant ? `/${tenant.slug}` : ''
+
     return (
         <div className={styles.adminLayout}>
             <aside className={styles.sidebar}>
                 <div className={styles.logo}>BITESPACE</div>
 
                 <nav className={styles.nav}>
-                    <Link href="/admin"><LayoutDashboard size={20} /> Dashboard</Link>
-                    <Link href="/admin/products"><ShoppingCart size={20} /> Products</Link>
-                    <Link href="/admin/orders"><ClipboardList size={20} /> Orders</Link>
-                    <Link href="/admin/pos"><Receipt size={20} /> Cashier / POS</Link>
-                    <Link href="/admin/kitchen"><Utensils size={20} /> Kitchen Display</Link>
-                    <Link href="/admin/inventory"><Package size={20} /> Inventory</Link>
-                    <Link href="/admin/reports"><BarChart size={20} /> Reports</Link>
-                    <Link href="/admin/settings"><Settings size={20} /> Settings</Link>
+                    <Link href={`${prefix}/admin`}><LayoutDashboard size={20} /> Dashboard</Link>
+                    <Link href={`${prefix}/admin/products`}><ShoppingCart size={20} /> Products</Link>
+                    <Link href={`${prefix}/admin/orders`}><ClipboardList size={20} /> Orders</Link>
+                    <Link href={`${prefix}/admin/pos`}><Receipt size={20} /> Cashier / POS</Link>
+                    <Link href={`${prefix}/admin/kitchen`}><Utensils size={20} /> Kitchen Display</Link>
+                    <Link href={`${prefix}/admin/inventory`}><Package size={20} /> Inventory</Link>
+                    <Link href={`${prefix}/admin/reports`}><BarChart size={20} /> Reports</Link>
+                    <Link href={`${prefix}/admin/settings`}><Settings size={20} /> Settings</Link>
 
                     <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
-                        <Link href="/"><ArrowLeft size={20} /> Site Home</Link>
+                        <Link href={`${prefix}/`}><ArrowLeft size={20} /> Site Home</Link>
                     </div>
                 </nav>
             </aside>
