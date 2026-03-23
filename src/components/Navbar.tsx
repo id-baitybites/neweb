@@ -99,14 +99,15 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
 
                     {user ? (
                         <div className={styles.userMenu}>
-                            {(user.role === 'OWNER' || user.role === 'STAFF' || user.role === 'SUPER_ADMIN') && (
+                            {(user.role === 'OWNER' || user.role === 'STAFF' || user.role === 'SUPER_ADMIN') ? (
                                 <Link href={user.role === 'SUPER_ADMIN' ? '/super-admin' : '/admin'} title="Dashboard">
                                     <LayoutDashboard size={24} />
                                 </Link>
+                            ) : (
+                                <Link href="/profile" title="Profile">
+                                    <User size={24} />
+                                </Link>
                             )}
-                            <Link href="/profile" title="Profile">
-                                <User size={24} />
-                            </Link>
                             <button
                                 onClick={async () => {
                                     await logout()

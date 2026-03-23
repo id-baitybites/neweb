@@ -7,6 +7,9 @@ export default async function ProfilePage() {
     const sessionUser = await getCurrentUser()
     if (!sessionUser) redirect('/login?returnUrl=/profile')
 
+    if (sessionUser.role === 'SUPER_ADMIN') redirect('/super-admin')
+    if (sessionUser.role === 'OWNER' || sessionUser.role === 'STAFF') redirect('/admin')
+
     // @ts-ignore -- CustomerProfile relation added via db push; types catch up on next restart
     const user = await (prisma.user.findUnique as any)({
         where: { id: sessionUser.id },
