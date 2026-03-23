@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { resolveTenant } from '@/lib/tenant'
 import ModernProductList from '@/components/ModernProductList'
+import { getDictionary } from '@/i18n'
 
 import type { Metadata } from 'next'
 
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 
 export default async function ProductsPage() {
     const tenant = await resolveTenant()
+    const dict = await getDictionary()
 
     let products: any[] = []
     if (tenant) {
@@ -24,7 +26,7 @@ export default async function ProductsPage() {
     return (
         <div style={{ backgroundColor: '#F8F9FA' }}>
             <div className="container" style={{ margin: '0 auto', maxWidth: '1440px' }}>
-                <ModernProductList products={products} />
+                <ModernProductList products={products} dictionary={dict} />
             </div>
         </div>
     )

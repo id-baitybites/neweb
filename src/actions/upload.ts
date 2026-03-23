@@ -1,16 +1,23 @@
 'use server';
 
-import { uploadBase64ToCloudinary } from '@/lib/cloudinary';
+import { uploadImageToCloudinary } from '@/lib/cloudinary';
 import { getCurrentUser } from '@/actions/auth';
 
-export async function uploadImageAction(base64Image: string, folder: string = 'baitybites') {
+export async function uploadImageAction(formData: FormData, folder: string = 'bitespace') {
+    const file = formData.get('file') as File;
+    if (!file || file.size === 0) {
+        return { success: false, error: 'No file provided' };
+    }
+
     const user = await getCurrentUser();
     if (!user || user.role === 'CUSTOMER') {
         throw new Error('Unauthorized');
     }
 
     try {
-        const imageUrl = await uploadBase64ToCloudinary(base64Image, folder);
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const imageUrl = await uploadImageToCloudinary(buffer, folder);
         return { success: true, url: imageUrl };
     } catch (error) {
         console.error('Cloudinary upload error:', error);

@@ -43,5 +43,25 @@
     "btn_create_first": "Jadilah yang pertama membuat toko! →",
     "footer_desc": "Platform utama untuk manajemen e-commerce multitenant.",
     "super_admin": "Super Admin"
+  },
+  "cart": {
+    "title": "Keranjang",
+    "delivery": "Pengantaran",
+    "dine_in": "Makan di Tempat",
+    "take_away": "Bawa Pulang",
+    "empty": "Keranjang Anda kosong",
+    "items": "Produk",
+    "discounts": "Diskon",
+    "total": "Total",
+    "checkout": "Pesan Sekarang",
+    "search": "Cari...",
+    "filter": "Filter",
+    "menu": "Menu",
+    "all": "Semua",
+    "added": "Ditambahkan ke keranjang",
+    "add_to_cart": "Tambah ke Keranjang",
+    "size": "Ukuran",
+    "small": "Kecil",
+    "large": "Besar"
   }
 }

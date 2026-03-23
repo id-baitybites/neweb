@@ -7,6 +7,9 @@ export interface TenantTheme {
     accent: string
     background: string
     font: string
+    heroTitle?: string
+    heroDesc?: string
+    heroBgUrl?: string
 }
 
 export interface TenantConfig {

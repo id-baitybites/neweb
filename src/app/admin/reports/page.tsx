@@ -6,7 +6,7 @@ export default function ReportsPage() {
     return (
         <div>
             <h1>Laporan Penjualan</h1>
-            <p style={{ color: '#888', marginBottom: '2rem' }}>Analisis performa bisnis Baitybites.</p>
+            <p style={{ color: '#888', marginBottom: '2rem' }}>Analisis performa bisnis Bitespace.</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
                 <div style={{ background: 'white', padding: '2rem', borderRadius: '15px', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>

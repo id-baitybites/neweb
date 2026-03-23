@@ -52,7 +52,7 @@ export const useCartStore = create<CartStore>()(
             totalPrice: () => get().items.reduce((total, item) => total + (item.price * item.quantity), 0),
         }),
         {
-            name: 'baitybites-cart',
+            name: 'bitespace-cart',
         }
     )
 )

@@ -4,11 +4,11 @@ import React, { useState } from 'react'
 import { updateCustomerProfile, logout } from '@/actions/auth'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
     User, Mail, Phone, MapPin, Calendar, FileText, Package,
     Edit3, Save, X, ShoppingBag, LogOut, ChevronRight, Sparkles, Clock,
-    Camera, Heart
+    Camera, Heart, CreditCard, AlertCircle
 } from 'lucide-react'
 
 interface ProfileClientProps {
@@ -17,8 +17,11 @@ interface ProfileClientProps {
 
 export default function ProfileClient({ user }: ProfileClientProps) {
     const router = useRouter()
-    const [activeTab, setActiveTab] = useState<'orders' | 'profile'>('orders')
-    const [editing, setEditing] = useState(false)
+    const searchParams = useSearchParams()
+    const isCompletionStep = searchParams?.get('step') === 'complete'
+    
+    const [activeTab, setActiveTab] = useState<'orders' | 'profile'>(isCompletionStep ? 'profile' : 'orders')
+    const [editing, setEditing] = useState(isCompletionStep)
     const [saving, setSaving] = useState(false)
 
     const profile = user.profile
@@ -171,6 +174,15 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                     <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', border: '1px solid #f0f0f0' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                             <div>
+                                {isCompletionStep && (
+                                    <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', display: 'flex', gap: '0.8rem', alignItems: 'center', color: '#92400e' }}>
+                                        <AlertCircle size={20} />
+                                        <div>
+                                            <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>Lengkapi Profil Anda</div>
+                                            <div style={{ fontSize: '0.85rem' }}>Silakan lengkapi detail pengiriman untuk mempermudah transaksi berikutnya.</div>
+                                        </div>
+                                    </div>
+                                )}
                                 <h3 style={{ fontWeight: 800, fontSize: '1.3rem', margin: '0 0 4px' }}>Info Pribadi & Alamat</h3>
                                 <p style={{ color: '#888', margin: 0, fontSize: '0.9rem' }}>Informasi ini digunakan untuk mempercepat proses checkout.</p>
                             </div>
@@ -205,6 +217,7 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                                         { label: 'Kota', name: 'city', defaultValue: profile?.city || '', type: 'text', icon: <MapPin size={16} /> },
                                         { label: 'Provinsi', name: 'province', defaultValue: profile?.province || '', type: 'text', icon: <MapPin size={16} /> },
                                         { label: 'Kode Pos', name: 'postalCode', defaultValue: profile?.postalCode || '', type: 'text', icon: <MapPin size={16} /> },
+                                        { label: 'Metode Pembayaran Pilihan', name: 'preferredPayment', defaultValue: profile?.preferredPayment || 'QRIS', type: 'select', options: [{ label: 'QRIS (Otomatis)', value: 'QRIS' }, { label: 'Bank Transfer (Manual)', value: 'BANK_TRANSFER' }], icon: <CreditCard size={16} />, colSpan: 2 },
                                     ].map(field => (
                                         <div key={field.name} style={{ gridColumn: (field as any).colSpan === 2 ? 'span 2' : 'span 1' }}>
                                             <label style={{ display: 'block', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', color: '#555' }}>{field.label}</label>
@@ -248,6 +261,7 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                                     { label: 'Jenis Kelamin', value: profile?.gender === 'L' ? 'Laki-laki' : profile?.gender === 'P' ? 'Perempuan' : '—', icon: <Heart size={16} /> },
                                     { label: 'Tanggal Lahir', value: profile?.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) : '—', icon: <Calendar size={16} /> },
                                     { label: 'Alamat Pengiriman', value: profile?.addressLine ? [profile.addressLine, profile.city, profile.province, profile.postalCode].filter(Boolean).join(', ') : '—', icon: <MapPin size={16} />, colSpan: 2 },
+                                    { label: 'Metode Pembayaran Pilihan', value: profile?.preferredPayment === 'BANK_TRANSFER' ? 'Bank Transfer' : 'QRIS', icon: <CreditCard size={16} />, colSpan: 2 },
                                     { label: 'Catatan Pesanan', value: profile?.notes || '—', icon: <FileText size={16} />, colSpan: 2 },
                                 ].map((item, i) => (
                                     <div key={i} style={{ gridColumn: (item as any).colSpan === 2 ? 'span 2' : 'span 1', padding: '1rem 1.25rem', background: '#fafafa', borderRadius: '12px', border: '1px solid #f0f0f0' }}>

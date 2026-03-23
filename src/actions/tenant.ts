@@ -17,33 +17,26 @@ export async function updateTenantSettings(formData: FormData) {
     const tenantId = user.tenantId;
 
     try {
-        const primary = formData.get('primary') as string;
-        const secondary = formData.get('secondary') as string;
-        const accent = formData.get('accent') as string;
-        const background = formData.get('background') as string;
-        const font = formData.get('font') as string;
+        const themeStr = formData.get('theme') as string;
+        const configStr = formData.get('config') as string;
         const logoUrl = formData.get('logoUrl') as string;
 
-        const currency = formData.get('currency') as string;
-        const timezone = formData.get('timezone') as string;
-        const language = formData.get('language') as string;
-        const deliveryFee = parseInt(formData.get('deliveryFee') as string);
-        const minPreOrderDays = parseInt(formData.get('minPreOrderDays') as string);
-
-        const themeUpdate = {
-            primary,
-            secondary,
-            accent,
-            background,
-            font
+        // If theme/config are sent as JSON strings (from the new whitelabel form logic)
+        // we use them directly to capture all extended properties like hero personalizations.
+        let themeUpdate = themeStr ? JSON.parse(themeStr) : {
+            primary: formData.get('primary') as string,
+            secondary: formData.get('secondary') as string,
+            accent: formData.get('accent') as string,
+            background: formData.get('background') as string,
+            font: formData.get('font') as string
         };
 
-        const configUpdate = {
-            currency,
-            timezone,
-            language,
-            deliveryFee,
-            minPreOrderDays
+        let configUpdate = configStr ? JSON.parse(configStr) : {
+            currency: formData.get('currency') as string,
+            timezone: formData.get('timezone') as string,
+            language: formData.get('language') as string,
+            deliveryFee: parseInt(formData.get('deliveryFee') as string || '0'),
+            minPreOrderDays: parseInt(formData.get('minPreOrderDays') as string || '0')
         };
 
         await prisma.tenant.update({

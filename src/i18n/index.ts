@@ -17,5 +17,6 @@ export const getLocale = async (): Promise<Locale> => {
 
 export const getDictionary = async () => {
   const locale = await getLocale();
-  return dictionaries[locale]();
+  const dict = await dictionaries[locale]();
+  return { ...dict, locale };
 };

@@ -23,7 +23,7 @@ export default async function AdminSettingsPage() {
     return (
         <div>
             <h2 style={{ marginBottom: '2rem' }}>Configure Store Personalization</h2>
-            <div style={{ maxWidth: '900px' }}>
+            <div style={{ width: '100%' }}>
                 <p style={{ marginBottom: '1.5rem', color: '#888' }}>
                     Adjust your branding below. Your storefront will instantly adopt the fonts, colors, and logos that you configure here.
                 </p>

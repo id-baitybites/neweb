@@ -113,6 +113,7 @@ export const updateCustomerProfile = async (formData: FormData) => {
     const province = formData.get('province') as string
     const postalCode = formData.get('postalCode') as string
     const notes = formData.get('notes') as string
+    const preferredPayment = formData.get('preferredPayment') as string
 
     const imageFile = formData.get('image') as File | null
     let imageUrl: string | undefined
@@ -135,12 +136,12 @@ export const updateCustomerProfile = async (formData: FormData) => {
         await (prisma as any).customerProfile.upsert({
             where: { userId: sessionUser.id },
             update: {
-                phone, gender, addressLine, city, province, postalCode, notes,
+                phone, gender, addressLine, city, province, postalCode, notes, preferredPayment,
                 dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
             },
             create: {
                 userId: sessionUser.id,
-                phone, gender, addressLine, city, province, postalCode, notes,
+                phone, gender, addressLine, city, province, postalCode, notes, preferredPayment,
                 dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
             }
         })

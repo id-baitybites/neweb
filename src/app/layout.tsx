@@ -55,6 +55,7 @@ export default async function RootLayout({
             : "https://app.sandbox.midtrans.com/snap/snap.js"}
           data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         />
+        <Script src="https://accounts.google.com/gsi/client" strategy="beforeInteractive" />
         <SocketProvider>
           <Navbar user={user} tenant={tenant} locale={locale} />
           <main>{children}</main>

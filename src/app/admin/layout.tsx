@@ -33,10 +33,11 @@ export default async function AdminLayout({
     return (
         <div className={styles.adminLayout}>
             <aside className={styles.sidebar}>
-                <div className={styles.logo}>BAITYBITES</div>
+                <div className={styles.logo}>BITESPACE</div>
 
                 <nav className={styles.nav}>
                     <Link href="/admin"><LayoutDashboard size={20} /> Dashboard</Link>
+                    <Link href="/admin/products"><ShoppingCart size={20} /> Products</Link>
                     <Link href="/admin/orders"><ClipboardList size={20} /> Orders</Link>
                     <Link href="/admin/pos"><Receipt size={20} /> Cashier / POS</Link>
                     <Link href="/admin/kitchen"><Utensils size={20} /> Kitchen Display</Link>

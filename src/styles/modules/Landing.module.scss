@@ -18,12 +18,20 @@
         content: '';
         position: absolute;
         inset: 0;
-        // High quality bakery / pastry background image
-        background-image: url('/images/portal-hero-bg-light.png');
+        background-image: var(--hero-bg, url('/images/portal-hero-bg-light.png'));
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
         z-index: -2;
+        transition: background-image 0.5s ease-in-out;
+    }
+
+    &.hasCustomBg::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4); // Add overlay for custom backgrounds
+        z-index: -1;
     }
 
     &::after {
@@ -31,6 +39,12 @@
         position: absolute;
         inset: 0;
         z-index: -1;
+        background: transparent;
+        transition: background 0.5s ease;
+    }
+
+    &.hasCustomBg::after {
+        background: rgba(0, 0, 0, 0.4);
     }
 
     .chip {

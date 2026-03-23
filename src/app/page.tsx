@@ -34,17 +34,20 @@ export default async function Home() {
     return (
       <div style={{ backgroundColor: '#F8F9FA' }}>
         {/* HERO SECTION */}
-        <section className={styles.hero}>
-          <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-            <div className={styles.chip}>
+        <section 
+          className={`${styles.hero} ${tenant.theme.heroBgUrl ? styles.hasCustomBg : ''}`} 
+          style={tenant.theme.heroBgUrl ? { '--hero-bg': `url(${tenant.theme.heroBgUrl})` } as React.CSSProperties : undefined}
+        >
+          <div className="container" style={{ position: 'relative', zIndex: 1, textShadow: tenant.theme.heroBgUrl ? '0 2px 10px rgba(0,0,0,0.5)' : undefined, color: tenant.theme.heroBgUrl ? 'white' : undefined }}>
+            <div className={styles.chip} style={tenant.theme.heroBgUrl ? { background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', color: 'white' } : undefined}>
               <ShieldCheck size={16} style={{ marginRight: '0.5rem' }} />
               {dict.tenant.hero_chip.replace('{name}', tenant.name)}
             </div>
 
-            <h1>{dict.tenant.hero_title}</h1>
+            <h1 style={tenant.theme.heroBgUrl ? { color: 'white' } : undefined}>{tenant.theme.heroTitle || dict.tenant.hero_title}</h1>
 
-            <p>
-              {dict.tenant.hero_desc.replace('{name}', tenant.name)}
+            <p style={tenant.theme.heroBgUrl ? { color: 'rgba(255,255,255,0.9)' } : undefined}>
+              {tenant.theme.heroDesc || dict.tenant.hero_desc.replace('{name}', tenant.name)}
             </p>
 
             <div className={styles.actions} style={{ justifyContent: 'center' }}>

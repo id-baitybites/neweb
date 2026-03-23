@@ -43,5 +43,25 @@
     "btn_create_first": "Be the first to create a store! →",
     "footer_desc": "The premier platform for multitenant e-commerce and store management.",
     "super_admin": "Super Admin"
+  },
+  "cart": {
+    "title": "Cart",
+    "delivery": "Delivery",
+    "dine_in": "Dine in",
+    "take_away": "Take away",
+    "empty": "Your cart is empty",
+    "items": "Items",
+    "discounts": "Discounts",
+    "total": "Total",
+    "checkout": "Place an order",
+    "search": "Search...",
+    "filter": "Filter",
+    "menu": "Menu",
+    "all": "All",
+    "added": "Added to cart",
+    "add_to_cart": "Add to Cart",
+    "size": "Size",
+    "small": "Small",
+    "large": "Large"
   }
 }

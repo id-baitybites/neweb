@@ -82,6 +82,15 @@ export default function LoginPage() {
                     </button>
                 </form>
 
+                <div style={{ display: 'flex', alignItems: 'center', margin: '2rem 0', gap: '1rem' }}>
+                    <div style={{ flex: 1, height: '1px', background: '#eee' }}></div>
+                    <span style={{ fontSize: '0.8rem', color: '#888', fontWeight: 600 }}>ATAU</span>
+                    <div style={{ flex: 1, height: '1px', background: '#eee' }}></div>
+                </div>
+
+                {/* Google Login Button Container */}
+                <div id="google-login-btn" style={{ display: 'flex', justifyContent: 'center' }}></div>
+
                 <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.9rem', color: '#888' }}>
                     Belum punya akun?{' '}
                     <Link href="/register" style={{ color: '#FF69B4', fontWeight: 700, textDecoration: 'none' }}>
@@ -89,8 +98,57 @@ export default function LoginPage() {
                     </Link>
                 </p>
             </div>
+            
+            {/* Google Logic */}
+            <GoogleLogic returnUrl={returnUrl} />
         </div>
     )
+}
+
+function GoogleLogic({ returnUrl }: { returnUrl: string }) {
+    const router = useRouter()
+    const [mounted, setMounted] = React.useState(false)
+
+    React.useEffect(() => {
+        setMounted(true)
+        const initGoogle = () => {
+            const google = (window as any).google;
+            if (google && process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
+                google.accounts.id.initialize({
+                    client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+                    callback: async (response: any) => {
+                        const { loginWithGoogle } = await import('@/actions/google-auth');
+                        const result = await loginWithGoogle(response.credential);
+                        if (result.success) {
+                            toast.success('Login Google berhasil!');
+                            if (result.needsProfileCompletion) {
+                                router.push('/profile?step=complete');
+                            } else {
+                                router.push(returnUrl);
+                            }
+                        } else {
+                            toast.error(result.error);
+                        }
+                    }
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById("google-login-btn"),
+                    { theme: "outline", size: "large", width: 340, shape: "pill", text: "continue_with" }
+                );
+            }
+        };
+
+        const checkIntvl = setInterval(() => {
+            if ((window as any).google) {
+                initGoogle();
+                clearInterval(checkIntvl);
+            }
+        }, 500);
+
+        return () => clearInterval(checkIntvl);
+    }, [router, returnUrl]);
+
+    return null;
 }
 
 const pageStyle: React.CSSProperties = {

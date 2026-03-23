@@ -9,13 +9,13 @@ export const callGojekGrabAPI = async (orderId: string, address: string) => {
 
     return {
         success: true,
-        trackingNumber: `BB-${Math.random().toString(36).substring(7).toUpperCase()}`,
-        courierName: 'GoSend/GrabExpress Driver',
+        trackingNumber: `BTS-${Math.random().toString(36).substring(7).toUpperCase()}`,
+        courierName: 'Courier Driver',
         estimatedTime: '30-45 mins'
     }
 }
 
 export const generatePickupQR = (orderId: string) => {
     // Placeholder for QR generation (usually returns a base64 string or URL)
-    return `QR-BAITYBITES-${orderId}`
+    return `QR-BITESPACE-${orderId}`
 }
