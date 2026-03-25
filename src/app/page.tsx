@@ -169,149 +169,197 @@ export default async function Home() {
   const allTenants = await prisma.tenant.findMany({
     where: { isActive: true },
     orderBy: { createdAt: 'desc' },
-    take: 10
+    take: 12
   })
 
   return (
-    <div style={{ backgroundColor: '#F8F9FA' }}>
-      <section className={styles.hero} style={{
-        paddingBottom: '4rem',
-        minHeight: '85vh',
-        display: 'flex',
-        alignItems: 'center'
-      }}>
-        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div className={styles.chip} style={{ border: '1px solid rgba(79, 70, 229, 0.2)', background: 'rgba(79, 70, 229, 0.05)' }}>
-            <Globe size={16} style={{ marginRight: '0.5rem', color: '#4F46E5' }} />
-            <span style={{ color: '#4F46E5', fontWeight: 600 }}>{dict.platform.hero_chip}</span>
+    <div className={styles.platformWrap}>
+
+      {/* ── HERO ─────────────────────────────────────────── */}
+      <section className={styles.platformHero}>
+        <div className={`${styles.orb} ${styles.orb1}`} />
+        <div className={`${styles.orb} ${styles.orb2}`} />
+        <div className={`${styles.orb} ${styles.orb3}`} />
+
+        <div className={styles.platformHeroInner}>
+          <div className={styles.platformBadge}>
+            <span className={styles.dot} />
+            {dict.platform.hero_chip}
           </div>
 
-          <h1 style={{ color: '#0F172A', fontSize: '3.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>
-            {dict.platform.hero_title}
+          <h1 className={styles.platformTitle}>
+            {(dict.platform as any).hero_title_pre || 'Berdayakan Bisnis'}{' '}
+            <span className={styles.gradient}>
+              {(dict.platform as any).hero_title_highlight || 'Anda dengan Bitespace'}
+            </span>
           </h1>
 
-          <p style={{ color: '#334155', fontSize: '1.25rem', maxWidth: '800px', margin: '0 auto 2.5rem' }}>
-            {dict.platform.hero_desc}
-          </p>
+          <p className={styles.platformDesc}>{dict.platform.hero_desc}</p>
 
-          <div className={styles.actions} style={{ justifyContent: 'center' }}>
-            <Link href="/super-admin" className={styles.btnSolid} style={{ background: '#0F172A', borderColor: '#0F172A', color: 'white' }}>
+          <div className={styles.platformActions}>
+            <Link href="/onboarding" className={styles.btnPrimary}>
               {dict.platform.btn_launch} <ArrowRight size={18} />
             </Link>
-            <Link href="#features" className={styles.btnOutline} style={{ color: '#0F172A', borderColor: '#CBD5E1', background: 'white' }}>
+            <Link href="#features" className={styles.btnSecondary}>
               {dict.platform.btn_explore}
             </Link>
           </div>
-        </div>
-      </section>
 
-      {/* FEATURES SECTION */}
-      <section id="features" className={styles.section} style={{ background: 'white' }}>
-        <div className="container" style={{ maxWidth: '1200px' }}>
-          <div className={styles.header}>
-            <h2>{dict.platform.features_title}</h2>
-            <p>{dict.platform.features_desc}</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-            <div style={{ padding: '2rem', background: '#F8F9FA', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-              <div style={{ background: '#EEF2FF', width: '60px', height: '60px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', color: '#4F46E5' }}>
-                <Store size={30} />
-              </div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: '#1E293B' }}>{dict.platform.feat1_title}</h3>
-              <p style={{ color: '#64748B', lineHeight: '1.6' }}>{dict.platform.feat1_desc}</p>
+          {/* Stats */}
+          <div className={styles.statsBar}>
+            <div className={styles.stat}>
+              <div className={styles.statNum}>{allTenants.length}+</div>
+              <div className={styles.statLabel}>Active Stores</div>
             </div>
-
-            <div style={{ padding: '2rem', background: '#F8F9FA', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-              <div style={{ background: '#F0FDF4', width: '60px', height: '60px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', color: '#16A34A' }}>
-                <Zap size={30} />
-              </div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: '#1E293B' }}>{dict.platform.feat2_title}</h3>
-              <p style={{ color: '#64748B', lineHeight: '1.6' }}>{dict.platform.feat2_desc}</p>
+            <div className={styles.statDivider} />
+            <div className={styles.stat}>
+              <div className={styles.statNum}>99%</div>
+              <div className={styles.statLabel}>Uptime SLA</div>
             </div>
-
-            <div style={{ padding: '2rem', background: '#F8F9FA', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-              <div style={{ background: '#FFF1F2', width: '60px', height: '60px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', color: '#E11D48' }}>
-                <Smartphone size={30} />
-              </div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: '#1E293B' }}>{dict.platform.feat3_title}</h3>
-              <p style={{ color: '#64748B', lineHeight: '1.6' }}>{dict.platform.feat3_desc}</p>
+            <div className={styles.statDivider} />
+            <div className={styles.stat}>
+              <div className={styles.statNum}>4</div>
+              <div className={styles.statLabel}>Subscription Plans</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ACTIVE TENANTS SECTION */}
-      <section id="merchants" className={styles.section} style={{ background: '#F8F9FA' }}>
-        <div className="container" style={{ maxWidth: '1200px' }}>
-          <div className={styles.header}>
-            <h2>{dict.platform.merchants_title}</h2>
-            <p>{dict.platform.merchants_desc}</p>
+      {/* ── FEATURES ─────────────────────────────────────── */}
+      <section id="features" className={styles.platformSection}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <p className={styles.sectionLabel}>Platform Features</p>
+          <h2 className={styles.sectionTitle}>{dict.platform.features_title}</h2>
+          <p className={styles.sectionDesc}>{dict.platform.features_desc}</p>
+
+          <div className={styles.featuresGrid}>
+            {[
+              {
+                icon: <Store size={26} />,
+                iconBg: 'rgba(99,102,241,0.15)',
+                iconColor: '#818cf8',
+                title: dict.platform.feat1_title,
+                desc: dict.platform.feat1_desc,
+              },
+              {
+                icon: <Zap size={26} />,
+                iconBg: 'rgba(20,184,166,0.15)',
+                iconColor: '#2dd4bf',
+                title: dict.platform.feat2_title,
+                desc: dict.platform.feat2_desc,
+              },
+              {
+                icon: <Smartphone size={26} />,
+                iconBg: 'rgba(251,113,133,0.15)',
+                iconColor: '#fb7185',
+                title: dict.platform.feat3_title,
+                desc: dict.platform.feat3_desc,
+              },
+              {
+                icon: <Globe size={26} />,
+                iconBg: 'rgba(251,191,36,0.15)',
+                iconColor: '#fbbf24',
+                title: (dict.platform as any).feat4_title || 'Custom Domain & Branding',
+                desc: (dict.platform as any).feat4_desc || 'Each tenant gets a unique domain, color palette, custom fonts, and logo — full white-label control.',
+              },
+              {
+                icon: <ShieldCheck size={26} />,
+                iconBg: 'rgba(52,211,153,0.15)',
+                iconColor: '#34d399',
+                title: (dict.platform as any).feat5_title || 'Secure & Isolated',
+                desc: (dict.platform as any).feat5_desc || 'Every merchant\'s data is fully isolated. JWT authentication, encrypted passwords, and role-based access control baked in.',
+              },
+              {
+                icon: <ArrowRight size={26} />,
+                iconBg: 'rgba(168,85,247,0.15)',
+                iconColor: '#c084fc',
+                title: (dict.platform as any).feat6_title || 'One-Click Onboarding',
+                desc: (dict.platform as any).feat6_desc || 'Merchants can sign up, choose a plan, and launch their storefront in under 3 minutes.',
+              },
+            ].map((f, i) => (
+              <div key={i} className={styles.featureCard}>
+                <div className={styles.featureIcon} style={{ background: f.iconBg, color: f.iconColor }}>
+                  {f.icon}
+                </div>
+                <h3>{f.title}</h3>
+                <p>{f.desc}</p>
+              </div>
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── MERCHANTS ────────────────────────────────────── */}
+      <section id="merchants" className={`${styles.platformSection} ${styles.altBg}`}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <p className={styles.sectionLabel}>Live on Platform</p>
+          <h2 className={styles.sectionTitle}>{dict.platform.merchants_title}</h2>
+          <p className={styles.sectionDesc}>{dict.platform.merchants_desc}</p>
 
           {allTenants.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+            <div className={styles.merchantGrid}>
               {allTenants.map((t) => (
                 <Link
                   key={t.id}
                   href={t.domain ? `https://${t.domain}` : `/${t.slug}`}
                   className={styles.merchantCard}
                 >
-                  <div style={{
-                    width: '80px', height: '80px', borderRadius: '50%',
-                    background: (t.theme as any)?.primary || '#4F46E5', color: 'white',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem'
-                  }}>
+                  <div
+                    className={styles.merchantAvatar}
+                    style={{ background: `linear-gradient(135deg, ${(t.theme as any)?.primary || '#6366f1'}, ${(t.theme as any)?.accent || '#8b5cf6'})` }}
+                  >
                     {t.name.charAt(0).toUpperCase()}
                   </div>
-                  <h3 style={{ fontSize: '1.25rem', color: '#1E293B', marginBottom: '0.5rem' }}>{t.name}</h3>
-                  <p style={{ color: '#64748B', fontSize: '0.9rem' }}>{t.domain || `${t.slug}.bitespace.netlify.app`}</p>
+                  <h3>{t.name}</h3>
+                  <p>{t.domain || `/${t.slug}`}</p>
                 </Link>
               ))}
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '4rem', color: '#A0AEC0', background: 'white', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-              <p style={{ marginBottom: '1rem' }}>{dict.platform.no_merchants}</p>
-              <Link href="/super-admin" style={{ color: '#4F46E5', fontWeight: '600' }}>{dict.platform.btn_create_first}</Link>
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'rgba(255,255,255,0.25)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px' }}>
+              <p style={{ marginBottom: '1.25rem', fontSize: '1rem' }}>{dict.platform.no_merchants}</p>
+              <Link href="/onboarding" style={{ color: '#818cf8', fontWeight: 700, textDecoration: 'none' }}>{dict.platform.btn_create_first}</Link>
             </div>
           )}
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className={styles.footer} style={{ background: '#0A0F1E', padding: '4rem 2rem 2rem' }}>
-        <div className={styles.container} style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '2rem' }}>
-          <div className={styles.brand} style={{ maxWidth: '300px' }}>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'white' }}>Bitespace</h3>
-            <p style={{ color: 'rgba(255, 255, 255, 0.6)', lineHeight: '1.6' }}>
-              {dict.platform.footer_desc}
-            </p>
+      {/* ── FOOTER ───────────────────────────────────────── */}
+      <footer className={styles.platformFooter}>
+        <div className={styles.footerInner}>
+          <div className={styles.footerBrand}>
+            <span className={styles.logo}>Bitespace</span>
+            <p>{dict.platform.footer_desc}</p>
           </div>
 
-          <div style={{ display: 'flex', gap: '4rem' }}>
-            <div className={styles.links}>
-              <h4 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', color: 'white' }}>Platform</h4>
-              <ul style={{ listStyle: 'none', padding: 0 }}>
-                <li style={{ marginBottom: '0.8rem' }}><Link href="/super-admin" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{dict.platform.super_admin}</Link></li>
-                <li style={{ marginBottom: '0.8rem' }}><a href="#features" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{dict.platform.btn_explore}</a></li>
+          <div className={styles.footerLinks}>
+            <div className={styles.col}>
+              <h5>Platform</h5>
+              <ul>
+                <li><Link href="/pricing">Pricing</Link></li>
+                <li><Link href="/onboarding">Get Started</Link></li>
+                <li><Link href="/super-admin">{dict.platform.super_admin}</Link></li>
               </ul>
             </div>
-
-            <div className={styles.links}>
-              <h4 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', color: 'white' }}>Legal</h4>
-              <ul style={{ listStyle: 'none', padding: 0 }}>
-                <li style={{ marginBottom: '0.8rem' }}><a href="#" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Terms of Service</a></li>
-                <li style={{ marginBottom: '0.8rem' }}><a href="#" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Privacy Policy</a></li>
+            <div className={styles.col}>
+              <h5>Legal</h5>
+              <ul>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Privacy Policy</a></li>
               </ul>
             </div>
           </div>
         </div>
 
-        <div className={styles.bottom} style={{ textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '2rem', marginTop: '2rem', color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.9rem' }}>
-          &copy; {new Date().getFullYear()} Bitespace Platform. All rights reserved. <span style={{ opacity: 0.5 }}>v{pkg.version}</span>
+        <div className={styles.footerBottom}>
+          <span>&copy; {new Date().getFullYear()} Bitespace Platform. All rights reserved.</span>
+          <div className={styles.poweredBy}>
+            Built on <span>Next.js</span> · v{pkg.version}
+          </div>
         </div>
       </footer>
     </div>
   )
 }
+
+
