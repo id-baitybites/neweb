@@ -241,11 +241,24 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                         </div>
                         <div>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>Currency</label>
-                            <div style={{ position: 'relative' }}>
-                                <Globe size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
-                                <input type="text" name="currency" value={config.currency} onChange={e => setConfig({ ...config, currency: e.target.value })} style={{ width: '100%', padding: '0.8rem 0.8rem 0.8rem 2.5rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white' }} />
-                            </div>
+                            <select
+                                name="currency"
+                                value={config.currency}
+                                onChange={e => setConfig({ ...config, currency: e.target.value })}
+                                style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white' }}
+                            >
+                                <option value="IDR">IDR — Rp (Indonesian Rupiah)</option>
+                                <option value="USD">USD — $ (US Dollar)</option>
+                                <option value="SGD">SGD — S$ (Singapore Dollar)</option>
+                                <option value="MYR">MYR — RM (Malaysian Ringgit)</option>
+                                <option value="EUR">EUR — € (Euro)</option>
+                                <option value="GBP">GBP — £ (British Pound)</option>
+                                <option value="JPY">JPY — ¥ (Japanese Yen)</option>
+                                <option value="AUD">AUD — A$ (Australian Dollar)</option>
+                            </select>
+                            <div style={{ fontSize: '0.72rem', color: '#555', marginTop: '0.35rem' }}>Uses ISO 4217 code — required for correct formatting.</div>
                         </div>
+
                         <div>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>Default Language</label>
                             <select name="language" value={config.language} onChange={e => setConfig({ ...config, language: e.target.value })} style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white' }}>

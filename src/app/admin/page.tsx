@@ -35,10 +35,22 @@ export default async function AdminDashboardPage() {
     })
     const revenue = orders.reduce((acc: number, order: Order) => acc + (order.total || 0), 0)
 
+    // Map display symbols → valid ISO 4217 codes in case the merchant typed a symbol instead of a code
+    const CURRENCY_MAP: Record<string, string> = {
+        'Rp': 'IDR', 'rp': 'IDR',
+        '$': 'USD', 'USD': 'USD',
+        '€': 'EUR', 'EUR': 'EUR',
+        '£': 'GBP', 'GBP': 'GBP',
+        '¥': 'JPY', 'JPY': 'JPY',
+        'SGD': 'SGD', 'MYR': 'MYR',
+    }
+    const rawCurrency = tenant.config.currency ?? 'IDR'
+    const safeCurrency = CURRENCY_MAP[rawCurrency] ?? (rawCurrency.length === 3 ? rawCurrency.toUpperCase() : 'IDR')
+
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat(tenant.config.language === 'id' ? 'id-ID' : 'en-US', {
             style: 'currency',
-            currency: tenant.config.currency,
+            currency: safeCurrency,
             minimumFractionDigits: 0,
         }).format(val)
     }
