@@ -14,7 +14,23 @@ export const PLATFORM_CONFIG = {
 
 // ── Formatter helpers (locale-aware) ──────────────────────────────────────────
 
-export const formatPrice = (price: number, currency = 'IDR', locale = 'id-ID') => {
+const CURRENCY_MAP: Record<string, string> = {
+    'Rp': 'IDR', 'rp': 'IDR', 'IDR': 'IDR',
+    '$': 'USD', 'USD': 'USD',
+    '€': 'EUR', 'EUR': 'EUR',
+    '£': 'GBP', 'GBP': 'GBP',
+    '¥': 'JPY', 'JPY': 'JPY',
+}
+
+export const getSafeCurrency = (code: string | undefined): string => {
+    if (!code) return 'IDR'
+    const mapped = CURRENCY_MAP[code]
+    if (mapped) return mapped
+    return code.length === 3 ? code.toUpperCase() : 'IDR'
+}
+
+export const formatPrice = (price: number, currencyRaw = 'IDR', locale = 'id-ID') => {
+    const currency = getSafeCurrency(currencyRaw)
     return new Intl.NumberFormat(locale, {
         style: 'currency',
         currency,

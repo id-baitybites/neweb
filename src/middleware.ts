@@ -59,7 +59,8 @@ export default async function middleware(request: NextRequest) {
             if (isSuperAdmin && role !== 'SUPER_ADMIN') return NextResponse.redirect(new URL('/', request.url))
             if (isAdmin && !['OWNER', 'STAFF', 'SUPER_ADMIN'].includes(role)) return NextResponse.redirect(new URL('/', request.url))
         } catch (error) {
-            const url = new URL('/login', request.url)
+            const loginPath = pathSlug ? `/${pathSlug}/login` : '/login'
+            const url = new URL(loginPath, request.url)
             url.searchParams.set('reason', 'invalid_session')
             return NextResponse.redirect(url)
         }

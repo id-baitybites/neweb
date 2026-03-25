@@ -10,12 +10,18 @@ import {
     Edit3, Save, X, ShoppingBag, LogOut, ChevronRight, Sparkles, Clock,
     Camera, Heart, CreditCard, AlertCircle
 } from 'lucide-react'
+import { getSafeCurrency } from '@/lib/config'
+import { TenantData } from '@/lib/tenant'
 
 interface ProfileClientProps {
     user: any
+    prefix?: string
+    dict: any
+    tenant: TenantData | null
 }
 
-export default function ProfileClient({ user }: ProfileClientProps) {
+export default function ProfileClient({ user, prefix = '', dict, tenant }: ProfileClientProps) {
+    const t = dict.profile
     const router = useRouter()
     const searchParams = useSearchParams()
     const isCompletionStep = searchParams?.get('step') === 'complete'
@@ -32,7 +38,7 @@ export default function ProfileClient({ user }: ProfileClientProps) {
         const formData = new FormData(e.currentTarget)
         const result = await updateCustomerProfile(formData)
         if (result.success) {
-            toast.success('Profil berhasil diperbarui!')
+            toast.success(dict.auth?.toast_profile_success || 'Profile updated successfully!')
             setEditing(false)
             router.refresh()
         } else {
@@ -43,12 +49,12 @@ export default function ProfileClient({ user }: ProfileClientProps) {
 
     const handleLogout = async () => {
         await logout()
-        router.push('/')
+        router.push(prefix || '/')
         router.refresh()
     }
 
     const formatPrice = (val: number) =>
-        new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)
+        new Intl.NumberFormat(dict.locale === 'id' ? 'id-ID' : 'en-US', { style: 'currency', currency: getSafeCurrency(tenant?.config.currency), minimumFractionDigits: 0 }).format(val)
 
     const statusColors: Record<string, { bg: string; color: string }> = {
         PENDING: { bg: '#fff7ed', color: '#f97316' },
@@ -76,21 +82,21 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                             ) : initials}
                         </div>
                         <div style={{ flex: 1 }}>
-                            <p style={{ opacity: 0.75, fontSize: '0.85rem', marginBottom: '4px' }}>Selamat datang,</p>
-                            <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: '0 0 4px' }}>{user.name || 'Member Baru'}</h1>
+                            <p style={{ opacity: 0.75, fontSize: '0.85rem', marginBottom: '4px' }}>{dict.locale === 'id' ? 'Selamat datang,' : 'Welcome,'}</p>
+                            <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: '0 0 4px' }}>{user.name || (dict.locale === 'id' ? 'Member Baru' : 'New Member')}</h1>
                             <p style={{ opacity: 0.8, fontSize: '0.9rem', margin: 0 }}>{user.email}</p>
                         </div>
                         <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '0.6rem 1.2rem', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, fontSize: '0.85rem' }}>
-                            <LogOut size={16} /> Keluar
+                            <LogOut size={16} /> {dict.locale === 'id' ? 'Keluar' : 'Logout'}
                         </button>
                     </div>
 
                     {/* Stats */}
                     <div style={{ display: 'flex', gap: '1.5rem', marginTop: '2rem', position: 'relative' }}>
                         {[
-                            { label: 'Total Pesanan', value: user.orders.length },
-                            { label: 'Selesai', value: user.orders.filter((o: any) => o.status === 'COMPLETED').length },
-                            { label: 'Aktif', value: user.orders.filter((o: any) => ['PENDING','PROCESSING','READY','SHIPPED'].includes(o.status)).length },
+                            { label: dict.locale === 'id' ? 'Total Pesanan' : 'Total Orders', value: user.orders.length },
+                            { label: dict.locale === 'id' ? 'Selesai' : 'Completed', value: user.orders.filter((o: any) => o.status === 'COMPLETED').length },
+                            { label: dict.locale === 'id' ? 'Aktif' : 'Active', value: user.orders.filter((o: any) => ['PENDING','PROCESSING','READY','SHIPPED'].includes(o.status)).length },
                         ].map((stat, i) => (
                             <div key={i} style={{ background: 'rgba(255,255,255,0.15)', padding: '0.8rem 1.2rem', borderRadius: '12px', backdropFilter: 'blur(10px)', textAlign: 'center', flex: 1 }}>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>{stat.value}</div>
@@ -103,8 +109,8 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                 {/* Tabs */}
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', background: 'white', padding: '0.5rem', borderRadius: '14px', border: '1px solid #f0f0f0' }}>
                     {[
-                        { id: 'orders', label: 'Riwayat Pesanan', icon: <ShoppingBag size={16} /> },
-                        { id: 'profile', label: 'Info Pribadi & Alamat', icon: <User size={16} /> },
+                        { id: 'orders', label: t.tabs.orders, icon: <ShoppingBag size={16} /> },
+                        { id: 'profile', label: t.tabs.overview, icon: <User size={16} /> },
                     ].map(tab => (
                         <button
                             key={tab.id}
@@ -128,9 +134,9 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                         {user.orders.length === 0 ? (
                             <div style={{ background: 'white', borderRadius: '20px', padding: '4rem', textAlign: 'center', color: '#888' }}>
                                 <ShoppingBag size={48} style={{ marginBottom: '1rem', opacity: 0.2 }} />
-                                <p style={{ marginBottom: '1rem' }}>Anda belum memiliki pesanan.</p>
-                                <Link href="/" style={{ background: '#FF69B4', color: 'white', padding: '0.75rem 2rem', borderRadius: '12px', fontWeight: 700, textDecoration: 'none', display: 'inline-block' }}>
-                                    Mulai Belanja
+                                <p style={{ marginBottom: '1rem' }}>{t.orders.no_orders}</p>
+                                <Link href={prefix || '/'} style={{ background: '#FF69B4', color: 'white', padding: '0.75rem 2rem', borderRadius: '12px', fontWeight: 700, textDecoration: 'none', display: 'inline-block' }}>
+                                    {dict.locale === 'id' ? 'Mulai Belanja' : 'Start Shopping'}
                                 </Link>
                             </div>
                         ) : user.orders.map((order: any) => {
@@ -147,10 +153,10 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                                             </div>
                                             <div style={{ fontSize: '0.8rem', color: '#aaa', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                                                 <Clock size={12} />
-                                                {new Date(order.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                {new Date(order.createdAt).toLocaleDateString(dict.locale === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
                                             </div>
                                             <div style={{ marginTop: '4px', fontSize: '0.8rem', color: '#888' }}>
-                                                {order.orderItems.length} produk
+                                                {order.orderItems.length} {dict.locale === 'id' ? 'produk' : 'items'}
                                             </div>
                                         </div>
                                     </div>
@@ -160,8 +166,8 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                                             {order.status}
                                         </div>
                                     </div>
-                                    <Link href={`/order/status?id=${order.id}`} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#FF69B4', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-                                        Detail <ChevronRight size={16} />
+                                    <Link href={`${prefix}/order/status?id=${order.id}`} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#FF69B4', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+                                        {dict.locale === 'id' ? 'Detail' : 'Details'} <ChevronRight size={16} />
                                     </Link>
                                 </div>
                             )
@@ -178,17 +184,17 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                                     <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', display: 'flex', gap: '0.8rem', alignItems: 'center', color: '#92400e' }}>
                                         <AlertCircle size={20} />
                                         <div>
-                                            <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>Lengkapi Profil Anda</div>
-                                            <div style={{ fontSize: '0.85rem' }}>Silakan lengkapi detail pengiriman untuk mempermudah transaksi berikutnya.</div>
+                                            <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{dict.locale === 'id' ? 'Lengkapi Profil Anda' : 'Complete Your Profile'}</div>
+                                            <div style={{ fontSize: '0.85rem' }}>{dict.locale === 'id' ? 'Silakan lengkapi detail pengiriman untuk mempermudah transaksi berikutnya.' : 'Please complete your shipping details to simplify future transactions.'}</div>
                                         </div>
                                     </div>
                                 )}
-                                <h3 style={{ fontWeight: 800, fontSize: '1.3rem', margin: '0 0 4px' }}>Info Pribadi & Alamat</h3>
-                                <p style={{ color: '#888', margin: 0, fontSize: '0.9rem' }}>Informasi ini digunakan untuk mempercepat proses checkout.</p>
+                                <h3 style={{ fontWeight: 800, fontSize: '1.3rem', margin: '0 0 4px' }}>{t.info.title}</h3>
+                                <p style={{ color: '#888', margin: 0, fontSize: '0.9rem' }}>{dict.locale === 'id' ? 'Informasi ini digunakan untuk mempercepat proses checkout.' : 'This information is used to speed up the checkout process.'}</p>
                             </div>
                             {!editing && (
                                 <button onClick={() => setEditing(true)} style={{ background: '#fff5fb', border: '1px solid #FFB6C1', color: '#FF69B4', padding: '0.6rem 1.2rem', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Edit3 size={16} /> Edit Profil
+                                    <Edit3 size={16} /> {dict.locale === 'id' ? 'Edit Profil' : 'Edit Profile'}
                                 </button>
                             )}
                         </div>
@@ -201,23 +207,23 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                                         {user.image ? <img src={user.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Camera size={32} color="#aaa" />}
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 800 }}>Foto Profil</h4>
-                                        <p style={{ margin: '0 0 12px', fontSize: '0.85rem', color: '#888' }}>Format JPG, PNG atau WebP (Maks 5MB)</p>
+                                        <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 800 }}>{dict.locale === 'id' ? 'Foto Profil' : 'Profile Picture'}</h4>
+                                        <p style={{ margin: '0 0 12px', fontSize: '0.85rem', color: '#888' }}>{dict.locale === 'id' ? 'Format JPG, PNG atau WebP (Maks 5MB)' : 'JPG, PNG or WebP format (Max 5MB)'}</p>
                                         <input type="file" name="image" accept="image/*" style={{ fontSize: '0.85rem' }} />
                                     </div>
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                                     {[
-                                        { label: 'Nama Lengkap', name: 'name', defaultValue: user.name || '', type: 'text', icon: <User size={16} />, colSpan: 2 },
-                                        { label: 'Nomor WhatsApp', name: 'phone', defaultValue: profile?.phone || '', type: 'tel', icon: <Phone size={16} /> },
-                                        { label: 'Jenis Kelamin', name: 'gender', defaultValue: profile?.gender || '', type: 'select', options: [{ label: 'Laki-laki', value: 'L' }, { label: 'Perempuan', value: 'P' }], icon: <Heart size={16} /> },
-                                        { label: 'Tanggal Lahir', name: 'dateOfBirth', defaultValue: profile?.dateOfBirth ? profile.dateOfBirth.slice(0, 10) : '', type: 'date', icon: <Calendar size={16} /> },
-                                        { label: 'Alamat (Jalan, No.)', name: 'addressLine', defaultValue: profile?.addressLine || '', type: 'text', icon: <MapPin size={16} />, colSpan: 2 },
-                                        { label: 'Kota', name: 'city', defaultValue: profile?.city || '', type: 'text', icon: <MapPin size={16} /> },
-                                        { label: 'Provinsi', name: 'province', defaultValue: profile?.province || '', type: 'text', icon: <MapPin size={16} /> },
-                                        { label: 'Kode Pos', name: 'postalCode', defaultValue: profile?.postalCode || '', type: 'text', icon: <MapPin size={16} /> },
-                                        { label: 'Metode Pembayaran Pilihan', name: 'preferredPayment', defaultValue: profile?.preferredPayment || 'QRIS', type: 'select', options: [{ label: 'QRIS (Otomatis)', value: 'QRIS' }, { label: 'Bank Transfer (Manual)', value: 'BANK_TRANSFER' }], icon: <CreditCard size={16} />, colSpan: 2 },
+                                        { label: t.info.name, name: 'name', defaultValue: user.name || '', type: 'text', icon: <User size={16} />, colSpan: 2 },
+                                        { label: t.info.phone, name: 'phone', defaultValue: profile?.phone || '', type: 'tel', icon: <Phone size={16} /> },
+                                        { label: dict.locale === 'id' ? 'Jenis Kelamin' : 'Gender', name: 'gender', defaultValue: profile?.gender || '', type: 'select', options: [{ label: dict.locale === 'id' ? 'Laki-laki' : 'Male', value: 'L' }, { label: dict.locale === 'id' ? 'Perempuan' : 'Female', value: 'P' }], icon: <Heart size={16} /> },
+                                        { label: t.info.birth, name: 'dateOfBirth', defaultValue: profile?.dateOfBirth ? profile.dateOfBirth.slice(0, 10) : '', type: 'date', icon: <Calendar size={16} /> },
+                                        { label: dict.locale === 'id' ? 'Alamat (Jalan, No.)' : 'Address (Street, No.)', name: 'addressLine', defaultValue: profile?.addressLine || '', type: 'text', icon: <MapPin size={16} />, colSpan: 2 },
+                                        { label: dict.locale === 'id' ? 'Kota' : 'City', name: 'city', defaultValue: profile?.city || '', type: 'text', icon: <MapPin size={16} /> },
+                                        { label: dict.locale === 'id' ? 'Provinsi' : 'Province', name: 'province', defaultValue: profile?.province || '', type: 'text', icon: <MapPin size={16} /> },
+                                        { label: dict.locale === 'id' ? 'Kode Pos' : 'Postal Code', name: 'postalCode', defaultValue: profile?.postalCode || '', type: 'text', icon: <MapPin size={16} /> },
+                                        { label: dict.locale === 'id' ? 'Metode Pembayaran Pilihan' : 'Preferred Payment Method', name: 'preferredPayment', defaultValue: profile?.preferredPayment || 'QRIS', type: 'select', options: [{ label: 'QRIS (Otomatis)', value: 'QRIS' }, { label: dict.locale === 'id' ? 'Bank Transfer (Manual)' : 'Bank Transfer (Manual)', value: 'BANK_TRANSFER' }], icon: <CreditCard size={16} />, colSpan: 2 },
                                     ].map(field => (
                                         <div key={field.name} style={{ gridColumn: (field as any).colSpan === 2 ? 'span 2' : 'span 1' }}>
                                             <label style={{ display: 'block', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', color: '#555' }}>{field.label}</label>
@@ -225,7 +231,7 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                                                 <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#aaa', zIndex: 1 }}>{field.icon}</span>
                                                 {field.type === 'select' ? (
                                                     <select name={field.name} defaultValue={field.defaultValue} style={{ width: '100%', padding: '0.85rem 1rem 0.85rem 2.6rem', border: '2px solid #f0f0f0', borderRadius: '10px', fontSize: '0.95rem', background: '#fafafa', boxSizing: 'border-box', fontFamily: 'inherit', appearance: 'none' }}>
-                                                        <option value="">Pilih...</option>
+                                                        <option value="">{dict.locale === 'id' ? 'Pilih...' : 'Select...'}</option>
                                                         {field.options?.map((opt: any) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                                     </select>
                                                 ) : (
@@ -235,34 +241,34 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                                         </div>
                                     ))}
                                     <div style={{ gridColumn: 'span 2' }}>
-                                        <label style={{ display: 'block', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', color: '#555' }}>Catatan Pesanan (Alergi, preferensi, dll.)</label>
+                                        <label style={{ display: 'block', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', color: '#555' }}>{dict.locale === 'id' ? 'Catatan Pesanan (Alergi, preferensi, dll.)' : 'Order Notes (Allergies, preferences, etc.)'}</label>
                                         <div style={{ position: 'relative' }}>
                                             <FileText size={16} style={{ position: 'absolute', left: '1rem', top: '1rem', color: '#aaa' }} />
-                                            <textarea name="notes" defaultValue={profile?.notes || ''} rows={3} placeholder="Contoh: Alergi kacang, tidak suka terlalu manis..." style={{ width: '100%', padding: '0.85rem 1rem 0.85rem 2.6rem', border: '2px solid #f0f0f0', borderRadius: '10px', fontSize: '0.95rem', background: '#fafafa', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'none' }} />
+                                            <textarea name="notes" defaultValue={profile?.notes || ''} rows={3} placeholder={dict.locale === 'id' ? "Contoh: Alergi kacang, tidak suka terlalu manis..." : "Example: Nut allergy, don't like it too sweet..."} style={{ width: '100%', padding: '0.85rem 1rem 0.85rem 2.6rem', border: '2px solid #f0f0f0', borderRadius: '10px', fontSize: '0.95rem', background: '#fafafa', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'none' }} />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
                                     <button type="button" onClick={() => setEditing(false)} style={{ flex: 1, padding: '0.9rem', border: '1px solid #ddd', borderRadius: '12px', background: 'white', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#888' }}>
-                                        <X size={18} /> Batal
+                                        <X size={18} /> {dict.locale === 'id' ? 'Batal' : 'Cancel'}
                                     </button>
                                     <button type="submit" disabled={saving} style={{ flex: 2, padding: '0.9rem', border: 'none', borderRadius: '12px', background: 'linear-gradient(135deg, #FF69B4, #e55da0)', color: 'white', cursor: 'pointer', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 6px 18px rgba(255,105,180,0.3)' }}>
-                                        <Save size={18} /> {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                        <Save size={18} /> {saving ? t.info.saving : t.info.save}
                                     </button>
                                 </div>
                             </form>
                         ) : (
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                                 {[
-                                    { label: 'Nama Lengkap', value: user.name, icon: <User size={16} /> },
-                                    { label: 'Email', value: user.email, icon: <Mail size={16} /> },
-                                    { label: 'Nomor WhatsApp', value: profile?.phone || '—', icon: <Phone size={16} /> },
-                                    { label: 'Jenis Kelamin', value: profile?.gender === 'L' ? 'Laki-laki' : profile?.gender === 'P' ? 'Perempuan' : '—', icon: <Heart size={16} /> },
-                                    { label: 'Tanggal Lahir', value: profile?.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) : '—', icon: <Calendar size={16} /> },
-                                    { label: 'Alamat Pengiriman', value: profile?.addressLine ? [profile.addressLine, profile.city, profile.province, profile.postalCode].filter(Boolean).join(', ') : '—', icon: <MapPin size={16} />, colSpan: 2 },
-                                    { label: 'Metode Pembayaran Pilihan', value: profile?.preferredPayment === 'BANK_TRANSFER' ? 'Bank Transfer' : 'QRIS', icon: <CreditCard size={16} />, colSpan: 2 },
-                                    { label: 'Catatan Pesanan', value: profile?.notes || '—', icon: <FileText size={16} />, colSpan: 2 },
+                                    { label: t.info.name, value: user.name, icon: <User size={16} /> },
+                                    { label: t.info.email, value: user.email, icon: <Mail size={16} /> },
+                                    { label: t.info.phone, value: profile?.phone || '—', icon: <Phone size={16} /> },
+                                    { label: dict.locale === 'id' ? 'Jenis Kelamin' : 'Gender', value: profile?.gender === 'L' ? (dict.locale === 'id' ? 'Laki-laki' : 'Male') : profile?.gender === 'P' ? (dict.locale === 'id' ? 'Perempuan' : 'Female') : '—', icon: <Heart size={16} /> },
+                                    { label: t.info.birth, value: profile?.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString(dict.locale === 'id' ? 'id-ID' : 'en-US', { day:'numeric', month:'long', year:'numeric' }) : '—', icon: <Calendar size={16} /> },
+                                    { label: t.info.address, value: profile?.addressLine ? [profile.addressLine, profile.city, profile.province, profile.postalCode].filter(Boolean).join(', ') : '—', icon: <MapPin size={16} />, colSpan: 2 },
+                                    { label: dict.locale === 'id' ? 'Metode Pembayaran Pilihan' : 'Preferred Payment Method', value: profile?.preferredPayment === 'BANK_TRANSFER' ? (dict.locale === 'id' ? 'Bank Transfer' : 'Bank Transfer') : 'QRIS', icon: <CreditCard size={16} />, colSpan: 2 },
+                                    { label: dict.locale === 'id' ? 'Catatan Pesanan' : 'Order Notes', value: profile?.notes || '—', icon: <FileText size={16} />, colSpan: 2 },
                                 ].map((item, i) => (
                                     <div key={i} style={{ gridColumn: (item as any).colSpan === 2 ? 'span 2' : 'span 1', padding: '1rem 1.25rem', background: '#fafafa', borderRadius: '12px', border: '1px solid #f0f0f0' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#aaa', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px' }}>

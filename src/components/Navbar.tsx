@@ -64,6 +64,9 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
     
     const t = navDict[locale]
 
+    // Slug-aware prefix: all tenant links must be relative to /{slug}/...
+    const p = tenant ? `/${tenant.slug}` : ''
+
     useEffect(() => {
         setMounted(true)
 
@@ -85,8 +88,8 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
     return (
         <nav className={`${styles.navbar} ${isScrolled ? styles.scrolled : ''}`}>
             <div className={`container ${styles.container}`}>
-                {/* Logo / Brand */}
-                <Link href="/" className={styles.logo}>
+                {/* Logo / Brand — goes to tenant home or platform root */}
+                <Link href={tenant ? `${p}` : '/'} className={styles.logo}>
                     {logoUrl ? (
                         <img src={logoUrl} alt={storeName} height={36} />
                     ) : (
@@ -97,9 +100,9 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                 <div className={`${styles.navLinks} ${isMenuOpen ? styles.open : ''}`}>
                     {tenant ? (
                         <>
-                            <Link href="/" className={pathname === '/' ? styles.active : ''}>{t.home}</Link>
-                            <Link href="/products" className={pathname?.startsWith('/products') ? styles.active : ''}>{t.products}</Link>
-                            <Link href="/about" className={pathname === '/about' ? styles.active : ''}>{t.about}</Link>
+                            <Link href={`${p}`} className={pathname === `${p}` || pathname === `${p}/` ? styles.active : ''}>{t.home}</Link>
+                            <Link href={`${p}/products`} className={pathname?.startsWith(`${p}/products`) ? styles.active : ''}>{t.products}</Link>
+                            <Link href={`${p}/about`} className={pathname === `${p}/about` ? styles.active : ''}>{t.about}</Link>
                         </>
                     ) : (
                         <>
@@ -115,7 +118,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                 {/* Actions */}
                 <div className={styles.actions}>
                     {tenant && (
-                        <Link href="/cart" className={styles.cartBtn} title="Keranjang">
+                        <Link href={`${p}/cart`} className={styles.cartBtn} title="Keranjang">
                             <ShoppingCart size={24} />
                             {mounted && totalItems > 0 && (
                                 <span className={styles.badge}>{totalItems}</span>
@@ -126,11 +129,11 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                     {user ? (
                         <div className={styles.userMenu}>
                             {(user.role === 'OWNER' || user.role === 'STAFF' || user.role === 'SUPER_ADMIN') ? (
-                                <Link href={user.role === 'SUPER_ADMIN' ? '/super-admin' : '/admin'} title="Dashboard">
+                                <Link href={user.role === 'SUPER_ADMIN' ? '/super-admin' : `${p}/admin`} title="Dashboard">
                                     <LayoutDashboard size={24} />
                                 </Link>
                             ) : (
-                                <Link href="/profile" title="Profile">
+                                <Link href={`${p}/profile`} title="Profile">
                                     <User size={24} />
                                 </Link>
                             )}
@@ -138,7 +141,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                                 onClick={async () => {
                                     await logout()
                                     toast.success(t.logout_success)
-                                    router.push('/')
+                                    router.push(tenant ? `${p}` : '/')
                                     window.location.reload()
                                 }}
                                 title="Logout"
@@ -147,7 +150,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                             </button>
                         </div>
                     ) : (
-                        <Link href={tenant ? `/${tenant.slug}/login` : "/login"} className="btn-primary">{t.login}</Link>
+                        <Link href={tenant ? `${p}/login` : "/login"} className="btn-primary">{t.login}</Link>
                     )}
 
                     <LanguageSwitcher currentLocale={locale} />

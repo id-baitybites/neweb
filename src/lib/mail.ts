@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { TenantData } from './tenant';
+import { getSafeCurrency } from './config';
 
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST || 'smtp.mailtrap.io',
@@ -52,7 +53,7 @@ export const sendOrderEmail = async (
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat(tenant.config.language === 'id' ? 'id-ID' : 'en-US', {
             style: 'currency',
-            currency: tenant.config.currency,
+            currency: getSafeCurrency(tenant.config.currency),
             minimumFractionDigits: 0,
         }).format(price);
     };

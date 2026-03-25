@@ -4,9 +4,12 @@ import CheckoutContent from '@/components/checkout/CheckoutContent'
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/actions/auth'
 import { prisma } from '@/lib/prisma'
+import { getDictionary } from '@/i18n'
 
 export default async function CheckoutPage() {
     const tenant = await resolveTenant()
+    const dict = await getDictionary()
+
     if (!tenant) redirect('/')
 
     // Optionally pre-fill checkout form for logged-in customers
@@ -32,6 +35,6 @@ export default async function CheckoutPage() {
     }
 
     return (
-        <CheckoutContent tenant={tenant} customerProfile={customerProfile} />
+        <CheckoutContent tenant={tenant} customerProfile={customerProfile} dict={dict} />
     )
 }

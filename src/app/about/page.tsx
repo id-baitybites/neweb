@@ -1,12 +1,20 @@
 import { resolveTenant } from '@/lib/tenant'
 import type { Metadata } from 'next'
+import { getDictionary } from '@/i18n'
 
-export const metadata: Metadata = {
-    title: 'Tentang Kami | Bitespace',
+export async function generateMetadata(): Promise<Metadata> {
+    const dict = await getDictionary()
+    const tenant = await resolveTenant()
+    const t = dict.about
+    return {
+        title: t.title.replace('{name}', tenant?.name || 'Bitespace'),
+    }
 }
 
 export default async function AboutPage() {
     const tenant = await resolveTenant()
+    const dict = await getDictionary()
+    const t = dict.about
 
     return (
         <div className="container" style={{ padding: '6rem 1rem', minHeight: '80vh', maxWidth: '1000px', margin: '0 auto' }}>
@@ -19,7 +27,7 @@ export default async function AboutPage() {
                     letterSpacing: '0.1em', 
                     textTransform: 'uppercase' 
                 }}>
-                    Tentang Kami
+                    {t.title.replace('{name}', '')}
                 </span>
                 <h1 style={{ 
                     fontSize: '3rem', 
@@ -28,7 +36,7 @@ export default async function AboutPage() {
                     margin: 0,
                     lineHeight: 1.2
                 }}>
-                    Misi Kami di {tenant?.name || 'Bitespace'}
+                    {t.mission} {dict.locale === 'id' ? 'di' : 'at'} {tenant?.name || 'Bitespace'}
                 </h1>
             </div>
 
@@ -44,10 +52,13 @@ export default async function AboutPage() {
                 {tenant ? (
                     <div>
                         <p style={{ marginBottom: '2rem', fontSize: '1.25rem', color: '#1e293b', fontWeight: 500 }}>
-                            Selamat datang di <strong>{tenant.name}</strong>. Di sini, kami percaya bahwa setiap produk memiliki cerita unik untuk diceritakan.
+                            {dict.locale === 'id' 
+                                ? `Selamat datang di ${tenant.name}. Di sini, kami percaya bahwa setiap produk memiliki cerita unik untuk diceritakan.`
+                                : `Welcome to ${tenant.name}. Here, we believe that every product has a unique story to tell.`
+                            }
                         </p>
                         <p style={{ marginBottom: '1.5rem' }}>
-                            Kami berdedikasi untuk menghadirkan kualitas terbaik dari setiap racikan dan kreasi yang kami hasilkan. Berdiri sebagai bagian dari ekosistem <strong>Bitespace</strong>, toko kami mengedepankan kemudahan transaksi, kecepatan pelayanan, dan tentu saja kepuasan Anda sebagai pelanggan setia.
+                            {t.story_desc}
                         </p>
                         <div style={{ 
                             padding: '2rem', 
@@ -56,19 +67,19 @@ export default async function AboutPage() {
                             margin: '2rem 0',
                             borderLeft: `6px solid ${tenant.theme.primary || '#4F46E5'}`
                         }}>
-                            "Kepuasan pelanggan bukan sekadar tujuan, melainkan standar minimum bagi kebahagiaan kami."
+                            {dict.locale === 'id'
+                                ? "Kepuasan pelanggan bukan sekadar tujuan, melainkan standar minimum bagi kebahagiaan kami."
+                                : "Customer satisfaction is not just a goal, but the minimum standard for our happiness."
+                            }
                         </div>
                     </div>
                 ) : (
                     <div>
                         <p style={{ marginBottom: '2rem', fontSize: '1.25rem', color: '#1e293b', fontWeight: 500 }}>
-                            <strong>Bitespace</strong> adalah platform SaaS multi-fungsi yang lahir untuk memberdayakan UMKM dan Merchant di seluruh Indonesia.
+                            <strong>Bitespace</strong> {dict.locale === 'id' ? 'adalah platform SaaS multi-fungsi yang lahir untuk memberdayakan UMKM dan Merchant di seluruh Indonesia.' : 'is a multi-functional SaaS platform born to empower SMEs and Merchants across Indonesia.'}
                         </p>
                         <p style={{ marginBottom: '1.5rem' }}>
-                            Kami memahami tantangan mengelola bisnis di era digital. Oleh karena itu, kami membangun infrastruktur yang tangguh, mudah digunakan, dan terintegrasi penuh—mulai dari manajemen produk, sistem inventori, hingga gerbang pembayaran otomatis.
-                        </p>
-                        <p style={{ marginBottom: '1.5rem' }}>
-                            Misi kami adalah membantu para pengusaha fokus pada apa yang mereka cintai: <strong>menciptakan produk luar biasa</strong>. Sementara urusan teknologi, biarkan kami yang menanganinya.
+                            {t.mission_desc}
                         </p>
                         <div style={{ 
                             padding: '2rem', 
@@ -77,13 +88,16 @@ export default async function AboutPage() {
                             margin: '2rem 0',
                             borderLeft: '6px solid #4F46E5'
                         }}>
-                            Kami percaya bahwa teknologi terbaik adalah teknologi yang mendemokrasikan peluang bagi siapa saja untuk sukses di pasar digital.
+                            {dict.locale === 'id'
+                                ? "Kami percaya bahwa teknologi terbaik adalah teknologi yang mendemokrasikan peluang bagi siapa saja untuk sukses di pasar digital."
+                                : "We believe the best technology is that which democratizes opportunities for anyone to succeed in the digital marketplace."
+                            }
                         </div>
                     </div>
                 )}
                 
                 <p style={{ marginTop: '2.5rem', textAlign: 'center', fontWeight: 600, color: '#1e293b' }}>
-                    Terima kasih telah menjadi bagian dari perjalanan kami.
+                    {dict.locale === 'id' ? 'Terima kasih telah menjadi bagian dari perjalanan kami.' : 'Thank you for being part of our journey.'}
                 </p>
             </div>
         </div>

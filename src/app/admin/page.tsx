@@ -5,9 +5,19 @@ import { ShoppingCart, DollarSign, Package, TrendingUp } from 'lucide-react'
 import { Order } from '@prisma/client'
 import { resolveTenant } from '@/lib/tenant'
 import { redirect } from 'next/navigation'
+import { getDictionary } from '@/i18n'
+import { getCurrentUser } from '@/actions/auth'
+import { getSafeCurrency } from '@/lib/config'
 
 export default async function AdminDashboardPage() {
     const tenant = await resolveTenant()
+    const dict = await getDictionary()
+    const { admin: t } = dict
+    const user = await getCurrentUser()
+
+    if (!user || (user.role !== 'OWNER' && user.role !== 'STAFF' && user.role !== 'SUPER_ADMIN')) {
+        redirect('/')
+    }
     
     if (!tenant) {
         console.warn('[AdminDashboardPage] No tenant context, redirecting to home...')
@@ -35,17 +45,7 @@ export default async function AdminDashboardPage() {
     })
     const revenue = orders.reduce((acc: number, order: Order) => acc + (order.total || 0), 0)
 
-    // Map display symbols → valid ISO 4217 codes in case the merchant typed a symbol instead of a code
-    const CURRENCY_MAP: Record<string, string> = {
-        'Rp': 'IDR', 'rp': 'IDR',
-        '$': 'USD', 'USD': 'USD',
-        '€': 'EUR', 'EUR': 'EUR',
-        '£': 'GBP', 'GBP': 'GBP',
-        '¥': 'JPY', 'JPY': 'JPY',
-        'SGD': 'SGD', 'MYR': 'MYR',
-    }
-    const rawCurrency = tenant.config.currency ?? 'IDR'
-    const safeCurrency = CURRENCY_MAP[rawCurrency] ?? (rawCurrency.length === 3 ? rawCurrency.toUpperCase() : 'IDR')
+    const safeCurrency = getSafeCurrency(tenant.config.currency)
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat(tenant.config.language === 'id' ? 'id-ID' : 'en-US', {
@@ -65,35 +65,35 @@ export default async function AdminDashboardPage() {
         <div>
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
-                    <div className={styles.label}>Total Pendapatan (Ready)</div>
+                    <div className={styles.label}>{t.total_revenue}</div>
                     <div className={styles.value}><DollarSign size={20} style={{ color: '#4CAF50' }} /> {formatCurrency(revenue)}</div>
-                    <div style={{ color: '#4CAF50', fontSize: '0.8rem', marginTop: '0.5rem' }}>+12% dari minggu lalu</div>
+                    <div style={{ color: '#4CAF50', fontSize: '0.8rem', marginTop: '0.5rem' }}>{t.revenue_week}</div>
                 </div>
 
                 <div className={styles.statCard}>
-                    <div className={styles.label}>Total Pesanan</div>
+                    <div className={styles.label}>{t.total_orders}</div>
                     <div className={styles.value}><ShoppingCart size={20} style={{ color: '#2196F3' }} /> {ordersCount}</div>
-                    <div style={{ color: '#2196F3', fontSize: '0.8rem', marginTop: '0.5rem' }}>Ada {recentOrders.length} pesanan baru</div>
+                    <div style={{ color: '#2196F3', fontSize: '0.8rem', marginTop: '0.5rem' }}>{t.new_orders.replace('{count}', recentOrders.length.toString())}</div>
                 </div>
 
                 <div className={styles.statCard}>
-                    <div className={styles.label}>Total Produk</div>
+                    <div className={styles.label}>{t.total_products}</div>
                     <div className={styles.value}><TrendingUp size={20} style={{ color: '#9C27B0' }} /> {productsCount}</div>
-                    <div style={{ color: '#9C27B0', fontSize: '0.8rem', marginTop: '0.5rem' }}>Menu produk Anda</div>
+                    <div style={{ color: '#9C27B0', fontSize: '0.8rem', marginTop: '0.5rem' }}>{t.your_menu}</div>
                 </div>
 
                 <div className={styles.statCard}>
-                    <div className={styles.label}>Item Inventori</div>
+                    <div className={styles.label}>{t.inventory_items}</div>
                     <div className={styles.value}><Package size={20} style={{ color: '#FF9800' }} /> {inventoryCount}</div>
-                    <div style={{ color: '#64748B', fontSize: '0.8rem', marginTop: '0.5rem' }}>Pantau stok bahan</div>
+                    <div style={{ color: '#64748B', fontSize: '0.8rem', marginTop: '0.5rem' }}>{t.monitor_stock}</div>
                 </div>
             </div>
 
             <div style={{ background: 'white', padding: '2rem', borderRadius: '15px', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
-                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: 800 }}>Pesanan Terbaru</h3>
+                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: 800 }}>{t.recent_orders}</h3>
                 
                 {recentOrders.length === 0 ? (
-                    <p style={{ color: '#888' }}>Belum ada pesanan masuk.</p>
+                    <p style={{ color: '#888' }}>{t.no_orders}</p>
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         {recentOrders.map(order => (

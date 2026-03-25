@@ -2,13 +2,19 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/actions/auth'
 import { redirect } from 'next/navigation'
 import ProfileClient from '@/components/customer/ProfileClient'
+import { resolveTenant } from '@/lib/tenant'
+import { getDictionary } from '@/i18n'
 
 export default async function ProfilePage() {
     const sessionUser = await getCurrentUser()
-    if (!sessionUser) redirect('/login?returnUrl=/profile')
+    const tenant = await resolveTenant()
+    const dict = await getDictionary()
+    const prefix = tenant ? `/${tenant.slug}` : ''
+
+    if (!sessionUser) redirect(`${prefix}/login?returnUrl=${prefix}/profile`)
 
     if (sessionUser.role === 'SUPER_ADMIN') redirect('/super-admin')
-    if (sessionUser.role === 'OWNER' || sessionUser.role === 'STAFF') redirect('/admin')
+    if (sessionUser.role === 'OWNER' || sessionUser.role === 'STAFF') redirect(`${prefix}/admin`)
 
     // @ts-ignore -- CustomerProfile relation added via db push; types catch up on next restart
     const user = await (prisma.user.findUnique as any)({
@@ -49,5 +55,5 @@ export default async function ProfilePage() {
         }))
     }
 
-    return <ProfileClient user={serializedUser} />
+    return <ProfileClient user={serializedUser} prefix={prefix} dict={dict} tenant={tenant} />
 }

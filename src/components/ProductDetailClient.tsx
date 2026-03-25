@@ -9,9 +9,11 @@ import { Product } from '@prisma/client'
 
 interface Props {
     product: Product
+    dict: any
 }
 
-export default function ProductDetailClient({ product }: Props) {
+export default function ProductDetailClient({ product, dict }: Props) {
+    const t = dict.product_detail
     const addItem = useCartStore((state) => state.addItem)
     const [quantity, setQuantity] = useState(1)
     const [customization, setCustomization] = useState({
@@ -22,7 +24,7 @@ export default function ProductDetailClient({ product }: Props) {
     })
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('id-ID', {
+        return new Intl.NumberFormat(dict.locale === 'id' ? 'id-ID' : 'en-US', {
             style: 'currency',
             currency: 'IDR',
             minimumFractionDigits: 0,
@@ -43,7 +45,7 @@ export default function ProductDetailClient({ product }: Props) {
                 imageRef: undefined
             }
         })
-        toast.success(`${product.name} ditambahkan ke keranjang!`)
+        toast.success(t.added_toast.replace('{name}', product.name))
     }
 
     return (
@@ -54,7 +56,9 @@ export default function ProductDetailClient({ product }: Props) {
                         {product.imageUrl ? (
                             <img src={product.imageUrl} alt={product.name} />
                         ) : (
-                            <div style={{ height: 400, background: '#eee' }}>No Image</div>
+                            <div style={{ height: 400, background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {t.no_image}
+                            </div>
                         )}
                     </div>
 
@@ -64,10 +68,10 @@ export default function ProductDetailClient({ product }: Props) {
                         <p className={styles.description}>{product.description}</p>
 
                         <div className={styles.customization}>
-                            <h3>Kustomisasi Kue</h3>
+                            <h3>{t.customize}</h3>
 
                             <div className={styles.formGroup}>
-                                <label>Varian Rasa</label>
+                                <label>{t.flavor}</label>
                                 <select
                                     value={customization.flavor}
                                     onChange={(e) => setCustomization({ ...customization, flavor: e.target.value })}
@@ -80,7 +84,7 @@ export default function ProductDetailClient({ product }: Props) {
                             </div>
 
                             <div className={styles.formGroup}>
-                                <label>Ukuran</label>
+                                <label>{t.size}</label>
                                 <select
                                     value={customization.size}
                                     onChange={(e) => setCustomization({ ...customization, size: e.target.value })}
@@ -93,7 +97,7 @@ export default function ProductDetailClient({ product }: Props) {
                             </div>
 
                             <div className={styles.formGroup}>
-                                <label>Topping Tambahan</label>
+                                <label>{t.topping}</label>
                                 <select
                                     value={customization.topping}
                                     onChange={(e) => setCustomization({ ...customization, topping: e.target.value })}
@@ -107,9 +111,9 @@ export default function ProductDetailClient({ product }: Props) {
                             </div>
 
                             <div className={styles.formGroup}>
-                                <label>Pesan di Atas Kue (Opsional)</label>
+                                <label>{t.message}</label>
                                 <textarea
-                                    placeholder="Contoh: Happy Birthday Budi!"
+                                    placeholder={t.message_placeholder}
                                     value={customization.message}
                                     onChange={(e) => setCustomization({ ...customization, message: e.target.value })}
                                 />
@@ -128,7 +132,7 @@ export default function ProductDetailClient({ product }: Props) {
 
                                 <button onClick={handleAddToCart} className={`${styles.addButton} btn-primary`}>
                                     <ShoppingCart size={20} style={{ marginRight: '0.5rem' }} />
-                                    Tambah ke Keranjang
+                                    {t.add_to_cart}
                                 </button>
                             </div>
                         </div>

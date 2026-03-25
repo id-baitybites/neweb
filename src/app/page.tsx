@@ -217,17 +217,17 @@ export default async function Home() {
           <div className={styles.statsBar}>
             <div className={styles.stat}>
               <div className={styles.statNum}>{allTenants.length}+</div>
-              <div className={styles.statLabel}>Active Stores</div>
+              <div className={styles.statLabel}>{dict.platform.stats_active}</div>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
               <div className={styles.statNum}>99%</div>
-              <div className={styles.statLabel}>Uptime SLA</div>
+              <div className={styles.statLabel}>{dict.platform.stats_uptime}</div>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
               <div className={styles.statNum}>4</div>
-              <div className={styles.statLabel}>Subscription Plans</div>
+              <div className={styles.statLabel}>{dict.platform.stats_plans}</div>
             </div>
           </div>
         </div>
@@ -236,7 +236,7 @@ export default async function Home() {
       {/* ── FEATURES ─────────────────────────────────────── */}
       <section id="features" className={styles.platformSection}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <p className={styles.sectionLabel}>Platform Features</p>
+          <p className={styles.sectionLabel}>{dict.platform.label_features}</p>
           <h2 className={styles.sectionTitle}>{dict.platform.features_title}</h2>
           <p className={styles.sectionDesc}>{dict.platform.features_desc}</p>
 
@@ -267,22 +267,22 @@ export default async function Home() {
                 icon: <Globe size={26} />,
                 iconBg: 'rgba(251,191,36,0.15)',
                 iconColor: '#fbbf24',
-                title: (dict.platform as any).feat4_title || 'Custom Domain & Branding',
-                desc: (dict.platform as any).feat4_desc || 'Each tenant gets a unique domain, color palette, custom fonts, and logo — full white-label control.',
+                title: dict.platform.feat4_title,
+                desc: dict.platform.feat4_desc,
               },
               {
                 icon: <ShieldCheck size={26} />,
                 iconBg: 'rgba(52,211,153,0.15)',
                 iconColor: '#34d399',
-                title: (dict.platform as any).feat5_title || 'Secure & Isolated',
-                desc: (dict.platform as any).feat5_desc || 'Every merchant\'s data is fully isolated. JWT authentication, encrypted passwords, and role-based access control baked in.',
+                title: dict.platform.feat5_title,
+                desc: dict.platform.feat5_desc,
               },
               {
                 icon: <ArrowRight size={26} />,
                 iconBg: 'rgba(168,85,247,0.15)',
                 iconColor: '#c084fc',
-                title: (dict.platform as any).feat6_title || 'One-Click Onboarding',
-                desc: (dict.platform as any).feat6_desc || 'Merchants can sign up, choose a plan, and launch their storefront in under 3 minutes.',
+                title: dict.platform.feat6_title,
+                desc: dict.platform.feat6_desc,
               },
             ].map((f, i) => (
               <div key={i} className={styles.featureCard}>
@@ -300,7 +300,7 @@ export default async function Home() {
       {/* ── MERCHANTS ────────────────────────────────────── */}
       <section id="merchants" className={`${styles.platformSection} ${styles.altBg}`}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <p className={styles.sectionLabel}>Live on Platform</p>
+          <p className={styles.sectionLabel}>{dict.platform.label_merchants}</p>
           <h2 className={styles.sectionTitle}>{dict.platform.merchants_title}</h2>
           <p className={styles.sectionDesc}>{dict.platform.merchants_desc}</p>
 
@@ -342,25 +342,25 @@ export default async function Home() {
 
           <div className={styles.footerLinks}>
             <div className={styles.col}>
-              <h5>Platform</h5>
+              <h5>{dict.platform.footer.platform}</h5>
               <ul>
-                <li><Link href="/pricing">Pricing</Link></li>
-                <li><Link href="/onboarding">Get Started</Link></li>
+                <li><Link href="/pricing">{dict.platform.footer.pricing}</Link></li>
+                <li><Link href="/onboarding">{dict.platform.footer.get_started}</Link></li>
                 <li><Link href="/super-admin">{dict.platform.super_admin}</Link></li>
               </ul>
             </div>
             <div className={styles.col}>
-              <h5>Legal</h5>
+              <h5>{dict.platform.footer.legal}</h5>
               <ul>
-                <li><a href="#">Terms of Service</a></li>
-                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">{dict.platform.footer.tos}</a></li>
+                <li><a href="#">{dict.platform.footer.privacy}</a></li>
               </ul>
             </div>
           </div>
         </div>
 
         <div className={styles.footerBottom}>
-          <span>&copy; {new Date().getFullYear()} Bitespace Platform. All rights reserved.</span>
+          <span>&copy; {new Date().getFullYear()} Bitespace Platform. {dict.platform.footer.all_rights}</span>
           <div className={styles.poweredBy}>
             Built on <span>Next.js</span> · v{pkg.version}
           </div>

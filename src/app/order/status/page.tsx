@@ -2,6 +2,9 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { Clock, CheckCircle, Package, Truck, AlertCircle, ShoppingBag, MapPin, Phone, User, Calendar, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { resolveTenant } from '@/lib/tenant'
+import { getDictionary } from '@/i18n'
+import { getSafeCurrency } from '@/lib/config'
 
 interface Props {
     searchParams: {
@@ -12,6 +15,11 @@ interface Props {
 export default async function OrderStatusPage({ searchParams }: Props) {
     const { id } = await searchParams
     if (!id) notFound()
+
+    const tenant = await resolveTenant()
+    const dict = await getDictionary()
+    const t = dict.order_status
+    const prefix = tenant ? `/${tenant.slug}` : ''
 
     const order = await prisma.order.findUnique({
         where: { id },
@@ -26,19 +34,19 @@ export default async function OrderStatusPage({ searchParams }: Props) {
     if (!order) notFound()
 
     const statusSteps = [
-        { key: 'PENDING', label: 'Pesanan Diterima', icon: <Clock size={18} />, color: '#f97316' },
-        { key: 'PROCESSING', label: 'Sedang Diproses', icon: <Package size={18} />, color: '#3b82f6' },
-        { key: 'READY', label: 'Siap Dikirim/Ambil', icon: <CheckCircle size={18} />, color: '#22c55e' },
-        { key: 'SHIPPED', label: 'Sedang Diperjalanan', icon: <Truck size={18} />, color: '#FF69B4' },
-        { key: 'COMPLETED', label: 'Selesai', icon: <ShoppingBag size={18} />, color: '#059669' },
+        { key: 'PENDING', label: t.timeline.PENDING, icon: <Clock size={18} />, color: '#f97316' },
+        { key: 'PROCESSING', label: t.timeline.PROCESSING, icon: <Package size={18} />, color: '#3b82f6' },
+        { key: 'READY', label: t.timeline.READY, icon: <CheckCircle size={18} />, color: '#22c55e' },
+        { key: 'SHIPPED', label: t.timeline.SHIPPED, icon: <Truck size={18} />, color: '#FF69B4' },
+        { key: 'COMPLETED', label: t.timeline.COMPLETED, icon: <ShoppingBag size={18} />, color: '#059669' },
     ]
 
     const currentIndex = statusSteps.findIndex(s => s.key === order.status)
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('id-ID', {
+        return new Intl.NumberFormat(dict.locale === 'id' ? 'id-ID' : 'en-US', {
             style: 'currency',
-            currency: 'IDR',
+            currency: getSafeCurrency(tenant?.config.currency),
             minimumFractionDigits: 0,
         }).format(price)
     }
@@ -52,16 +60,16 @@ export default async function OrderStatusPage({ searchParams }: Props) {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                         <div>
                             <span style={{ background: '#fff1f2', color: '#e11d48', padding: '4px 12px', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                Rincian Pesanan
+                                {t.badge}
                             </span>
-                            <h1 style={{ fontSize: '2rem', fontWeight: 900, margin: '12px 0 4px', color: '#1a1a1a' }}>Order #{id.slice(-8).toUpperCase()}</h1>
+                            <h1 style={{ fontSize: '2rem', fontWeight: 900, margin: '12px 0 4px', color: '#1a1a1a' }}>{t.order_id.replace('{id}', id.slice(-8).toUpperCase())}</h1>
                             <p style={{ color: '#888', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.95rem' }}>
-                                <Calendar size={16} /> {new Date(order.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                <Calendar size={16} /> {new Date(order.createdAt).toLocaleDateString(dict.locale === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                             </p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                             <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#FF69B4' }}>{formatPrice(order.total)}</div>
-                            <div style={{ fontSize: '0.85rem', color: '#aaa', marginTop: '4px' }}>{order.orderItems.length} Produk</div>
+                            <div style={{ fontSize: '0.85rem', color: '#aaa', marginTop: '4px' }}>{t.products_count.replace('{count}', order.orderItems.length.toString())}</div>
                         </div>
                     </div>
 
@@ -100,7 +108,7 @@ export default async function OrderStatusPage({ searchParams }: Props) {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', boxShadow: '0 10px 40px rgba(0,0,0,0.04)' }}>
                             <h3 style={{ fontWeight: 800, fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <ShoppingBag size={20} color="#FF69B4" /> Item Pesanan
+                                <ShoppingBag size={20} color="#FF69B4" /> {t.order_items_title}
                             </h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                                 {order.orderItems.map((item: any) => (
@@ -118,7 +126,7 @@ export default async function OrderStatusPage({ searchParams }: Props) {
                             </div>
                             <div style={{ borderTop: '2px dashed #f0f0f0', marginTop: '1.5rem', paddingTop: '1.5rem' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: '1.2rem' }}>
-                                    <span>Total Bayar</span>
+                                    <span>{t.total_payment}</span>
                                     <span style={{ color: '#FF69B4' }}>{formatPrice(order.total)}</span>
                                 </div>
                             </div>
@@ -128,12 +136,12 @@ export default async function OrderStatusPage({ searchParams }: Props) {
                     {/* Right: Info */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', boxShadow: '0 10px 40px rgba(0,0,0,0.04)' }}>
-                            <h3 style={{ fontWeight: 800, fontSize: '1.1rem', marginBottom: '1.5rem' }}>Informasi Pengiriman</h3>
+                            <h3 style={{ fontWeight: 800, fontSize: '1.1rem', marginBottom: '1.5rem' }}>{t.delivery_info_title}</h3>
                             
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', marginBottom: '4px' }}>
-                                        <User size={14} /> Penerima
+                                        <User size={14} /> {t.recipient}
                                     </div>
                                     <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{order.customerName}</div>
                                     <div style={{ color: '#888', fontSize: '0.9rem' }}>{order.customerPhone}</div>
@@ -142,7 +150,7 @@ export default async function OrderStatusPage({ searchParams }: Props) {
                                 {order.delivery && (
                                     <div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', marginBottom: '4px' }}>
-                                            <MapPin size={14} /> Alamat
+                                            <MapPin size={14} /> {t.address}
                                         </div>
                                         <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#444', lineHeight: 1.5 }}>
                                             {order.delivery.address}
@@ -153,11 +161,11 @@ export default async function OrderStatusPage({ searchParams }: Props) {
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                             <Link href="/profile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '1rem', background: 'white', borderRadius: '16px', color: '#1a1a1a', fontWeight: 700, textDecoration: 'none', border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                                Lihat Semua Pesanan <ChevronRight size={18} />
+                             <Link href={`${prefix}/profile`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '1rem', background: 'white', borderRadius: '16px', color: '#1a1a1a', fontWeight: 700, textDecoration: 'none', border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                                {t.view_all_orders} <ChevronRight size={18} />
                              </Link>
-                             <Link href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '1rem', background: 'linear-gradient(135deg, #FF69B4, #e55da0)', borderRadius: '16px', color: 'white', fontWeight: 800, textDecoration: 'none', boxShadow: '0 8px 20px rgba(255,105,180,0.3)' }}>
-                                Kembali Belanja
+                             <Link href={`${prefix}/`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '1rem', background: 'linear-gradient(135deg, #FF69B4, #e55da0)', borderRadius: '16px', color: 'white', fontWeight: 800, textDecoration: 'none', boxShadow: '0 8px 20px rgba(255,105,180,0.3)' }}>
+                                {t.back_shopping}
                              </Link>
                         </div>
                     </div>

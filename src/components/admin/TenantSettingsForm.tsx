@@ -6,7 +6,8 @@ import { uploadImageAction } from '@/actions/upload';
 import { toast } from 'sonner';
 import { Palette, Type, Globe, Truck, Calendar, Save, Upload, Image as ImageIcon, CheckCircle2, Loader2, Instagram, Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
 
-export default function TenantSettingsForm({ tenant }: { tenant: any }) {
+export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any, adminDict: any }) {
+    const t = adminDict.settings;
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
@@ -106,13 +107,13 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                         <div style={{ background: 'rgba(255, 105, 180, 0.1)', color: '#FF69B4', padding: '0.5rem', borderRadius: '8px' }}>
                             <Palette size={20} />
                         </div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Visual Identity & Colors</h3>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>{t.visual_identity}</h3>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '3rem' }}>
                         {/* Preset Section */}
                         <div style={{ padding: '1.5rem', background: '#0f0f0f', borderRadius: '12px', border: '1px solid #2a2a2a' }}>
-                            <label style={{ display: 'block', marginBottom: '1.25rem', fontSize: '0.85rem', color: '#888', fontWeight: 700, letterSpacing: '0.05em' }}>THEME PRESETS</label>
+                            <label style={{ display: 'block', marginBottom: '1.25rem', fontSize: '0.85rem', color: '#888', fontWeight: 700, letterSpacing: '0.05em' }}>{t.presets}</label>
                             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                                 {THEME_PRESETS.map((p) => (
                                     <button
@@ -146,7 +147,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
 
                         <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '3rem' }}>
                             <div>
-                                <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>STORE LOGO</label>
+                                <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>{t.logo}</label>
                                 <div style={{
                                     width: '100%',
                                     aspectRatio: '1',
@@ -165,7 +166,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                                     ) : (
                                         <div style={{ textAlign: 'center', color: '#444' }}>
                                             <ImageIcon size={40} style={{ marginBottom: '0.5rem' }} />
-                                            <div style={{ fontSize: '0.75rem' }}>No logo</div>
+                                            <div style={{ fontSize: '0.75rem' }}>{t.no_logo}</div>
                                         </div>
                                     )}
                                 </div>
@@ -182,7 +183,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                                     gap: '0.5rem',
                                     transition: 'background 0.2s'
                                 }}>
-                                    {isUploading ? <><div className="spinner" /> Uploading...</> : <><Upload size={14} /> Change Logo</>}
+                                    {isUploading ? <><div className="spinner" /> {t.uploading}</> : <><Upload size={14} /> {t.change_logo}</>}
                                     <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} disabled={isUploading} />
                                 </label>
                             </div>
@@ -222,12 +223,12 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                         <div style={{ background: 'rgba(33, 150, 243, 0.1)', color: '#2196F3', padding: '0.5rem', borderRadius: '8px' }}>
                             <Type size={20} />
                         </div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Typography & Localization</h3>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>{t.typography}</h3>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
                         <div style={{ gridColumn: 'span 2' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>Global Font Family</label>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>{t.font}</label>
                             <select
                                 name="font"
                                 value={theme.font}
@@ -240,7 +241,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                             </select>
                         </div>
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>Currency</label>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>{t.currency}</label>
                             <select
                                 name="currency"
                                 value={config.currency}
@@ -256,11 +257,11 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                                 <option value="JPY">JPY — ¥ (Japanese Yen)</option>
                                 <option value="AUD">AUD — A$ (Australian Dollar)</option>
                             </select>
-                            <div style={{ fontSize: '0.72rem', color: '#555', marginTop: '0.35rem' }}>Uses ISO 4217 code — required for correct formatting.</div>
+                            <div style={{ fontSize: '0.72rem', color: '#555', marginTop: '0.35rem' }}>{t.currency_hint}</div>
                         </div>
 
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>Default Language</label>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>{t.language}</label>
                             <select name="language" value={config.language} onChange={e => setConfig({ ...config, language: e.target.value })} style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white' }}>
                                 <option value="id">Indonesian (Jakarta)</option>
                                 <option value="en">English (US)</option>
@@ -275,7 +276,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                         <div style={{ background: 'rgba(255, 152, 0, 0.1)', color: '#FF9800', padding: '0.5rem', borderRadius: '8px' }}>
                             <ImageIcon size={20} />
                         </div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Hero Personalization</h3>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>{t.hero_per}</h3>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 200px', gap: '2rem' }}>
@@ -306,7 +307,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                                                 >{label}</button>
                                             ))}
                                             <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#555', alignSelf: 'center' }}>
-                                                Serving correct text based on visitor language
+                                                {t.hero_hint}
                                             </span>
                                         </div>
 
@@ -315,7 +316,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                                             <>
                                                 <div style={{ marginBottom: '1.25rem' }}>
                                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>
-                                                        Hero Title — Bahasa Indonesia
+                                                        {t.hero_title} — Bahasa Indonesia
                                                     </label>
                                                     <input
                                                         type="text"
@@ -324,11 +325,11 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                                                         onChange={e => setTheme({ ...theme, heroTitle: e.target.value })}
                                                         style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', boxSizing: 'border-box' }}
                                                     />
-                                                    <div style={{ fontSize: '0.75rem', color: '#555', marginTop: '0.4rem' }}>Kosongkan untuk menggunakan teks bawaan sistem.</div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#555', marginTop: '0.4rem' }}>{t.hero_field_hint}</div>
                                                 </div>
                                                 <div>
                                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>
-                                                        Hero Description — Bahasa Indonesia
+                                                        {t.hero_title} — Bahasa Indonesia
                                                     </label>
                                                     <textarea
                                                         placeholder="Dibuat segar setiap hari dengan bahan premium..."
@@ -345,7 +346,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                                             <>
                                                 <div style={{ marginBottom: '1.25rem' }}>
                                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>
-                                                        Hero Title — English
+                                                        {t.hero_title} — English
                                                     </label>
                                                     <input
                                                         type="text"
@@ -354,11 +355,11 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                                                         onChange={e => setTheme({ ...theme, heroTitle_en: e.target.value })}
                                                         style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', boxSizing: 'border-box' }}
                                                     />
-                                                    <div style={{ fontSize: '0.75rem', color: '#555', marginTop: '0.4rem' }}>Leave blank to fall back to the Indonesian version.</div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#555', marginTop: '0.4rem' }}>{t.hero_field_hint}</div>
                                                 </div>
                                                 <div>
                                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>
-                                                        Hero Description — English
+                                                        {t.hero_desc} — English
                                                     </label>
                                                     <textarea
                                                         placeholder="Baked fresh everyday with only premium ingredients..."
@@ -376,7 +377,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
 
 
                         <div>
-                            <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>HERO BACKGROUND</label>
+                            <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>{t.hero_bg}</label>
                             <div style={{
                                 width: '100%',
                                 aspectRatio: '16/9',
@@ -395,7 +396,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                                 ) : (
                                     <div style={{ textAlign: 'center', color: '#444' }}>
                                         <ImageIcon size={30} style={{ marginBottom: '0.5rem' }} />
-                                        <div style={{ fontSize: '0.75rem' }}>No image</div>
+                                        <div style={{ fontSize: '0.75rem' }}>{t.no_image}</div>
                                     </div>
                                 )}
                             </div>
@@ -417,7 +418,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                             </label>
                             {theme.heroBgUrl && (
                                 <button type="button" onClick={() => setTheme({ ...theme, heroBgUrl: '' })} style={{ width: '100%', marginTop: '0.5rem', background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.85rem', cursor: 'pointer', padding: '0.5rem' }}>
-                                    Remove Image
+                                    {t.remove_image}
                                 </button>
                             )}
                         </div>
@@ -430,16 +431,16 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                         <div style={{ background: 'rgba(76, 175, 80, 0.1)', color: '#4CAF50', padding: '0.5rem', borderRadius: '8px' }}>
                             <Truck size={20} />
                         </div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Business Logic</h3>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>{t.biz_logic}</h3>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>Delivery Fee ({config.currency})</label>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>{t.delivery_fee} ({config.currency})</label>
                             <input type="number" name="deliveryFee" value={config.deliveryFee} onChange={e => setConfig({ ...config, deliveryFee: Number(e.target.value) })} style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white' }} />
                         </div>
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>Minimum Pre-Order Days</label>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>{t.preorder}</label>
                             <div style={{ position: 'relative' }}>
                                 <Calendar size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
                                 <input type="number" name="minPreOrderDays" value={config.minPreOrderDays} onChange={e => setConfig({ ...config, minPreOrderDays: Number(e.target.value) })} style={{ width: '100%', padding: '0.8rem 0.8rem 0.8rem 2.5rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white' }} />
@@ -454,25 +455,25 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                         <div style={{ background: 'rgba(156, 39, 176, 0.1)', color: '#9C27B0', padding: '0.5rem', borderRadius: '8px' }}>
                             <Globe size={20} />
                         </div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Merchant Info & Social Presence</h3>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>{t.contact}</h3>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
                         <div>
-                            <label style={labelStyle}><Mail size={14} /> Official Email</label>
+                            <label style={labelStyle}><Mail size={14} /> {t.email}</label>
                             <input type="email" placeholder="hello@store.com" value={theme.contact?.email || ''} onChange={e => setTheme({ ...theme, contact: { ...theme.contact, email: e.target.value } })} style={inputStyle} />
                         </div>
                         <div>
-                            <label style={labelStyle}><Phone size={14} /> Phone Number</label>
+                            <label style={labelStyle}><Phone size={14} /> {t.phone}</label>
                             <input type="text" placeholder="+62..." value={theme.contact?.phone || ''} onChange={e => setTheme({ ...theme, contact: { ...theme.contact, phone: e.target.value } })} style={inputStyle} />
                         </div>
                         <div style={{ gridColumn: 'span 2' }}>
-                            <label style={labelStyle}><MapPin size={14} /> Store Address</label>
+                            <label style={labelStyle}><MapPin size={14} /> {t.address}</label>
                             <textarea placeholder="Jl. Raya No. 123..." value={theme.contact?.address || ''} onChange={e => setTheme({ ...theme, contact: { ...theme.contact, address: e.target.value } })} style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} />
                         </div>
 
                         <div style={{ gridColumn: 'span 2', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #2a2a2a' }}>
-                            <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748B', fontWeight: 700, marginBottom: '1.25rem', textTransform: 'uppercase' }}>Social Links</label>
+                            <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748B', fontWeight: 700, marginBottom: '1.25rem', textTransform: 'uppercase' }}>{t.social}</label>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div style={{ position: 'relative' }}>
                                     <Instagram size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#E1306C' }} />
@@ -518,7 +519,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                         onMouseOver={e => !isSaving && (e.currentTarget.style.transform = 'translateY(-2px)')}
                         onMouseOut={e => (e.currentTarget.style.transform = 'translateY(0)')}
                     >
-                        {isSaving ? <><Loader2 className="animate-spin" size={16} /> Saving...</> : <><Save size={20} /> Update Branding</>}
+                        {isSaving ? <><Loader2 className="animate-spin" size={16} /> {t.saving}</> : <><Save size={20} /> {t.save}</>}
                     </button>
                 </div>
             </div>
@@ -526,7 +527,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
             {/* LIVE PREVIEW SIDEBAR */}
             <div style={{ position: 'sticky', top: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ background: '#1a1a1a', padding: '1.5rem', borderRadius: '15px', border: '1px solid #2a2a2a' }}>
-                    <h4 style={{ fontSize: '0.75rem', color: '#888', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1.5rem' }}>Storefront Preview</h4>
+                    <h4 style={{ fontSize: '0.75rem', color: '#888', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1.5rem' }}>{t.preview}</h4>
 
                     <div style={{
                         background: theme.background,
@@ -594,7 +595,7 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                 </div>
 
                 <div style={{ background: 'rgba(255, 105, 180, 0.05)', padding: '1.25rem', borderRadius: '15px', border: '1px dashed rgba(255, 105, 180, 0.2)', color: '#FF69B4', fontSize: '0.85rem', lineHeight: 1.5 }}>
-                    <strong>Pro Tip:</strong> Use high-contrast colors for your Primary and Secondary choices to ensure your text remains legible and professional.
+                    <strong>Pro Tip:</strong> {t.pro_tip}
                 </div>
             </div>
 
