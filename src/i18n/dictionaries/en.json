@@ -27,6 +27,8 @@
   "platform": {
     "hero_chip": "Bitespace Multitenant Platform",
     "hero_title": "Empower Your Business with Bitespace.",
+    "hero_title_pre": "Empower Your",
+    "hero_title_highlight": "Business with Bitespace",
     "hero_desc": "The all-in-one scalable, professional e-commerce platform for bakeries, restaurants, and modern businesses. Manage multiple stores seamlessly from a single dashboard.",
     "btn_launch": "Launch Your Store",
     "btn_explore": "Explore Features",

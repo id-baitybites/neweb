@@ -31,14 +31,26 @@ const navDict = {
         products: 'Products',
         about: 'About',
         login: 'Login',
-        logout_success: 'Logged out successfully'
+        logout_success: 'Logged out successfully',
+        // Platform nav
+        platform: 'Platform',
+        features: 'Features',
+        pricing: 'Pricing',
+        merchants: 'Merchants',
+        about_us: 'About Us',
     },
     id: {
         home: 'Beranda',
         products: 'Produk',
         about: 'Tentang',
         login: 'Masuk',
-        logout_success: 'Berhasil keluar'
+        logout_success: 'Berhasil keluar',
+        // Platform nav
+        platform: 'Platform',
+        features: 'Fitur',
+        pricing: 'Paket',
+        merchants: 'Merchant',
+        about_us: 'Tentang Kami',
     }
 }
 
@@ -91,11 +103,11 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                         </>
                     ) : (
                         <>
-                            <Link href="/" className={pathname === '/' ? styles.active : ''}>Platform</Link>
-                            <Link href="/#features">Fitur</Link>
-                            <Link href="/pricing" className={pathname === '/pricing' ? styles.active : ''}>Paket</Link>
-                            <Link href="/#merchants">Merchant</Link>
-                            <Link href="/about" className={pathname === '/about' ? styles.active : ''}>Tentang Kami</Link>
+                            <Link href="/" className={pathname === '/' ? styles.active : ''}>{t.platform}</Link>
+                            <Link href="/#features">{t.features}</Link>
+                            <Link href="/pricing" className={pathname === '/pricing' ? styles.active : ''}>{t.pricing}</Link>
+                            <Link href="/#merchants">{t.merchants}</Link>
+                            <Link href="/about" className={pathname === '/about' ? styles.active : ''}>{t.about_us}</Link>
                         </>
                     )}
                 </div>

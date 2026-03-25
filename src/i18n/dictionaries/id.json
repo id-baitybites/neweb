@@ -27,6 +27,8 @@
   "platform": {
     "hero_chip": "Platform Multitenant Bitespace",
     "hero_title": "Berdayakan Bisnis Anda dengan Bitespace.",
+    "hero_title_pre": "Berdayakan Bisnis",
+    "hero_title_highlight": "Anda dengan Bitespace",
     "hero_desc": "Platform e-commerce yang dapat diskalakan dan profesional untuk toko roti, restoran, dan bisnis modern. Kelola banyak toko secara lancar dari satu dasbor.",
     "btn_launch": "Luncurkan Toko Anda",
     "btn_explore": "Jelajahi Fitur",

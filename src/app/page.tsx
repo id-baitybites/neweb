@@ -14,6 +14,8 @@ export default async function Home() {
   const tenant = await resolveTenant()
   const user = await getCurrentUser()
   const dict = await getDictionary()
+  // Determine current locale from i18n cookie
+  const locale = dict.locale
 
   if (tenant) {
     // Get top 4 products (favorite products)
@@ -44,10 +46,16 @@ export default async function Home() {
               {dict.tenant.hero_chip.replace('{name}', tenant.name)}
             </div>
 
-            <h1 style={tenant.theme.heroBgUrl ? { color: 'white' } : undefined}>{tenant.theme.heroTitle || dict.tenant.hero_title}</h1>
+            <h1 style={tenant.theme.heroBgUrl ? { color: 'white' } : undefined}>
+              {locale === 'en'
+                ? (tenant.theme.heroTitle_en || tenant.theme.heroTitle || dict.tenant.hero_title)
+                : (tenant.theme.heroTitle || dict.tenant.hero_title)}
+            </h1>
 
             <p style={tenant.theme.heroBgUrl ? { color: 'rgba(255,255,255,0.9)' } : undefined}>
-              {tenant.theme.heroDesc || dict.tenant.hero_desc.replace('{name}', tenant.name)}
+              {locale === 'en'
+                ? (tenant.theme.heroDesc_en || tenant.theme.heroDesc || dict.tenant.hero_desc.replace('{name}', tenant.name))
+                : (tenant.theme.heroDesc || dict.tenant.hero_desc.replace('{name}', tenant.name))}
             </p>
 
             <div className={styles.actions} style={{ justifyContent: 'center' }}>
@@ -188,9 +196,9 @@ export default async function Home() {
           </div>
 
           <h1 className={styles.platformTitle}>
-            {(dict.platform as any).hero_title_pre || 'Berdayakan Bisnis'}{' '}
+            {dict.platform.hero_title_pre}{' '}
             <span className={styles.gradient}>
-              {(dict.platform as any).hero_title_highlight || 'Anda dengan Bitespace'}
+              {dict.platform.hero_title_highlight}
             </span>
           </h1>
 

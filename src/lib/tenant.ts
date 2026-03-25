@@ -7,8 +7,10 @@ export interface TenantTheme {
     accent: string
     background: string
     font: string
-    heroTitle?: string
-    heroDesc?: string
+    heroTitle?: string       // Indonesian (default locale)
+    heroDesc?: string        // Indonesian (default locale)
+    heroTitle_en?: string    // English override
+    heroDesc_en?: string     // English override
     heroBgUrl?: string
     socialLinks?: {
         instagram?: string

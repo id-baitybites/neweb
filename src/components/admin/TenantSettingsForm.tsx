@@ -267,16 +267,100 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 200px', gap: '2rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>Hero Title (Optional)</label>
-                                <input type="text" placeholder="e.g. Delicious Pastry Just For You" value={theme.heroTitle || ''} onChange={e => setTheme({ ...theme, heroTitle: e.target.value })} style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white' }} />
-                                <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.4rem' }}>Leave blank to use default translation.</div>
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>Hero Description (Optional)</label>
-                                <textarea placeholder="Baked fresh everyday..." value={theme.heroDesc || ''} onChange={e => setTheme({ ...theme, heroDesc: e.target.value })} style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', minHeight: '80px', resize: 'vertical' }} />
-                            </div>
+                            {/* Language Tab Switcher */}
+                            {(() => {
+                                const [heroLang, setHeroLang] = React.useState<'id' | 'en'>('id');
+                                return (
+                                    <div>
+                                        {/* Tabs */}
+                                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
+                                            {([['id', '🇮🇩 Indonesian'], ['en', '🇬🇧 English']] as const).map(([lang, label]) => (
+                                                <button
+                                                    key={lang}
+                                                    type="button"
+                                                    onClick={() => setHeroLang(lang)}
+                                                    style={{
+                                                        padding: '0.45rem 1rem',
+                                                        borderRadius: '8px',
+                                                        border: heroLang === lang ? '1px solid #FF69B4' : '1px solid #2a2a2a',
+                                                        background: heroLang === lang ? 'rgba(255,105,180,0.12)' : '#0f0f0f',
+                                                        color: heroLang === lang ? '#FF69B4' : '#888',
+                                                        fontSize: '0.8rem',
+                                                        fontWeight: 600,
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.15s'
+                                                    }}
+                                                >{label}</button>
+                                            ))}
+                                            <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#555', alignSelf: 'center' }}>
+                                                Serving correct text based on visitor language
+                                            </span>
+                                        </div>
+
+                                        {/* Indonesian fields */}
+                                        {heroLang === 'id' && (
+                                            <>
+                                                <div style={{ marginBottom: '1.25rem' }}>
+                                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>
+                                                        Hero Title — Bahasa Indonesia
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="mis. Kue Lezat Hanya Untuk Anda"
+                                                        value={theme.heroTitle || ''}
+                                                        onChange={e => setTheme({ ...theme, heroTitle: e.target.value })}
+                                                        style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', boxSizing: 'border-box' }}
+                                                    />
+                                                    <div style={{ fontSize: '0.75rem', color: '#555', marginTop: '0.4rem' }}>Kosongkan untuk menggunakan teks bawaan sistem.</div>
+                                                </div>
+                                                <div>
+                                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>
+                                                        Hero Description — Bahasa Indonesia
+                                                    </label>
+                                                    <textarea
+                                                        placeholder="Dibuat segar setiap hari dengan bahan premium..."
+                                                        value={theme.heroDesc || ''}
+                                                        onChange={e => setTheme({ ...theme, heroDesc: e.target.value })}
+                                                        style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' }}
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* English fields */}
+                                        {heroLang === 'en' && (
+                                            <>
+                                                <div style={{ marginBottom: '1.25rem' }}>
+                                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>
+                                                        Hero Title — English
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. Delicious Pastry Just For You"
+                                                        value={theme.heroTitle_en || ''}
+                                                        onChange={e => setTheme({ ...theme, heroTitle_en: e.target.value })}
+                                                        style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', boxSizing: 'border-box' }}
+                                                    />
+                                                    <div style={{ fontSize: '0.75rem', color: '#555', marginTop: '0.4rem' }}>Leave blank to fall back to the Indonesian version.</div>
+                                                </div>
+                                                <div>
+                                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>
+                                                        Hero Description — English
+                                                    </label>
+                                                    <textarea
+                                                        placeholder="Baked fresh everyday with only premium ingredients..."
+                                                        value={theme.heroDesc_en || ''}
+                                                        onChange={e => setTheme({ ...theme, heroDesc_en: e.target.value })}
+                                                        style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' }}
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                );
+                            })()}
                         </div>
+
 
                         <div>
                             <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>HERO BACKGROUND</label>
@@ -451,11 +535,21 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
 
                         {/* Mock Hero Component */}
                         <div style={{ padding: '2rem 1.5rem', textAlign: 'center', backgroundImage: theme.heroBgUrl ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${theme.heroBgUrl})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', color: theme.heroBgUrl ? 'white' : 'inherit' }}>
-                            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: theme.heroBgUrl ? 'white' : '#1a1a1a', marginBottom: '0.5rem', lineHeight: 1.2 }}>
-                                {theme.heroTitle || 'Delicious Pastry Just For You'}
+                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '0.35rem' }}>
+                                {['🇮🇩', '🇬🇧'].map((flag, i) => (
+                                    <span key={i} style={{ fontSize: '0.6rem', opacity: 0.6, background: 'rgba(255,255,255,0.15)', padding: '1px 4px', borderRadius: '3px' }}>{flag}</span>
+                                ))}
                             </div>
+                            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: theme.heroBgUrl ? 'white' : '#1a1a1a', marginBottom: '0.35rem', lineHeight: 1.2 }}>
+                                {theme.heroTitle || 'Kue Lezat Hanya Untuk Anda'}
+                            </div>
+                            {theme.heroTitle_en && (
+                                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: theme.heroBgUrl ? 'rgba(255,255,255,0.7)' : '#555', marginBottom: '0.5rem', lineHeight: 1.2, fontStyle: 'italic' }}>
+                                    {theme.heroTitle_en}
+                                </div>
+                            )}
                             <div style={{ fontSize: '0.75rem', color: theme.heroBgUrl ? 'rgba(255,255,255,0.9)' : '#666', marginBottom: '1.25rem', lineHeight: 1.4 }}>
-                                {theme.heroDesc || 'Baked fresh everyday with only premium ingredients.'}
+                                {theme.heroDesc || 'Dibuat segar setiap hari.'}
                             </div>
                             <div style={{
                                 background: theme.primary,
