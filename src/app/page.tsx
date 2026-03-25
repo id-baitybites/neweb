@@ -4,7 +4,7 @@ import { getCurrentUser } from '@/actions/auth'
 import { getDictionary } from '@/i18n'
 import pkg from '../../package.json'
 import Link from 'next/link'
-import { ArrowRight, Search, ShieldCheck, Store, Zap, Smartphone, Globe } from 'lucide-react'
+import { ArrowRight, Search, ShieldCheck, Store, Zap, Smartphone, Globe, Instagram, Facebook, MessageCircle, Mail, Phone, MapPin } from 'lucide-react'
 import ProductCard from '@/components/ProductCard'
 import Testimonies from '@/components/Testimonies'
 import styles from '@/styles/modules/Landing.module.scss'
@@ -97,11 +97,25 @@ export default async function Home() {
         </section>
 
         {/* FOOTER */}
-        <footer className={styles.footer}>
+        <footer className={styles.footer} style={{ borderTop: `4px solid ${tenant.theme.primary}22` }}>
           <div className={styles.container}>
             <div className={styles.brand}>
-              <h3>{tenant.name}</h3>
-              <p>{dict.tenant.footer_welcome.replace('{name}', tenant.name)}</p>
+              <h3 style={{ color: tenant.theme.primary }}>{tenant.name}</h3>
+              <p>{tenant.theme.heroDesc || dict.tenant.footer_welcome.replace('{name}', tenant.name)}</p>
+              
+              {(tenant.theme.socialLinks?.instagram || tenant.theme.socialLinks?.whatsapp || tenant.theme.socialLinks?.tiktok) && (
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                  {tenant.theme.socialLinks?.instagram && (
+                    <a href={`https://instagram.com/${tenant.theme.socialLinks.instagram}`} target="_blank" style={{ color: '#E1306C' }}><Instagram size={20} /></a>
+                  )}
+                  {tenant.theme.socialLinks?.whatsapp && (
+                    <a href={`https://wa.me/${tenant.theme.socialLinks.whatsapp}`} target="_blank" style={{ color: '#25D366' }}><MessageCircle size={20} /></a>
+                  )}
+                  {tenant.theme.socialLinks?.facebook && (
+                    <a href={`https://facebook.com/${tenant.theme.socialLinks.facebook}`} target="_blank" style={{ color: '#1877F2' }}><Facebook size={20} /></a>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className={styles.links}>
@@ -109,16 +123,27 @@ export default async function Home() {
               <ul>
                 <li><Link href="/about">{dict.tenant.about_us}</Link></li>
                 <li><Link href="/products">{dict.tenant.products}</Link></li>
-                <li><Link href="/#testimonies">{dict.tenant.reviews}</Link></li>
               </ul>
             </div>
 
             <div className={styles.links}>
-              <h4>{dict.tenant.legal}</h4>
-              <ul>
-                <li><a href="#">{dict.tenant.tos}</a></li>
-                <li><a href="#">{dict.tenant.privacy}</a></li>
-                <li><a href="#">{dict.tenant.refund}</a></li>
+              <h4>{dict.tenant.contact}</h4>
+              <ul style={{ color: '#718096', fontSize: '0.9rem' }}>
+                {tenant.theme.contact?.email && (
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <Mail size={14} /> {tenant.theme.contact.email}
+                  </li>
+                )}
+                {tenant.theme.contact?.phone && (
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <Phone size={14} /> {tenant.theme.contact.phone}
+                  </li>
+                )}
+                {tenant.theme.contact?.address && (
+                  <li style={{ display: 'flex', alignItems: 'start', gap: '0.5rem' }}>
+                    <MapPin size={14} style={{ marginTop: '0.2rem', flexShrink: 0 }} /> {tenant.theme.contact.address}
+                  </li>
+                )}
               </ul>
             </div>
 
@@ -127,13 +152,13 @@ export default async function Home() {
               <ul>
                 <li><a href="#">{dict.tenant.help_center}</a></li>
                 <li><a href="#">{dict.tenant.contact_support}</a></li>
-                <li><a href="#">{dict.tenant.guide}</a></li>
               </ul>
             </div>
           </div>
 
           <div className={styles.bottom}>
-            &copy; {new Date().getFullYear()} {tenant.name}. {dict.tenant.all_rights_reserved} <span style={{ opacity: 0.5 }}>v{pkg.version}</span>
+            &copy; {new Date().getFullYear()} {tenant.name}. {dict.tenant.all_rights_reserved} 
+            <div style={{ opacity: 0.3, fontSize: '0.7rem', marginTop: '0.5rem' }}>Powered by Bitespace v{pkg.version}</div>
           </div>
         </footer>
       </div>

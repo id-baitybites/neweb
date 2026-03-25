@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { updateTenantSettings } from '@/actions/tenant';
 import { uploadImageAction } from '@/actions/upload';
 import { toast } from 'sonner';
-import { Palette, Type, Globe, Truck, Calendar, Save, Upload, Image as ImageIcon, CheckCircle2, Loader2 } from 'lucide-react';
+import { Palette, Type, Globe, Truck, Calendar, Save, Upload, Image as ImageIcon, CheckCircle2, Loader2, Instagram, Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
 
 export default function TenantSettingsForm({ tenant }: { tenant: any }) {
     const [isSaving, setIsSaving] = useState(false);
@@ -14,6 +14,19 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
     const [theme, setTheme] = useState(tenant.theme);
     const [config, setConfig] = useState(tenant.config);
     const [isHeroUploading, setIsHeroUploading] = useState(false);
+
+    const THEME_PRESETS = [
+        { name: 'Modern Indigo', colors: { primary: '#4F46E5', secondary: '#334155', accent: '#818CF8', background: '#F8FAFC' } },
+        { name: 'Forest Green', colors: { primary: '#059669', secondary: '#064E3B', accent: '#34D399', background: '#F0FDF4' } },
+        { name: 'Sweet Pink', colors: { primary: '#DB2777', secondary: '#500724', accent: '#F472B6', background: '#FFF1F2' } },
+        { name: 'Midnight', colors: { primary: '#9333EA', secondary: '#0F172A', accent: '#C084FC', background: '#0F172A' } },
+        { name: 'Coffee', colors: { primary: '#92400E', secondary: '#451A03', accent: '#D97706', background: '#FFFBEB' } },
+    ];
+
+    const applyPreset = (colors: any) => {
+        setTheme({ ...theme, ...colors });
+        toast.info('Preset applied! Check the live preview.');
+    };
 
     const handleHeroBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -96,76 +109,109 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Visual Identity & Colors</h3>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '3rem' }}>
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>STORE LOGO</label>
-                            <div style={{
-                                width: '100%',
-                                aspectRatio: '1',
-                                background: '#0f0f0f',
-                                borderRadius: '12px',
-                                border: '2px dashed #2a2a2a',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem',
-                                overflow: 'hidden',
-                                position: 'relative'
-                            }}>
-                                {logoUrl ? (
-                                    <img src={logoUrl} alt="Logo" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
-                                ) : (
-                                    <div style={{ textAlign: 'center', color: '#444' }}>
-                                        <ImageIcon size={40} style={{ marginBottom: '0.5rem' }} />
-                                        <div style={{ fontSize: '0.75rem' }}>No logo</div>
-                                    </div>
-                                )}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '3rem' }}>
+                        {/* Preset Section */}
+                        <div style={{ padding: '1.5rem', background: '#0f0f0f', borderRadius: '12px', border: '1px solid #2a2a2a' }}>
+                            <label style={{ display: 'block', marginBottom: '1.25rem', fontSize: '0.85rem', color: '#888', fontWeight: 700, letterSpacing: '0.05em' }}>THEME PRESETS</label>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                {THEME_PRESETS.map((p) => (
+                                    <button
+                                        key={p.name}
+                                        type="button"
+                                        onClick={() => applyPreset(p.colors)}
+                                        style={{
+                                            padding: '0.75rem 1rem',
+                                            background: '#1a1a1a',
+                                            border: '1px solid #2a2a2a',
+                                            borderRadius: '8px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.75rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                        }}
+                                        onMouseOver={e => e.currentTarget.style.borderColor = '#FF69B4'}
+                                        onMouseOut={e => e.currentTarget.style.borderColor = '#2a2a2a'}
+                                    >
+                                        <div style={{ display: 'flex' }}>
+                                            <div style={{ width: '12px', height: '12px', borderRadius: '2px 0 0 2px', background: p.colors.primary }} />
+                                            <div style={{ width: '12px', height: '12px', background: p.colors.secondary }} />
+                                            <div style={{ width: '12px', height: '12px', borderRadius: '0 2px 2px 0', background: p.colors.accent }} />
+                                        </div>
+                                        <span style={{ fontSize: '0.85rem', color: '#eee', fontWeight: 600 }}>{p.name}</span>
+                                    </button>
+                                ))}
                             </div>
-                            <label style={{
-                                cursor: 'pointer',
-                                background: '#2a2a2a',
-                                color: 'white',
-                                padding: '0.6rem 1rem',
-                                borderRadius: '8px',
-                                fontSize: '0.85rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '0.5rem',
-                                transition: 'background 0.2s'
-                            }}>
-                                {isUploading ? <><div className="spinner" /> Uploading...</> : <><Upload size={14} /> Change Logo</>}
-                                <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} disabled={isUploading} />
-                            </label>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                            <label style={{ display: 'block', fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>BRAND COLOR PALETTE</label>
-
-                            {[
-                                { key: 'primary', label: 'Primary', desc: 'Main buttons and active states' },
-                                { key: 'secondary', label: 'Secondary', desc: 'Headers and sidebar navigation' },
-                                { key: 'accent', label: 'Accent', desc: 'Badges and secondary highlights' },
-                                { key: 'background', label: 'Background', desc: 'Main page body background' }
-                            ].map((c) => (
-                                <div key={c.key} style={{ display: 'flex', gap: '1rem', alignItems: 'center', background: '#0f0f0f', padding: '0.75rem', borderRadius: '10px', border: '1px solid #2a2a2a' }}>
-                                    <div style={{ position: 'relative', width: '40px', height: '40px' }}>
-                                        <input
-                                            type="color"
-                                            name={c.key}
-                                            value={theme[c.key]}
-                                            onChange={e => setTheme({ ...theme, [c.key]: e.target.value })}
-                                            style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }}
-                                        />
-                                        <div style={{ width: '100%', height: '100%', borderRadius: '6px', backgroundColor: theme[c.key], border: '2px solid #2a2a2a' }} />
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{c.label}</div>
-                                        <div style={{ fontSize: '0.75rem', color: '#666' }}>{c.desc}</div>
-                                    </div>
-                                    <div style={{ fontSize: '0.8rem', fontFamily: 'monospace', color: '#888' }}>{theme[c.key].toUpperCase()}</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '3rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>STORE LOGO</label>
+                                <div style={{
+                                    width: '100%',
+                                    aspectRatio: '1',
+                                    background: '#0f0f0f',
+                                    borderRadius: '12px',
+                                    border: '2px dashed #2a2a2a',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginBottom: '1rem',
+                                    overflow: 'hidden',
+                                    position: 'relative'
+                                }}>
+                                    {logoUrl ? (
+                                        <img src={logoUrl} alt="Logo" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+                                    ) : (
+                                        <div style={{ textAlign: 'center', color: '#444' }}>
+                                            <ImageIcon size={40} style={{ marginBottom: '0.5rem' }} />
+                                            <div style={{ fontSize: '0.75rem' }}>No logo</div>
+                                        </div>
+                                    )}
                                 </div>
-                            ))}
+                                <label style={{
+                                    cursor: 'pointer',
+                                    background: '#2a2a2a',
+                                    color: 'white',
+                                    padding: '0.6rem 1rem',
+                                    borderRadius: '8px',
+                                    fontSize: '0.85rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem',
+                                    transition: 'background 0.2s'
+                                }}>
+                                    {isUploading ? <><div className="spinner" /> Uploading...</> : <><Upload size={14} /> Change Logo</>}
+                                    <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} disabled={isUploading} />
+                                </label>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                                {[
+                                    { key: 'primary', label: 'Primary', desc: 'Buttons & links' },
+                                    { key: 'secondary', label: 'Secondary', desc: 'Nav & Headers' },
+                                    { key: 'accent', label: 'Accent', desc: 'UI Highlights' },
+                                    { key: 'background', label: 'Background', desc: 'Main pages' }
+                                ].map((c) => (
+                                    <div key={c.key} style={{ display: 'flex', gap: '1rem', alignItems: 'center', background: '#0f0f0f', padding: '0.75rem', borderRadius: '10px', border: '1px solid #2a2a2a' }}>
+                                        <div style={{ position: 'relative', width: '40px', height: '40px' }}>
+                                            <input
+                                                type="color"
+                                                name={c.key}
+                                                value={theme[c.key]}
+                                                onChange={e => setTheme({ ...theme, [c.key]: e.target.value })}
+                                                style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }}
+                                            />
+                                            <div style={{ width: '100%', height: '100%', borderRadius: '6px', backgroundColor: theme[c.key], border: '2px solid #2a2a2a' }} />
+                                        </div>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.label}</div>
+                                            <div style={{ fontSize: '0.7rem', color: '#666' }}>{c.desc}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -305,6 +351,53 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
                     </div>
                 </div>
 
+                {/* Contact & Socials */}
+                <div style={{ background: '#1a1a1a', padding: '2rem', borderRadius: '15px', border: '1px solid #2a2a2a' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid #2a2a2a', paddingBottom: '1rem' }}>
+                        <div style={{ background: 'rgba(156, 39, 176, 0.1)', color: '#9C27B0', padding: '0.5rem', borderRadius: '8px' }}>
+                            <Globe size={20} />
+                        </div>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Merchant Info & Social Presence</h3>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+                        <div>
+                            <label style={labelStyle}><Mail size={14} /> Official Email</label>
+                            <input type="email" placeholder="hello@store.com" value={theme.contact?.email || ''} onChange={e => setTheme({ ...theme, contact: { ...theme.contact, email: e.target.value } })} style={inputStyle} />
+                        </div>
+                        <div>
+                            <label style={labelStyle}><Phone size={14} /> Phone Number</label>
+                            <input type="text" placeholder="+62..." value={theme.contact?.phone || ''} onChange={e => setTheme({ ...theme, contact: { ...theme.contact, phone: e.target.value } })} style={inputStyle} />
+                        </div>
+                        <div style={{ gridColumn: 'span 2' }}>
+                            <label style={labelStyle}><MapPin size={14} /> Store Address</label>
+                            <textarea placeholder="Jl. Raya No. 123..." value={theme.contact?.address || ''} onChange={e => setTheme({ ...theme, contact: { ...theme.contact, address: e.target.value } })} style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} />
+                        </div>
+
+                        <div style={{ gridColumn: 'span 2', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #2a2a2a' }}>
+                            <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748B', fontWeight: 700, marginBottom: '1.25rem', textTransform: 'uppercase' }}>Social Links</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div style={{ position: 'relative' }}>
+                                    <Instagram size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#E1306C' }} />
+                                    <input type="text" placeholder="Instagram Username" value={theme.socialLinks?.instagram || ''} onChange={e => setTheme({ ...theme, socialLinks: { ...theme.socialLinks, instagram: e.target.value } })} style={{ ...inputStyle, paddingLeft: '2.5rem' }} />
+                                </div>
+                                <div style={{ position: 'relative' }}>
+                                    <MessageCircle size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#25D366' }} />
+                                    <input type="text" placeholder="WhatsApp Number" value={theme.socialLinks?.whatsapp || ''} onChange={e => setTheme({ ...theme, socialLinks: { ...theme.socialLinks, whatsapp: e.target.value } })} style={{ ...inputStyle, paddingLeft: '2.5rem' }} />
+                                </div>
+                                <div style={{ position: 'relative' }}>
+                                    <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 800, fontSize: '10px', color: 'white', background: '#000', borderRadius: '2px', padding: '1px 3px' }}>TT</div>
+                                    <input type="text" placeholder="TikTok Username" value={theme.socialLinks?.tiktok || ''} onChange={e => setTheme({ ...theme, socialLinks: { ...theme.socialLinks, tiktok: e.target.value } })} style={{ ...inputStyle, paddingLeft: '2.5rem' }} />
+                                </div>
+                                <div style={{ position: 'relative' }}>
+                                    <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 800, fontSize: '10px', color: 'white', background: '#1877F2', borderRadius: '2px', padding: '1px 3px' }}>FB</div>
+                                    <input type="text" placeholder="Facebook Page" value={theme.socialLinks?.facebook || ''} onChange={e => setTheme({ ...theme, socialLinks: { ...theme.socialLinks, facebook: e.target.value } })} style={{ ...inputStyle, paddingLeft: '2.5rem' }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
                     <button
                         type="submit"
@@ -400,4 +493,26 @@ export default function TenantSettingsForm({ tenant }: { tenant: any }) {
 
         </form>
     );
+}
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.85rem',
+    background: '#0f0f0f',
+    border: '1px solid #2a2a2a',
+    borderRadius: '10px',
+    color: 'white',
+    fontSize: '0.95rem',
+    outline: 'none',
+    boxSizing: 'border-box'
+}
+
+const labelStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: '0.85rem',
+    color: '#888',
+    marginBottom: '0.6rem',
+    fontWeight: 500
 }

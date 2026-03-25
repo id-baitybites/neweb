@@ -10,6 +10,17 @@ export interface TenantTheme {
     heroTitle?: string
     heroDesc?: string
     heroBgUrl?: string
+    socialLinks?: {
+        instagram?: string
+        facebook?: string
+        tiktok?: string
+        whatsapp?: string
+    }
+    contact?: {
+        email?: string
+        phone?: string
+        address?: string
+    }
 }
 
 export interface TenantConfig {
