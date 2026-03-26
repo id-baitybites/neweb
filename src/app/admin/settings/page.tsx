@@ -4,17 +4,16 @@ import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import TenantSettingsForm from '@/components/admin/TenantSettingsForm';
 import { getDictionary } from '@/i18n';
+import { resolveTenant } from '@/lib/tenant';
 
 export default async function AdminSettingsPage() {
     const user = await getCurrentUser();
     const dict = await getDictionary();
     const { settings: t } = dict.admin;
 
-    if (!user || !user.tenantId) redirect('/login');
+    if (!user || (user.role !== 'OWNER' && user.role !== 'SUPER_ADMIN')) redirect('/login');
 
-    const tenant = await prisma.tenant.findUnique({
-        where: { id: user.tenantId }
-    });
+    const tenant = await resolveTenant();
 
     if (!tenant) return <div>Store not found</div>;
 
@@ -31,7 +30,7 @@ export default async function AdminSettingsPage() {
                 <p style={{ marginBottom: '1.5rem', color: '#888' }}>
                     {t.desc}
                 </p>
-                <TenantSettingsForm tenant={parsedTenant} adminDict={dict.admin} />
+                <TenantSettingsForm tenant={parsedTenant} adminDict={dict.admin} storeDict={dict.tenant} />
             </div>
         </div>
     );

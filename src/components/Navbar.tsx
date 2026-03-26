@@ -91,7 +91,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                 {/* Logo / Brand — goes to tenant home or platform root */}
                 <Link href={tenant ? `${p}` : '/'} className={styles.logo}>
                     {logoUrl ? (
-                        <img src={logoUrl} alt={storeName} height={36} />
+                        <img src={logoUrl} alt={storeName} height={50} style={{ objectFit: 'contain' }} />
                     ) : (
                         <span>{storeName}</span>
                     )}

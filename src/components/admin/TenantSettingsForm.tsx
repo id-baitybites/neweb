@@ -6,7 +6,7 @@ import { uploadImageAction } from '@/actions/upload';
 import { toast } from 'sonner';
 import { Palette, Type, Globe, Truck, Calendar, Save, Upload, Image as ImageIcon, CheckCircle2, Loader2, Instagram, Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
 
-export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any, adminDict: any }) {
+export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { tenant: any, adminDict: any, storeDict: any }) {
     const t = adminDict.settings;
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -17,16 +17,16 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
     const [isHeroUploading, setIsHeroUploading] = useState(false);
 
     const THEME_PRESETS = [
-        { name: 'Modern Indigo', colors: { primary: '#4F46E5', secondary: '#334155', accent: '#818CF8', background: '#F8FAFC' } },
-        { name: 'Forest Green', colors: { primary: '#059669', secondary: '#064E3B', accent: '#34D399', background: '#F0FDF4' } },
-        { name: 'Sweet Pink', colors: { primary: '#DB2777', secondary: '#500724', accent: '#F472B6', background: '#FFF1F2' } },
-        { name: 'Midnight', colors: { primary: '#9333EA', secondary: '#0F172A', accent: '#C084FC', background: '#0F172A' } },
-        { name: 'Coffee', colors: { primary: '#92400E', secondary: '#451A03', accent: '#D97706', background: '#FFFBEB' } },
+        { name: t.preset_indigo || 'Modern Indigo', colors: { primary: '#4F46E5', secondary: '#334155', accent: '#818CF8', background: '#F8FAFC' } },
+        { name: t.preset_forest || 'Forest Green', colors: { primary: '#059669', secondary: '#064E3B', accent: '#34D399', background: '#F0FDF4' } },
+        { name: t.preset_pink || 'Sweet Pink', colors: { primary: '#DB2777', secondary: '#500724', accent: '#F472B6', background: '#FFF1F2' } },
+        { name: t.preset_midnight || 'Midnight', colors: { primary: '#9333EA', secondary: '#0F172A', accent: '#C084FC', background: '#0F172A' } },
+        { name: t.preset_coffee || 'Coffee', colors: { primary: '#92400E', secondary: '#451A03', accent: '#D97706', background: '#FFFBEB' } },
     ];
 
     const applyPreset = (colors: any) => {
         setTheme({ ...theme, ...colors });
-        toast.info('Preset applied! Check the live preview.');
+        toast.info(t.toast_preset || 'Preset applied! Check the live preview.');
     };
 
     const handleHeroBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,12 +41,12 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
             const result = await uploadImageAction(formData, 'backgrounds');
             if (result.success && result.url) {
                 setTheme({ ...theme, heroBgUrl: result.url });
-                toast.success('Hero background uploaded successfully.');
+                toast.success(t.toast_hero_success || 'Hero background uploaded successfully.');
             } else {
-                toast.error(result.error || 'Failed to upload hero background.');
+                toast.error(result.error || t.toast_hero_error || 'Failed to upload hero background.');
             }
         } catch (error) {
-            toast.error('Unexpected error during hero background upload.');
+            toast.error(t.toast_hero_fatal || 'Unexpected error during hero background upload.');
         } finally {
             setIsHeroUploading(false);
         }
@@ -64,12 +64,12 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
             const result = await uploadImageAction(formData, 'logos');
             if (result.success && result.url) {
                 setLogoUrl(result.url);
-                toast.success('Logo uploaded successfully.');
+                toast.success(t.toast_logo_success || 'Logo uploaded successfully.');
             } else {
-                toast.error(result.error || 'Failed to upload logo.');
+                toast.error(result.error || t.toast_logo_error || 'Failed to upload logo.');
             }
         } catch (error) {
-            toast.error('Unexpected error during logo upload.');
+            toast.error(t.toast_logo_fatal || 'Unexpected error during logo upload.');
         } finally {
             setIsUploading(false);
         }
@@ -86,10 +86,10 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
         try {
             const result = await updateTenantSettings(formData);
             if (result.success) {
-                toast.success('Store settings updated successfully! Page will refresh.');
-                setTimeout(() => window.location.reload(), 1500); // Reload to apply CSS vars perfectly
+                toast.success(t.toast_save_success || 'Store settings updated successfully! Page will refresh.');
+                setTimeout(() => window.location.reload(), 1500); 
             } else {
-                toast.error(result.error);
+                toast.error(result.error || t.toast_save_error);
             }
         } catch (err: any) {
             toast.error(err.message);
@@ -99,8 +99,8 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 512px', gap: '2rem', alignItems: 'start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexWrap: 'wrap-reverse', gap: '2rem', alignItems: 'start' }}>
+            <div style={{ flex: '1 1 500px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 {/* Visual Identity */}
                 <div style={{ background: '#1a1a1a', padding: '2rem', borderRadius: '15px', border: '1px solid #2a2a2a' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid #2a2a2a', paddingBottom: '1rem' }}>
@@ -145,7 +145,7 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                             </div>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '3rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem' }}>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>{t.logo}</label>
                                 <div style={{
@@ -190,10 +190,10 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                                 {[
-                                    { key: 'primary', label: 'Primary', desc: 'Buttons & links' },
-                                    { key: 'secondary', label: 'Secondary', desc: 'Nav & Headers' },
-                                    { key: 'accent', label: 'Accent', desc: 'UI Highlights' },
-                                    { key: 'background', label: 'Background', desc: 'Main pages' }
+                                    { key: 'primary', label: t.color_primary || 'Primary', desc: t.desc_primary || 'Buttons & links' },
+                                    { key: 'secondary', label: t.color_secondary || 'Secondary', desc: t.desc_secondary || 'Nav & Headers' },
+                                    { key: 'accent', label: t.color_accent || 'Accent', desc: t.desc_accent || 'UI Highlights' },
+                                    { key: 'background', label: t.color_background || 'Background', desc: t.desc_background || 'Main pages' }
                                 ].map((c) => (
                                     <div key={c.key} style={{ display: 'flex', gap: '1rem', alignItems: 'center', background: '#0f0f0f', padding: '0.75rem', borderRadius: '10px', border: '1px solid #2a2a2a' }}>
                                         <div style={{ position: 'relative', width: '40px', height: '40px' }}>
@@ -263,8 +263,8 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                         <div>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>{t.language}</label>
                             <select name="language" value={config.language} onChange={e => setConfig({ ...config, language: e.target.value })} style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white' }}>
-                                <option value="id">Indonesian (Jakarta)</option>
-                                <option value="en">English (US)</option>
+                                <option value="id">{t.lang_id || 'Indonesian (Jakarta)'}</option>
+                                <option value="en">{t.lang_en || 'English (US)'}</option>
                             </select>
                         </div>
                     </div>
@@ -279,7 +279,7 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>{t.hero_per}</h3>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 200px', gap: '2rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             {/* Language Tab Switcher */}
                             {(() => {
@@ -320,7 +320,7 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                                                     </label>
                                                     <input
                                                         type="text"
-                                                        placeholder="mis. Kue Lezat Hanya Untuk Anda"
+                                                        placeholder={storeDict.hero_title?.replace('{name}', tenant.name) || "e.g. Delicious Pastry"}
                                                         value={theme.heroTitle || ''}
                                                         onChange={e => setTheme({ ...theme, heroTitle: e.target.value })}
                                                         style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', boxSizing: 'border-box' }}
@@ -329,10 +329,10 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                                                 </div>
                                                 <div>
                                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#888' }}>
-                                                        {t.hero_title} — Bahasa Indonesia
+                                                        {t.hero_desc} — Bahasa Indonesia
                                                     </label>
                                                     <textarea
-                                                        placeholder="Dibuat segar setiap hari dengan bahan premium..."
+                                                        placeholder={storeDict.hero_desc?.replace('{name}', tenant.name) || "Baked fresh daily..."}
                                                         value={theme.heroDesc || ''}
                                                         onChange={e => setTheme({ ...theme, heroDesc: e.target.value })}
                                                         style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' }}
@@ -350,7 +350,7 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                                                     </label>
                                                     <input
                                                         type="text"
-                                                        placeholder="e.g. Delicious Pastry Just For You"
+                                                        placeholder={t.placeholder_title_en || "e.g. Delicious Pastry"}
                                                         value={theme.heroTitle_en || ''}
                                                         onChange={e => setTheme({ ...theme, heroTitle_en: e.target.value })}
                                                         style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', boxSizing: 'border-box' }}
@@ -362,7 +362,7 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                                                         {t.hero_desc} — English
                                                     </label>
                                                     <textarea
-                                                        placeholder="Baked fresh everyday with only premium ingredients..."
+                                                        placeholder={t.placeholder_desc_en || "Baked fresh daily..."}
                                                         value={theme.heroDesc_en || ''}
                                                         onChange={e => setTheme({ ...theme, heroDesc_en: e.target.value })}
                                                         style={{ width: '100%', padding: '0.8rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white', minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' }}
@@ -525,7 +525,7 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
             </div>
 
             {/* LIVE PREVIEW SIDEBAR */}
-            <div style={{ position: 'sticky', top: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ flex: '1 1 400px', maxWidth: '512px', position: 'sticky', top: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ background: '#1a1a1a', padding: '1.5rem', borderRadius: '15px', border: '1px solid #2a2a2a' }}>
                     <h4 style={{ fontSize: '0.75rem', color: '#888', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1.5rem' }}>{t.preview}</h4>
 
@@ -537,9 +537,9 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                         fontFamily: theme.font
                     }}>
                         {/* Mock Navbar */}
-                        <div style={{ background: theme.secondary, padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ height: '20px', width: '60px', borderRadius: '4px', background: 'rgba(255,255,255,0.2)' }}>
-                                {logoUrl && <img src={logoUrl} style={{ height: '100%', objectFit: 'contain' }} />}
+                        <div style={{ background: theme.secondary, padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff' }}>
+                            <div style={{ height: '20px', display: 'flex', alignItems: 'center' }}>
+                                {logoUrl ? <img src={logoUrl} style={{ height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: '0.8rem', fontWeight: 800 }}>{tenant.name}</span>}
                             </div>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
                                 <div style={{ height: '8px', width: '20px', borderRadius: '2px', background: 'rgba(255,255,255,0.3)' }} />
@@ -555,15 +555,14 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                                 ))}
                             </div>
                             <div style={{ fontSize: '1.2rem', fontWeight: 800, color: theme.heroBgUrl ? 'white' : '#1a1a1a', marginBottom: '0.35rem', lineHeight: 1.2 }}>
-                                {theme.heroTitle || 'Kue Lezat Hanya Untuk Anda'}
+                                {config.language === 'en' 
+                                    ? (theme.heroTitle_en || theme.heroTitle || storeDict.hero_title?.replace('{name}', tenant.name))
+                                    : (theme.heroTitle || storeDict.hero_title?.replace('{name}', tenant.name))}
                             </div>
-                            {theme.heroTitle_en && (
-                                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: theme.heroBgUrl ? 'rgba(255,255,255,0.7)' : '#555', marginBottom: '0.5rem', lineHeight: 1.2, fontStyle: 'italic' }}>
-                                    {theme.heroTitle_en}
-                                </div>
-                            )}
                             <div style={{ fontSize: '0.75rem', color: theme.heroBgUrl ? 'rgba(255,255,255,0.9)' : '#666', marginBottom: '1.25rem', lineHeight: 1.4 }}>
-                                {theme.heroDesc || 'Dibuat segar setiap hari.'}
+                                {config.language === 'en' 
+                                    ? (theme.heroDesc_en || theme.heroDesc || storeDict.hero_desc?.replace('{name}', tenant.name))
+                                    : (theme.heroDesc || storeDict.hero_desc?.replace('{name}', tenant.name))}
                             </div>
                             <div style={{
                                 background: theme.primary,
@@ -574,7 +573,7 @@ export default function TenantSettingsForm({ tenant, adminDict }: { tenant: any,
                                 fontWeight: 700,
                                 display: 'inline-block'
                             }}>
-                                Order Now
+                                {storeDict.btn_order}
                             </div>
                         </div>
 

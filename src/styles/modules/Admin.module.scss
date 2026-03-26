@@ -8,6 +8,7 @@
     .sidebar {
         width: 250px;
         background-color: $color-secondary;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.07));
         padding: 2rem 0;
         flex-shrink: 0;
         color: white;

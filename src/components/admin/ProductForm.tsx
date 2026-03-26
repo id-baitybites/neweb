@@ -23,9 +23,11 @@ import {
 interface ProductFormProps {
     tenant: any;
     product?: any;
+    dict: any;
 }
 
-export default function ProductForm({ tenant, product }: ProductFormProps) {
+export default function ProductForm({ tenant, product, dict }: ProductFormProps) {
+    const t = dict.admin.product_form;
     const router = useRouter();
     const isEdit = !!product;
 
@@ -46,12 +48,12 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
             const result = await uploadImageAction(formData, 'products');
             if (result.success && result.url) {
                 setImageUrl(result.url);
-                toast.success('Gambar produk berhasil diunggah.');
+                toast.success(t.toast_upload_success);
             } else {
-                toast.error(result.error || 'Gagal mengunggah gambar.');
+                toast.error(result.error || t.toast_upload_error);
             }
         } catch (error) {
-            toast.error('Kesalahan saat mengunggah gambar.');
+            toast.error(t.toast_upload_fatal);
         } finally {
             setIsUploading(false);
         }
@@ -69,7 +71,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                 : await createProductAction(formData);
 
             if (result.success) {
-                toast.success(isEdit ? 'Produk berhasil diperbarui!' : 'Produk berhasil dibuat!');
+                toast.success(isEdit ? t.toast_update_success : t.toast_create_success);
                 router.push(`/${tenant.slug}/admin/products`);
                 router.refresh();
             } else {
@@ -83,13 +85,13 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
     };
 
     const handleDelete = async () => {
-        if (!window.confirm('Apakah Anda yakin ingin menghapus produk ini?')) return;
+        if (!window.confirm(t.confirm_delete)) return;
         
         setIsDeleting(true);
         try {
             const result = await deleteProductAction(product.id);
             if (result.success) {
-                toast.success(result.message || 'Produk berhasil dihapus.');
+                toast.success(t.toast_delete_success);
                 router.push(`/${tenant.slug}/admin/products`);
                 router.refresh();
             } else {
@@ -109,14 +111,14 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                     {/* Basic Info */}
                     <div className="form-group">
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 600 }}>
-                            <Type size={16} /> Nama Produk
+                            <Type size={16} /> {t.name}
                         </label>
                         <input
                             type="text"
                             name="name"
                             defaultValue={product?.name}
                             required
-                            placeholder="Contoh: Chocolate Fudge Cake"
+                            placeholder={t.name_placeholder}
                             style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd' }}
                         />
                     </div>
@@ -124,7 +126,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                         <div className="form-group">
                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 600 }}>
-                                <DollarSign size={16} /> Harga (IDR)
+                                <DollarSign size={16} /> {t.price} ({tenant.config.currency || 'IDR'})
                             </label>
                             <input
                                 type="number"
@@ -137,7 +139,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                         </div>
                         <div className="form-group">
                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 600 }}>
-                                <Box size={16} /> Stok
+                                <Box size={16} /> {t.stock}
                             </label>
                             <input
                                 type="number"
@@ -151,30 +153,33 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
 
                     <div className="form-group">
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 600 }}>
-                            <Tag size={16} /> Kategori
+                            <Tag size={16} /> {t.category}
                         </label>
-                        <select 
+                        <input 
+                            type="text"
                             name="category" 
-                            defaultValue={product?.category || 'Cake'}
+                            list="categoryList"
+                            defaultValue={product?.category?.name || 'Cake'}
+                            placeholder="e.g. Cake, Pastry, Custom..."
                             style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd', background: 'white' }}
-                        >
-                            <option value="Cake">Cake</option>
-                            <option value="Pastry">Pastry</option>
-                            <option value="Bread">Bread</option>
-                            <option value="Cookies">Cookies</option>
-                            <option value="Beverage">Beverage</option>
-                            <option value="Custom">Custom</option>
-                        </select>
+                        />
+                        <datalist id="categoryList">
+                            <option value="Cake" />
+                            <option value="Pastry" />
+                            <option value="Bread" />
+                            <option value="Cookies" />
+                            <option value="Beverage" />
+                        </datalist>
                     </div>
 
                     <div className="form-group">
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Deskripsi</label>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>{t.description}</label>
                         <textarea
                             name="description"
                             defaultValue={product?.description}
                             rows={4}
                             required
-                            placeholder="Ceritakan tentang cita rasa produk ini..."
+                            placeholder={t.desc_placeholder}
                             style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd', resize: 'vertical' }}
                         />
                     </div>
@@ -183,7 +188,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                 {/* Media Section */}
                 <div>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 600 }}>
-                        <ImageIcon size={16} /> Foto Produk
+                        <ImageIcon size={16} /> {t.photo}
                     </label>
                     <div style={{
                         width: '100%',
@@ -203,7 +208,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                         ) : (
                             <div style={{ textAlign: 'center', color: '#94a3b8' }}>
                                 <ImageIcon size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-                                <div style={{ fontSize: '0.85rem' }}>Klik tombol di bawah untuk unggah foto</div>
+                                <div style={{ fontSize: '0.85rem' }}>{t.upload_hint}</div>
                             </div>
                         )}
                         {isUploading && (
@@ -226,13 +231,13 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                         transition: 'opacity 0.2s',
                         opacity: isUploading ? 0.7 : 1
                     }}>
-                        <Upload size={18} /> {imageUrl ? 'Ganti Foto' : 'Unggah Foto'}
+                        <Upload size={18} /> {imageUrl ? t.btn_change : t.btn_upload}
                         <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} disabled={isUploading} />
                     </label>
 
                     <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                         <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Settings size={18} /> Opsi Ketersediaan
+                            <Settings size={18} /> {t.options_title}
                         </h4>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', cursor: 'pointer' }}>
                             <input 
@@ -243,8 +248,8 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                                 style={{ width: '18px', height: '18px' }}
                             />
                             <div>
-                                <div style={{ fontWeight: 600 }}>Tampilkan di Toko</div>
-                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Pelanggan dapat melihat dan memesan produk ini.</div>
+                                <div style={{ fontWeight: 600 }}>{t.show_in_store}</div>
+                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t.show_hint}</div>
                             </div>
                         </label>
                     </div>
@@ -271,7 +276,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                         }}
                     >
                         {isDeleting ? <Loader2 size={18} className="spinner" /> : <Trash2 size={18} />}
-                        Hapus Produk
+                        {t.btn_delete}
                     </button>
                 )}
                 
@@ -289,7 +294,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                             cursor: 'pointer'
                         }}
                     >
-                        Batal
+                        {t.btn_cancel}
                     </button>
                     <button
                         type="submit"
@@ -309,7 +314,7 @@ export default function ProductForm({ tenant, product }: ProductFormProps) {
                         }}
                     >
                         {isSaving ? <Loader2 size={18} className="spinner" /> : <Save size={18} />}
-                        {isEdit ? 'Simpan Perubahan' : 'Tambah Produk'}
+                        {isEdit ? t.btn_save : t.btn_add}
                     </button>
                 </div>
             </div>

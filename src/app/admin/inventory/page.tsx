@@ -1,20 +1,26 @@
 import React from 'react'
 import { prisma } from '@/lib/prisma'
-import styles from '@/styles/modules/Admin.module.scss'
 import { AlertCircle, Plus, Edit, Trash2 } from 'lucide-react'
 import { Inventory } from '@prisma/client'
+import { getDictionary } from '@/i18n'
+import { resolveTenant } from '@/lib/tenant'
 
 export default async function InventoryPage() {
+    const tenant = await resolveTenant()
+    const dict = await getDictionary()
+    const t = dict.admin.inventory
+
     const materials = await prisma.inventory.findMany({
+        where: { tenantId: tenant?.id },
         orderBy: { material: 'asc' }
     })
 
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h1>Manajemen Inventori</h1>
+                <h1>{t.title}</h1>
                 <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Plus size={18} /> Tambah Bahan
+                    <Plus size={18} /> {t.add_material}
                 </button>
             </div>
 
@@ -22,11 +28,11 @@ export default async function InventoryPage() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                     <thead>
                         <tr style={{ background: '#f8f9fa', borderBottom: '1px solid #eee' }}>
-                            <th style={{ padding: '1rem 2rem' }}>Bahan Baku</th>
-                            <th style={{ padding: '1rem 2rem' }}>Stok Saat Ini</th>
-                            <th style={{ padding: '1rem 2rem' }}>Satuan</th>
-                            <th style={{ padding: '1rem 2rem' }}>Status</th>
-                            <th style={{ padding: '1rem 2rem' }}>Aksi</th>
+                            <th style={{ padding: '1rem 2rem' }}>{t.th_material}</th>
+                            <th style={{ padding: '1rem 2rem' }}>{t.th_stock}</th>
+                            <th style={{ padding: '1rem 2rem' }}>{t.th_unit}</th>
+                            <th style={{ padding: '1rem 2rem' }}>{t.th_status}</th>
+                            <th style={{ padding: '1rem 2rem' }}>{t.th_actions}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,10 +46,10 @@ export default async function InventoryPage() {
                                     <td style={{ padding: '1rem 2rem' }}>
                                         {isLow ? (
                                             <span style={{ color: '#F44336', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem' }}>
-                                                <AlertCircle size={14} /> Low Stock
+                                                <AlertCircle size={14} /> {t.low_stock}
                                             </span>
                                         ) : (
-                                            <span style={{ color: '#4CAF50', fontSize: '0.85rem' }}>Aman</span>
+                                            <span style={{ color: '#4CAF50', fontSize: '0.85rem' }}>{t.safe_stock}</span>
                                         )}
                                     </td>
                                     <td style={{ padding: '1rem 2rem' }}>
@@ -60,7 +66,7 @@ export default async function InventoryPage() {
 
                 {materials.length === 0 && (
                     <div style={{ padding: '3rem', textAlign: 'center', color: '#888' }}>
-                        Belum ada data inventori.
+                        {t.no_data}
                     </div>
                 )}
             </div>

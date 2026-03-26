@@ -5,6 +5,7 @@ import styles from '@/styles/modules/Home.module.scss'
 import { ShoppingCart } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import { toast } from 'sonner'
+import { getSafeCurrency } from '@/lib/config'
 
 interface ProductProps {
     product: {
@@ -15,9 +16,12 @@ interface ProductProps {
         description: string
         imageUrl: string | null
     }
+    dict: any
+    tenant: any
 }
 
-export default function ProductCard({ product }: ProductProps) {
+export default function ProductCard({ product, dict, tenant }: ProductProps) {
+    const t = dict.product_detail
     const addItem = useCartStore((state) => state.addItem)
 
     const handleAddToCart = (e: React.MouseEvent) => {
@@ -31,13 +35,13 @@ export default function ProductCard({ product }: ProductProps) {
             quantity: 1,
             imageUrl: product.imageUrl,
         })
-        toast.success(`${product.name} ditambahkan ke keranjang!`)
+        toast.success(t.added_toast.replace('{name}', product.name))
     }
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('id-ID', {
+        return new Intl.NumberFormat(dict.locale === 'id' ? 'id-ID' : 'en-US', {
             style: 'currency',
-            currency: 'IDR',
+            currency: getSafeCurrency(tenant.config.currency),
             minimumFractionDigits: 0,
         }).format(price)
     }
@@ -48,7 +52,7 @@ export default function ProductCard({ product }: ProductProps) {
                 {product.imageUrl ? (
                     <img src={product.imageUrl} alt={product.name} />
                 ) : (
-                    <div className={styles.placeholder}>No Image</div>
+                    <div className={styles.placeholder}>{t.no_image}</div>
                 )}
             </div>
             <div className={styles.content}>
@@ -59,7 +63,7 @@ export default function ProductCard({ product }: ProductProps) {
                     <button
                         onClick={handleAddToCart}
                         className="btn-primary"
-                        style={{ padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                        style={{ padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', background: tenant.theme.primary }}
                     >
                         <ShoppingCart size={16} /> +
                     </button>

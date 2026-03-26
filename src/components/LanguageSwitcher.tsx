@@ -17,24 +17,25 @@ export default function LanguageSwitcher({ currentLocale }: { currentLocale: str
   }
 
   return (
-    <select 
-      value={currentLocale} 
+    <select
+      value={currentLocale}
       onChange={handleLocaleChange}
       disabled={isPending}
       style={{
-        padding: '0.4rem',
+        padding: '0.4rem 0.8rem',
         borderRadius: '8px',
-        border: '1px solid currentColor',
-        background: 'transparent',
-        color: 'inherit',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        background: 'rgba(255, 255, 255, 0.1)',
+        color: '#ffffff',
         cursor: 'pointer',
         fontSize: '0.85rem',
+        fontWeight: 'bold',
         outline: 'none',
         opacity: isPending ? 0.5 : 1
       }}
     >
-      <option value="id" style={{ color: '#000' }}>🇮🇩 ID</option>
-      <option value="en" style={{ color: '#000' }}>🇬🇧 EN</option>
+      <option value="id" style={{ color: '#000' }}>Indonesia</option>
+      <option value="en" style={{ color: '#000' }}>English</option>
     </select>
   )
 }

@@ -6,9 +6,11 @@ import { ShoppingBag, Trash2, Plus, Minus, ArrowRight } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import styles from '@/styles/modules/Cart.module.scss'
 import { toast } from 'sonner'
+import { getSafeCurrency } from '@/lib/config'
 
-export default function CartClient({ tenantId, dict }: { tenantId?: string; dict: any }) {
+export default function CartClient({ tenant, dict }: { tenant?: any; dict: any }) {
     const t = dict.cart
+    const tenantId = tenant?.id
     const { getTenantItems, removeItem, updateQuantity, totalPrice, totalItems } = useCartStore()
     const [mounted, setMounted] = useState(false)
 
@@ -27,7 +29,7 @@ export default function CartClient({ tenantId, dict }: { tenantId?: string; dict
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat(dict.locale === 'id' ? 'id-ID' : 'en-US', {
             style: 'currency',
-            currency: 'IDR',
+            currency: getSafeCurrency(tenant?.config?.currency),
             minimumFractionDigits: 0,
         }).format(price)
     }
@@ -37,13 +39,13 @@ export default function CartClient({ tenantId, dict }: { tenantId?: string; dict
             <div className={styles.cartPage}>
                 <div className={styles.emptyCart}>
                     <div style={{ background: '#FFF5F7', padding: '2rem', borderRadius: '50%', marginBottom: '2rem' }}>
-                        <ShoppingBag size={64} color="#FF69B4" />
+                        <ShoppingBag size={64} color={tenant?.theme?.primary || "#FF69B4"} />
                     </div>
                     <h2>{t.empty_title}</h2>
                     <p style={{ color: '#64748B', maxWidth: '300px', margin: '0 auto 2.5rem' }}>
                         {t.empty_desc}
                     </p>
-                    <Link href="/" className="btn-primary" style={{ padding: '1rem 2.5rem' }}>
+                    <Link href="/" className="btn-primary" style={{ padding: '1rem 2.5rem', background: tenant?.theme?.primary }}>
                         {t.view_products}
                     </Link>
                 </div>
@@ -71,7 +73,7 @@ export default function CartClient({ tenantId, dict }: { tenantId?: string; dict
                                 )}
                             </div>
 
-                            <div className={styles.details}>
+                            <div className={styles.details} style={{ flex: 1 }}>
                                 <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>{item.name}</h3>
                                 {item.customization && (
                                     <div style={{ fontSize: '0.85rem', color: '#64748B' }}>
@@ -110,7 +112,7 @@ export default function CartClient({ tenantId, dict }: { tenantId?: string; dict
                     ))}
                 </div>
 
-                <div className={styles.summary} style={{ background: 'white', border: '1px solid #F1F5F9', borderRadius: '32px', padding: '2.5rem' }}>
+                <div className={styles.summary} style={{ background: 'white', border: '1px solid #F1F5F9', borderRadius: '32px', padding: '2.5rem', alignSelf: 'start' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '2rem' }}>{t.summary_title}</h2>
 
                     <div className={styles.row} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: '#64748B' }}>
@@ -126,14 +128,22 @@ export default function CartClient({ tenantId, dict }: { tenantId?: string; dict
                     <div style={{ borderTop: '2px dashed #F1F5F9', paddingTop: '1.5rem', marginBottom: '2rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.25rem', fontWeight: 900 }}>
                             <span>{t.total}</span>
-                            <span style={{ color: '#4F46E5' }}>{formatPrice(totalPrice(tenantId))}</span>
+                            <span style={{ color: tenant?.theme?.primary || '#4F46E5' }}>{formatPrice(totalPrice(tenantId))}</span>
                         </div>
                     </div>
 
                     <Link 
                         href="/checkout" 
                         className="btn-primary" 
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.25rem', borderRadius: '16px' }}
+                        style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            gap: '0.75rem', 
+                            padding: '1.25rem', 
+                            borderRadius: '16px',
+                            background: tenant?.theme?.primary 
+                        }}
                     >
                         {t.continue_to_checkout} <ArrowRight size={20} />
                     </Link>

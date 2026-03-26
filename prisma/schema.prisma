@@ -20,6 +20,7 @@ model Tenant {
   config      Json        @default("{\"currency\": \"IDR\", \"language\": \"id\", \"timezone\": \"Asia/Jakarta\", \"deliveryFee\": 25000, \"minPreOrderDays\": 1}")
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  categories  Category[]
   inventory   Inventory[]
   orders      Order[]
   products    Product[]
@@ -28,42 +29,38 @@ model Tenant {
 }
 
 model User {
-  id          String      @id @default(cuid())
-  tenantId    String?                     // null = SUPER_ADMIN (platform-level)
-  tenant      Tenant?     @relation(fields: [tenantId], references: [id])
+  id          String           @id @default(cuid())
+  tenantId    String?
   email       String
   password    String
   name        String?
-  image       String?                     // Profile picture URL
-  role        Role        @default(CUSTOMER)
+  role        Role             @default(CUSTOMER)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  image       String?
+  profile     CustomerProfile?
   orders      Order[]
   testimonies Testimony[]
-  profile     CustomerProfile?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  tenant      Tenant?          @relation(fields: [tenantId], references: [id])
 
-  @@unique([tenantId, email])           // email unique per tenant
+  @@unique([tenantId, email])
 }
 
-// ─── CustomerProfile ──────────────────────────────────────────────────────────
-// Extended info for customer accounts (delivery, contact, etc.)
-
 model CustomerProfile {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id])
-  phone         String?
-  dateOfBirth   DateTime?
-  gender        String?
-  // Default delivery address
-  addressLine   String?
-  city          String?
-  province      String?
-  postalCode    String?
-  notes         String?  // Allergy / special notes for orders
-  preferredPayment String? @default("QRIS") // "QRIS", "BANK_TRANSFER", etc.
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  phone            String?
+  dateOfBirth      DateTime?
+  gender           String?
+  addressLine      String?
+  city             String?
+  province         String?
+  postalCode       String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  preferredPayment String?   @default("QRIS")
+  user             User      @relation(fields: [userId], references: [id])
 }
 
 model Product {
@@ -74,12 +71,26 @@ model Product {
   description String
   stock       Int         @default(0)
   imageUrl    String?
-  category    String?
   isActive    Boolean     @default(true)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  categoryId  String?
   items       OrderItem[]
+  category    Category?   @relation(fields: [categoryId], references: [id])
   tenant      Tenant      @relation(fields: [tenantId], references: [id])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  tenantId  String
+  name      String
+  slug      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  products  Product[]
+
+  @@unique([tenantId, slug])
 }
 
 model Order {

@@ -6,13 +6,15 @@ import { useCartStore } from '@/store/useCartStore'
 import { toast } from 'sonner'
 import styles from '@/styles/modules/ProductDetail.module.scss'
 import { Product } from '@prisma/client'
+import { getSafeCurrency } from '@/lib/config'
 
 interface Props {
     product: Product
+    tenant: any
     dict: any
 }
 
-export default function ProductDetailClient({ product, dict }: Props) {
+export default function ProductDetailClient({ product, tenant, dict }: Props) {
     const t = dict.product_detail
     const addItem = useCartStore((state) => state.addItem)
     const [quantity, setQuantity] = useState(1)
@@ -26,7 +28,7 @@ export default function ProductDetailClient({ product, dict }: Props) {
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat(dict.locale === 'id' ? 'id-ID' : 'en-US', {
             style: 'currency',
-            currency: 'IDR',
+            currency: getSafeCurrency(tenant.config.currency),
             minimumFractionDigits: 0,
         }).format(price)
     }
@@ -68,7 +70,7 @@ export default function ProductDetailClient({ product, dict }: Props) {
                         <p className={styles.description}>{product.description}</p>
 
                         <div className={styles.customization}>
-                            <h3>{t.customize}</h3>
+                            <h3 style={{ color: tenant.theme.primary }}>{t.customize}</h3>
 
                             <div className={styles.formGroup}>
                                 <label>{t.flavor}</label>
@@ -130,7 +132,11 @@ export default function ProductDetailClient({ product, dict }: Props) {
                                     </button>
                                 </div>
 
-                                <button onClick={handleAddToCart} className={`${styles.addButton} btn-primary`}>
+                                <button 
+                                    onClick={handleAddToCart} 
+                                    className={`${styles.addButton} btn-primary`}
+                                    style={{ background: tenant.theme.primary }}
+                                >
                                     <ShoppingCart size={20} style={{ marginRight: '0.5rem' }} />
                                     {t.add_to_cart}
                                 </button>

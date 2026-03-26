@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useState, useEffect } from 'react'
 import { Search, SlidersHorizontal, MoreVertical } from 'lucide-react'
@@ -6,6 +6,7 @@ import styles from '@/styles/modules/ModernProducts.module.scss'
 import { useCartStore } from '@/store/useCartStore'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { getSafeCurrency } from '@/lib/config'
 
 interface Product {
     id: string
@@ -13,7 +14,7 @@ interface Product {
     name: string
     price: number
     description: string
-    category: string | null
+    category?: { name: string } | null
     imageUrl: string | null
 }
 
@@ -35,10 +36,10 @@ export default function ModernProductList({ products, dictionary, tenant }: Mode
         setMounted(true)
     }, [])
 
-    const categories = [t.all, ...Array.from(new Set(products.map(p => p.category || 'Other').filter(Boolean)))]
+    const categories = [t.all, ...Array.from(new Set(products.map(p => p.category?.name || 'Other').filter(Boolean)))]
 
     const filteredProducts = products.filter(p => {
-        const matchesCategory = activeCategory === t.all || (p.category || 'Other') === activeCategory
+        const matchesCategory = activeCategory === t.all || (p.category?.name || 'Other') === activeCategory
         const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase())
         return matchesCategory && matchesSearch
     })
@@ -49,9 +50,9 @@ export default function ModernProductList({ products, dictionary, tenant }: Mode
     const total = subtotal - discount
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('id-ID', {
+        return new Intl.NumberFormat(dictionary.locale === 'id' ? 'id-ID' : 'en-US', {
             style: 'currency',
-            currency: 'IDR',
+            currency: getSafeCurrency(tenant.config.currency),
             minimumFractionDigits: 0,
         }).format(price)
     }
@@ -89,7 +90,7 @@ export default function ModernProductList({ products, dictionary, tenant }: Mode
 
                 <div className={styles.productGrid}>
                     {filteredProducts.map(product => (
-                        <ProductCard key={product.id} product={product} onAdd={addItem} t={t} tenantId={tenant.id} />
+                        <ProductCard key={product.id} product={product} onAdd={addItem} t={t} tenantId={tenant.id} formatPrice={formatPrice} />
                     ))}
 
                     {filteredProducts.length === 0 && (
@@ -103,7 +104,7 @@ export default function ModernProductList({ products, dictionary, tenant }: Mode
             <aside className={styles.cartSidebar}>
                 <div className={styles.cartHeader}>
                     <h2>{t.title}</h2>
-                    <span className={styles.orderNo}>Daftar Pesanan</span>
+                    <span className={styles.orderNo}>{t.items}</span>
                 </div>
 
                 <div className={styles.deliveryOptions}>
@@ -121,7 +122,7 @@ export default function ModernProductList({ products, dictionary, tenant }: Mode
                 <div className={styles.cartItems}>
                     {mounted && tenantItems.length === 0 && (
                         <div style={{ textAlign: 'center', color: '#A0AEC0', marginTop: '2rem' }}>
-                            {t.empty}
+                            {t.empty_desc}
                         </div>
                     )}
                     {mounted && tenantItems.map(item => (
@@ -131,7 +132,9 @@ export default function ModernProductList({ products, dictionary, tenant }: Mode
                             </div>
                             <div className={styles.itemDetails}>
                                 <div className={styles.name}>{item.name.replace(/\(.*\)/, '')}</div>
-                                <div className={styles.meta}>{item.name.match(/\((.*)\)/)?.[1] || (dictionary.locale === 'id' ? 'Reguler' : 'Regular')}</div>
+                                <div className={styles.meta}>
+                                    {item.name.match(/\((.*)\)/)?.[1] || (dictionary.locale === 'id' ? 'Reguler' : 'Regular')}
+                                </div>
 
                                 <div className={styles.itemActions}>
                                     <div className={styles.price}>{formatPrice(item.price)}</div>
@@ -151,7 +154,7 @@ export default function ModernProductList({ products, dictionary, tenant }: Mode
 
                 <div className={styles.summary}>
                     <div className={styles.row}>
-                        <span>{t.items}</span>
+                        <span>Subtotal</span>
                         <span>{formatPrice(subtotal)}</span>
                     </div>
                     <div className={styles.row}>
@@ -164,7 +167,7 @@ export default function ModernProductList({ products, dictionary, tenant }: Mode
                     </div>
 
                     <Link href="/checkout" style={{ textDecoration: 'none' }}>
-                        <button className={styles.checkoutBtn} disabled={tenantItems.length === 0}>
+                        <button className={styles.checkoutBtn} disabled={tenantItems.length === 0} style={{ background: tenant.theme.primary }}>
                             {t.checkout}
                         </button>
                     </Link>
@@ -174,7 +177,7 @@ export default function ModernProductList({ products, dictionary, tenant }: Mode
     )
 }
 
-function ProductCard({ product, onAdd, t, tenantId }: { product: Product, onAdd: any, t: any, tenantId: string }) {
+function ProductCard({ product, onAdd, t, tenantId, formatPrice }: { product: Product, onAdd: any, t: any, tenantId: string, formatPrice: Function }) {
     const [qty, setQty] = useState(1)
     const [size, setSize] = useState(t.small)
     const [isAdded, setIsAdded] = useState(false)
@@ -194,14 +197,6 @@ function ProductCard({ product, onAdd, t, tenantId }: { product: Product, onAdd:
         setTimeout(() => setIsAdded(false), 2000)
     }
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-        }).format(price)
-    }
-
     return (
         <div className={styles.card}>
             <div className={styles.imageContainer}>
@@ -219,7 +214,7 @@ function ProductCard({ product, onAdd, t, tenantId }: { product: Product, onAdd:
                 </div>
 
                 <p className={styles.description}>
-                    {product.description || 'This item has a delicious taste.'}
+                    {product.description || (t.locale === 'id' ? 'Item ini memiliki rasa yang lezat.' : 'This item has a delicious taste.')}
                 </p>
 
                 <div className={styles.options}>

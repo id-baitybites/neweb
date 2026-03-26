@@ -7,17 +7,14 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react'
 
-export default function LoginClient({ dict, returnUrl }: { dict: any; returnUrl: string }) {
+export default function LoginClient({ dict, returnUrl, tenantSlug: initialTenantSlug }: { dict: any; returnUrl: string; tenantSlug?: string | null }) {
     const t = dict.auth
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [showPw, setShowPw] = useState(false)
 
-    // Detect if we are on a tenant-prefixed path
-    const pathSegments = typeof window !== 'undefined' ? window.location.pathname.split('/').filter(Boolean) : []
-    const isTenantPath = pathSegments.length > 0 && !['login', 'register', 'admin', 'profile'].includes(pathSegments[0])
-    const tenantSlug = isTenantPath ? pathSegments[0] : null
-    const prefix = tenantSlug ? `/${tenantSlug}` : ''
+    // Ensure prefix is consistent between Server and Client for hydration
+    const prefix = initialTenantSlug ? `/${initialTenantSlug}` : ''
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -105,12 +102,12 @@ export default function LoginClient({ dict, returnUrl }: { dict: any; returnUrl:
             </div>
             
             {/* Google Logic */}
-            <GoogleLogic returnUrl={returnUrl} dict={dict} />
+            <GoogleLogic returnUrl={returnUrl} dict={dict} tenantSlug={initialTenantSlug} />
         </div>
     )
 }
 
-function GoogleLogic({ returnUrl, dict }: { returnUrl: string; dict: any }) {
+function GoogleLogic({ returnUrl, dict, tenantSlug: initialTenantSlug }: { returnUrl: string; dict: any; tenantSlug?: string | null }) {
     const t = dict.auth
     const router = useRouter()
     const [mounted, setMounted] = React.useState(false)
@@ -128,11 +125,8 @@ function GoogleLogic({ returnUrl, dict }: { returnUrl: string; dict: any }) {
                         if (result.success) {
                             toast.success(t.toast_google_success)
                             
-                            // Fix: Detect if we are on a tenant-prefixed path
-                            const pathSegments = window.location.pathname.split('/').filter(Boolean)
-                            const isTenantPath = pathSegments.length > 0 && !['login', 'register', 'admin', 'profile'].includes(pathSegments[0])
-                            const tenantSlug = isTenantPath ? pathSegments[0] : null
-                            const prefix = tenantSlug ? `/${tenantSlug}` : ''
+                            // Consistent prefix from initial prop
+                            const prefix = initialTenantSlug ? `/${initialTenantSlug}` : ''
 
                             if (result.needsProfileCompletion) {
                                 router.push(`${prefix}/profile?step=complete`)

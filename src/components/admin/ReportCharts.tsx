@@ -27,12 +27,13 @@ ChartJS.register(
     Legend
 )
 
-export function SalesChart() {
+export function SalesChart({ dict }: { dict: any }) {
+    const r = dict.admin.reports
     const data = {
-        labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+        labels: [r.monday, r.tuesday, r.wednesday, r.thursday, r.friday, r.saturday, r.sunday],
         datasets: [
             {
-                label: 'Penjualan (IDR)',
+                label: `${r.sales_label} (Currency)`,
                 data: [1200000, 1900000, 1500000, 2100000, 2800000, 4500000, 3800000],
                 backgroundColor: '#FF69B4',
                 borderRadius: 8,
@@ -43,7 +44,9 @@ export function SalesChart() {
     return <Bar data={data} options={{ responsive: true, maintainAspectRatio: false }} />
 }
 
-export function CategoryPie() {
+export function CategoryPie({ dict }: { dict: any }) {
+    // Categories are typically data-driven, but we'll use placeholder labels for now
+    // In a real app these labels would come from the database
     const data = {
         labels: ['Cake', 'Cupcake', 'Cookies', 'Custom'],
         datasets: [

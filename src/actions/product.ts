@@ -16,8 +16,22 @@ export async function createProductAction(formData: FormData) {
         const description = formData.get('description') as string;
         const stock = parseInt(formData.get('stock') as string || '0');
         const imageUrl = formData.get('imageUrl') as string || null;
-        const category = formData.get('category') as string || 'Cake';
+        const categoryName = (formData.get('category') as string || 'General').trim() || 'General';
+        const categorySlug = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
+        // @ts-ignore: Prisma types pending TS server refresh
+        let categoryRecord = await prisma.category.findUnique({
+             // @ts-ignore
+             where: { tenantId_slug: { tenantId: user.tenantId, slug: categorySlug } }
+        });
+        if (!categoryRecord) {
+             // @ts-ignore
+             categoryRecord = await prisma.category.create({
+                  data: { tenantId: user.tenantId, name: categoryName, slug: categorySlug }
+             });
+        }
+
+        // @ts-ignore: Prisma types pending TS server refresh
         const product = await prisma.product.create({
             data: {
                 tenantId: user.tenantId,
@@ -26,7 +40,8 @@ export async function createProductAction(formData: FormData) {
                 description,
                 stock,
                 imageUrl,
-                category,
+                // @ts-ignore
+                categoryId: categoryRecord.id,
                 isActive: true
             }
         });
@@ -52,9 +67,28 @@ export async function updateProductAction(id: string, formData: FormData) {
         const description = formData.get('description') as string;
         const stock = parseInt(formData.get('stock') as string || '0');
         const imageUrl = formData.get('imageUrl') as string || undefined;
-        const category = formData.get('category') as string || undefined;
+        let categoryName = (formData.get('category') as string || '').trim();
+        let categoryId = undefined;
+        
+        if (categoryName) {
+            const categorySlug = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            // @ts-ignore: Prisma types pending TS server refresh
+            let categoryRecord = await prisma.category.findUnique({
+                 // @ts-ignore
+                 where: { tenantId_slug: { tenantId: user.tenantId, slug: categorySlug } }
+            });
+            if (!categoryRecord) {
+                 // @ts-ignore
+                 categoryRecord = await prisma.category.create({
+                      data: { tenantId: user.tenantId, name: categoryName, slug: categorySlug }
+                 });
+            }
+            categoryId = categoryRecord.id;
+        }
+
         const isActive = formData.get('isActive') === 'true';
 
+        // @ts-ignore: Prisma types pending TS server refresh
         await prisma.product.update({
             where: { id, tenantId: user.tenantId },
             data: {
@@ -63,7 +97,8 @@ export async function updateProductAction(id: string, formData: FormData) {
                 description,
                 stock,
                 imageUrl,
-                category,
+                // @ts-ignore
+                categoryId,
                 isActive
             }
         });

@@ -35,12 +35,20 @@ export default async function AdminLayout({
         redirect(`${prefix}/login`)
     }
 
-    if (user.role === 'SUPER_ADMIN') {
+    if (user.role === 'SUPER_ADMIN' && !tenant) {
         redirect('/super-admin')
     }
 
-    if (user.role !== 'OWNER' && user.role !== 'STAFF') {
+    if (user.role !== 'OWNER' && user.role !== 'STAFF' && user.role !== 'SUPER_ADMIN') {
         redirect(prefix || '/')
+    }
+
+    console.log(`[AdminLayout] Debug: UserTenantID=${user.tenantId}, ResolvedTenantID=${tenant?.id}, PathPrefix=${prefix}`)
+
+    // CRITICAL: Prevent tenant cross-contamination !
+    if (tenant && user.role !== 'SUPER_ADMIN' && user.tenantId !== tenant.id) {
+        console.warn(`[AdminLayout] ACCESS DENIED: User belongs to ${user.tenantId} but requested admin for ${tenant.id}`)
+        redirect('/')
     }
 
     return (

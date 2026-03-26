@@ -9,7 +9,7 @@ export default async function CartPage() {
     return (
         <div style={{ backgroundColor: '#F8F9FA', minHeight: '100vh' }}>
             <div className="container" style={{ margin: '0 auto', maxWidth: '1200px' }}>
-                <CartClient tenantId={tenant?.id} dict={dict} />
+                <CartClient tenant={tenant} dict={dict} />
             </div>
         </div>
     )

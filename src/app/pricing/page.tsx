@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { Check, Zap, Shield, Building2, Star } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { getDictionary } from '@/i18n'
 
 export const metadata: Metadata = {
     title: 'Pricing | Bitespace SaaS Platform',
@@ -12,80 +13,37 @@ export const metadata: Metadata = {
 
 export default async function PricingPage() {
     const tenant = await resolveTenant()
+    const dict = await getDictionary()
+    const t = dict.pricing
 
     if (tenant) {
         // Redirect if someone tries to access platform pricing from a storefront
         redirect('/')
     }
 
-    const plans = [
+    const plans: any[] = [
         {
-            name: 'FREE',
-            price: 'Rp 0',
-            desc: 'Ideal untuk test-drive & jualan santai.',
-            features: [
-                'Hingga 20 Produk',
-                'Subdomain Bitespace',
-                'Manajemen Pesanan Dasar',
-                'Metode Bayar QRIS (Statistik)',
-                '1 Staff Member'
-            ],
+            ...t.plans.free,
             icon: <Zap size={40} color="#4F46E5" />,
-            btn: 'Mulai Gratis',
             color: '#4F46E5',
             accent: 'rgba(79, 70, 229, 0.05)'
         },
         {
-            name: 'STARTER',
-            price: 'Rp 149k',
-            period: '/bulan',
-            desc: 'Untuk UMKM yang mulai berkembang pesat.',
+            ...t.plans.starter,
             popular: true,
-            features: [
-                'Hingga 100 Produk',
-                'Custom Domain Ready',
-                'Inventory Management',
-                'Laporan Penjualan Dasar',
-                '3 Staff Members',
-                'WhatsApp Notifications'
-            ],
             icon: <Star size={40} color="#FF69B4" />,
-            btn: 'Pilih Starter',
             color: '#FF69B4',
             accent: 'rgba(255, 105, 180, 0.05)'
         },
         {
-            name: 'PRO',
-            price: 'Rp 499k',
-            period: '/bulan',
-            desc: 'Fitur lengkap untuk bisnis skala besar.',
-            features: [
-                'Produk Tak Terbatas',
-                'Analytics Dashboard Pro',
-                'Multi-Store (Coming soon)',
-                'Advanced Inventory Control',
-                'Staff Tak Terbatas',
-                'Priority Support 24/7'
-            ],
+            ...t.plans.pro,
             icon: <Shield size={40} color="#0EA5E9" />,
-            btn: 'Go Pro Now',
             color: '#0EA5E9',
             accent: 'rgba(14, 165, 233, 0.05)'
         },
         {
-            name: 'ENTERPRISE',
-            price: 'Custom',
-            desc: 'Solusi khusus untuk korporasi & retail besar.',
-            features: [
-                'White-label Solution',
-                'Dedicated Account Manager',
-                'Custom API Integrations',
-                'Service Level Agreement',
-                'Keamanan Tingkat Tinggi',
-                'Migrasi Data'
-            ],
+            ...t.plans.enterprise,
             icon: <Building2 size={40} color="#1E293B" />,
-            btn: 'Hubungi Kami',
             color: '#1E293B',
             accent: 'rgba(30, 41, 59, 0.05)'
         }
@@ -97,10 +55,10 @@ export default async function PricingPage() {
                 {/* Header */}
                 <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
                     <h1 style={{ fontSize: '3.5rem', fontWeight: 900, color: '#0F172A', marginBottom: '1.5rem', lineHeight: 1.1 }}>
-                        Satu Platform, <span style={{ color: '#4F46E5' }}>Sejuta Peluang</span>
+                        {t.title_main} <span style={{ color: '#4F46E5' }}>{t.title_highlight}</span>
                     </h1>
                     <p style={{ fontSize: '1.25rem', color: '#64748B', maxWidth: '700px', margin: '0 auto' }}>
-                        Pilih paket yang paling sesuai dengan kebutuhan bisnis Anda hari ini, dan skalakan dengan mudah saat bisnis Anda meroket.
+                        {t.subtitle}
                     </p>
                 </div>
 
@@ -135,7 +93,7 @@ export default async function PricingPage() {
                                     fontWeight: 800,
                                     letterSpacing: '0.05em'
                                 }}>
-                                    MOST POPULAR
+                                    {t.popular_badge}
                                 </div>
                             )}
 
@@ -163,7 +121,7 @@ export default async function PricingPage() {
 
                             <div style={{ flex: 1, marginBottom: '2.5rem' }}>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                                    {p.features.map((f, i) => (
+                                    {p.features.map((f: string, i: number) => (
                                         <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.95rem', color: '#334155' }}>
                                             <div style={{ color: p.color, flexShrink: 0 }}><Check size={18} /></div>
                                             {f}
@@ -195,7 +153,7 @@ export default async function PricingPage() {
 
                 {/* FAQ Link or Note */}
                 <div style={{ textAlign: 'center', marginTop: '5rem', color: '#64748B', fontSize: '1rem' }}>
-                    Butuh solusi custom untuk tim besar? <Link href="/contact" style={{ color: '#4F46E5', fontWeight: 700, textDecoration: 'none' }}>Mari berdiskusi.</Link>
+                    {t.custom_ask} <Link href="/contact" style={{ color: '#4F46E5', fontWeight: 700, textDecoration: 'none' }}>{t.discuss}</Link>
                 </div>
             </div>
         </div>

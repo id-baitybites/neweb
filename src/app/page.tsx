@@ -19,10 +19,13 @@ export default async function Home() {
 
   if (tenant) {
     // Get top 4 products (favorite products)
+    // @ts-ignore
     const products = await prisma.product.findMany({
       where: { tenantId: tenant.id, isActive: true },
       orderBy: { stock: 'desc' }, // Dummy logic for "favorite"
-      take: 4
+      take: 4,
+      // @ts-ignore
+      include: { category: true }
     })
 
     // Get approved testimonies
@@ -81,7 +84,7 @@ export default async function Home() {
 
             <div className={homeStyles.productGrid}>
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} dict={dict} tenant={tenant} />
               ))}
             </div>
 

@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 import { User, Mail, Lock, Phone, Eye, EyeOff, ArrowRight, ShoppingBag, Star, Sparkles } from 'lucide-react'
 
-export default function RegisterClient({ dict }: { dict: any }) {
+export default function RegisterClient({ dict, tenantSlug: initialTenantSlug }: { dict: any; tenantSlug?: string | null }) {
     const t = dict.auth
     const router = useRouter()
     const [loading, setLoading] = useState(false)
@@ -15,10 +15,7 @@ export default function RegisterClient({ dict }: { dict: any }) {
     const [step, setStep] = useState<'info' | 'done'>('info')
 
     // Prefix detection
-    const pathSegments = typeof window !== 'undefined' ? window.location.pathname.split('/').filter(Boolean) : []
-    const isTenantPath = pathSegments.length > 0 && !['login', 'register', 'admin', 'profile'].includes(pathSegments[0])
-    const tenantSlug = isTenantPath ? pathSegments[0] : null
-    const prefix = tenantSlug ? `/${tenantSlug}` : ''
+    const prefix = initialTenantSlug ? `/${initialTenantSlug}` : ''
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()

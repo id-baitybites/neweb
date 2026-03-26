@@ -21,14 +21,18 @@ export default async function ProductsPage() {
         redirect('/#merchants')
     }
 
+    // @ts-ignore
     const products = await prisma.product.findMany({
         where: { tenantId: tenant.id, isActive: true },
+        // @ts-ignore
+        include: { category: true },
         orderBy: { createdAt: 'desc' },
     })
 
     return (
         <div style={{ backgroundColor: '#F8F9FA' }}>
             <div className="container" style={{ margin: '0 auto', maxWidth: '1440px' }}>
+                {/* @ts-ignore */}
                 <ModernProductList products={products} dictionary={dict} tenant={tenant} />
             </div>
         </div>
