@@ -6,17 +6,18 @@ import { cookies } from 'next/headers';
 import { generateToken } from '@/lib/auth';
 import { resolveTenant } from '@/lib/tenant';
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const GOOGLE_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const client = new OAuth2Client(GOOGLE_ID);
 
 export async function loginWithGoogle(idToken: string) {
-    if (!process.env.GOOGLE_CLIENT_ID) {
+    if (!GOOGLE_ID) {
         return { error: 'Google Login is not configured on this server.' };
     }
 
     try {
         const ticket = await client.verifyIdToken({
             idToken,
-            audience: process.env.GOOGLE_CLIENT_ID,
+            audience: GOOGLE_ID,
         });
 
         const payload = ticket.getPayload();
