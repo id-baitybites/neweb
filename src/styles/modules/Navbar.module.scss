@@ -3,22 +3,22 @@
 
 
 .navbar {
-    background-color: var(--color-secondary);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background-color: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid transparent;
-    padding: 1.5rem 0;
-    position: sticky;
+    padding: 1.25rem 0;
+    position: fixed;
     top: 0;
     width: 100%;
     z-index: 1000;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
     &.scrolled {
         background-color: var(--color-secondary);
-        padding: 1rem 0;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 0.75rem 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .container {
@@ -29,19 +29,26 @@
 
     .logo {
         font-size: 1.5rem;
-        font-weight: bold;
+        font-weight: 800;
         color: #ffffff;
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        text-decoration: none;
 
-        img {
+        .logoImg {
             display: block;
+            height: 54px;
             width: auto;
-            max-width: 200px;
-            object-fit: contain;
+            max-width: 220px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+            &.shrunk {
+                height: 36px;
+            }
         }
     }
+
 
     .navLinks {
         display: flex;

@@ -71,7 +71,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
         setMounted(true)
 
         const handleScroll = () => {
-            if (window.scrollY > 20) {
+            if (window.scrollY > 150) {
                 setIsScrolled(true)
             } else {
                 setIsScrolled(false)
@@ -91,7 +91,12 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                 {/* Logo / Brand — goes to tenant home or platform root */}
                 <Link href={tenant ? `${p}` : '/'} className={styles.logo}>
                     {logoUrl ? (
-                        <img src={logoUrl} alt={storeName} height={50} style={{ objectFit: 'contain' }} />
+                        <img 
+                            src={logoUrl} 
+                            alt={storeName} 
+                            className={`${styles.logoImg} ${isScrolled ? styles.shrunk : ''}`} 
+                            style={{ objectFit: 'contain' }} 
+                        />
                     ) : (
                         <span>{storeName}</span>
                     )}
