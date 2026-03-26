@@ -5,7 +5,7 @@
 .hero {
     position: relative;
     z-index: 1;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -15,15 +15,21 @@
     text-align: center;
     overflow: hidden;
 
-    &::before {
-        content: '';
+    .parallaxBg {
         position: absolute;
-        inset: 0;
+        // Large inset to provide "extra" background that can be revealed during movement
+        top: -100px; 
+        left: 0;
+        right: 0;
+        bottom: -100px;
         background-image: var(--hero-bg, url('/images/portal-hero-bg-light.png'));
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
+        // Move with scroll
+        transform: translateY(calc(var(--parallax-offset, 0px) * 0.8));
         z-index: -2;
+        transition: transform 0.1s linear; // smooth it out
+        will-change: transform;
     }
 
     &.hasCustomBg::after {
