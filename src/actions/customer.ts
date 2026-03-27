@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/actions/auth'
 import { resolveTenant } from '@/lib/tenant'
 
 /**
- * Fetch all customers for the current tenant (Admin only)
+ * Fetch all customers for the current tenant (Admin only) with enhanced stats
  */
 export const getAdminCustomers = async () => {
     const user = await getCurrentUser()
@@ -13,7 +13,7 @@ export const getAdminCustomers = async () => {
 
     if (!tenant) throw new Error("No active store found")
     
-    // Check if user is staff or owner of THIS tenant, or a SUPER_ADMIN
+    // Check authorization
     const isAuthorized = user?.role === 'SUPER_ADMIN' || 
                        ((user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === tenant.id)
 
@@ -42,7 +42,25 @@ export const getAdminCustomers = async () => {
             orderBy: { createdAt: 'desc' }
         })
 
-        return { success: true, customers }
+        // Calculate stats
+        const total = customers.length
+        const active = customers.filter(c => c.isActive).length
+        const inactive = total - active
+        
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const loggedInToday = customers.filter(c => c.lastLogin && new Date(c.lastLogin) >= today).length
+
+        return { 
+            success: true, 
+            customers,
+            stats: {
+                total,
+                active,
+                inactive,
+                loggedInToday
+            }
+        }
     } catch (error: any) {
         console.error('Error fetching admin customers:', error)
         return { success: false, error: error.message }

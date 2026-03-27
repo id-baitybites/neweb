@@ -36,6 +36,12 @@ export const login = async (formData: FormData) => {
 
     console.log(`[Login] Success: User ${user.email} Role ${user.role}`)
     
+    // Update lastLogin tracking
+    await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() }
+    })
+    
     const cookieStore = await cookies()
     const token = generateToken({ id: user.id, email: user.email, role: user.role, tenantId: user.tenantId })
     cookieStore.set('token', token, {
