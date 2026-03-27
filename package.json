@@ -1,10 +1,10 @@
 {
   "name": "newweb",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "private": true,
   "scripts": {
     "dev": "next dev -p 7277",
-    "build": "next build",
+    "build": "npx prisma generate && npx prisma db push && next build",
     "start": "next start",
     "lint": "eslint"
   },
