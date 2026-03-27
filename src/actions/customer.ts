@@ -11,11 +11,15 @@ export const getAdminCustomers = async () => {
     const user = await getCurrentUser()
     const tenant = await resolveTenant()
     
+    // Fallback to user's tenant if URL-based resolution returns null
+    const targetTenantId = tenant?.id || user?.tenantId
+
     // Authorization check
     const isAuthorized = user?.role === 'SUPER_ADMIN' || 
-                       (tenant && (user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === tenant.id)
+                       (targetTenantId && (user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === targetTenantId)
 
     if (!isAuthorized) {
+        console.warn(`[getAdminCustomers] Unauthorized access for user ${user?.email}`)
         throw new Error("Unauthorized access")
     }
 
@@ -23,7 +27,7 @@ export const getAdminCustomers = async () => {
         const customers = await prisma.user.findMany({
             where: { 
                 role: 'CUSTOMER',
-                ...(tenant ? { tenantId: tenant.id } : {})
+                ...(targetTenantId ? { tenantId: targetTenantId } : {})
             },
             include: {
                 profile: true,
@@ -72,11 +76,15 @@ export const getAdminCustomerDetails = async (id: string) => {
     const user = await getCurrentUser()
     const tenant = await resolveTenant()
 
+    // Fallback to user's tenant if URL-based resolution returns null
+    const targetTenantId = tenant?.id || user?.tenantId
+
     // Authorization check
     const isAuthorized = user?.role === 'SUPER_ADMIN' || 
-                       (tenant && (user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === tenant.id)
+                       (targetTenantId && (user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === targetTenantId)
 
     if (!isAuthorized) {
+        console.warn(`[getAdminCustomerDetails] Unauthorized access for user ${user?.email}`)
         throw new Error("Unauthorized access")
     }
 
@@ -84,7 +92,7 @@ export const getAdminCustomerDetails = async (id: string) => {
         const customer = await (prisma.user.findFirst as any)({
             where: { 
                 id,
-                ...(tenant ? { tenantId: tenant.id } : {}),
+                ...(targetTenantId ? { tenantId: targetTenantId } : {}),
                 role: 'CUSTOMER'
             },
             include: {
