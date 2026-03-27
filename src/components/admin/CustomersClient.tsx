@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { getAdminCustomers } from '@/actions/customer'
+import { useRouter, useParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { 
     Users, 
@@ -24,6 +25,10 @@ import {
 import styles from '@/styles/modules/Admin.module.scss'
 
 export default function CustomersClient() {
+    const router = useRouter()
+    const { tenant_slug } = useParams() as any
+    const prefix = tenant_slug ? `/${tenant_slug}` : ''
+
     const [customers, setCustomers] = useState<any[]>([])
     const [stats, setStats] = useState<any>(null)
     const [loading, setLoading] = useState(true)
@@ -176,10 +181,14 @@ export default function CustomersClient() {
                                 </div>
                                 <div className={styles.nameBlock}>
                                     <h3>{customer.name || 'Anonymous User'}</h3>
-                                    <p>{customer.profile?.address?.split(',').pop()?.trim() || 'Global User'}</p>
+                                    <p>{(customer.profile as any)?.addressLine?.split(',').pop()?.trim() || 'Global User'}</p>
                                 </div>
                             </div>
-                            <button className={styles.moreBtn}>
+                            <button 
+                                className={styles.moreBtn}
+                                onClick={() => router.push(`${prefix}/admin/customers/${customer.id}`)}
+                                title="Lihat Detail Belanja"
+                            >
                                 <MoreVertical size={18} />
                             </button>
                         </div>

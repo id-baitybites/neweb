@@ -66,3 +66,49 @@ export const getAdminCustomers = async () => {
         return { success: false, error: error.message }
     }
 }
+
+/**
+ * Fetch detailed information for a single customer (Admin only)
+ */
+export const getAdminCustomerDetails = async (id: string) => {
+    const user = await getCurrentUser()
+    const tenant = await resolveTenant()
+
+    if (!tenant) throw new Error("No active store found")
+    
+    // Authorization check
+    const isAuthorized = user?.role === 'SUPER_ADMIN' || 
+                       ((user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === tenant.id)
+
+    if (!isAuthorized) {
+        throw new Error("Unauthorized access")
+    }
+
+    try {
+        const customer = await (prisma.user.findFirst as any)({
+            where: { 
+                id,
+                tenantId: tenant.id,
+                role: 'CUSTOMER'
+            },
+            include: {
+                profile: true,
+                orders: {
+                    include: {
+                        orderItems: {
+                            include: { product: true }
+                        }
+                    },
+                    orderBy: { createdAt: 'desc' }
+                }
+            }
+        })
+
+        if (!customer) return { success: false, error: "Pelanggan tidak ditemukan" }
+
+        return { success: true, customer }
+    } catch (error: any) {
+        console.error('Error fetching customer details:', error)
+        return { success: false, error: error.message }
+    }
+}
