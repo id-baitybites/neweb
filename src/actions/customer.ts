@@ -10,12 +10,10 @@ import { resolveTenant } from '@/lib/tenant'
 export const getAdminCustomers = async () => {
     const user = await getCurrentUser()
     const tenant = await resolveTenant()
-
-    if (!tenant) throw new Error("No active store found")
     
-    // Check authorization
+    // Authorization check
     const isAuthorized = user?.role === 'SUPER_ADMIN' || 
-                       ((user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === tenant.id)
+                       (tenant && (user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === tenant.id)
 
     if (!isAuthorized) {
         throw new Error("Unauthorized access")
@@ -24,8 +22,8 @@ export const getAdminCustomers = async () => {
     try {
         const customers = await prisma.user.findMany({
             where: { 
-                tenantId: tenant.id,
-                role: 'CUSTOMER'
+                role: 'CUSTOMER',
+                ...(tenant ? { tenantId: tenant.id } : {})
             },
             include: {
                 profile: true,
@@ -74,11 +72,9 @@ export const getAdminCustomerDetails = async (id: string) => {
     const user = await getCurrentUser()
     const tenant = await resolveTenant()
 
-    if (!tenant) throw new Error("No active store found")
-    
     // Authorization check
     const isAuthorized = user?.role === 'SUPER_ADMIN' || 
-                       ((user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === tenant.id)
+                       (tenant && (user?.role === 'OWNER' || user?.role === 'STAFF') && user.tenantId === tenant.id)
 
     if (!isAuthorized) {
         throw new Error("Unauthorized access")
@@ -88,7 +84,7 @@ export const getAdminCustomerDetails = async (id: string) => {
         const customer = await (prisma.user.findFirst as any)({
             where: { 
                 id,
-                tenantId: tenant.id,
+                ...(tenant ? { tenantId: tenant.id } : {}),
                 role: 'CUSTOMER'
             },
             include: {
