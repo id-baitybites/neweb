@@ -61,7 +61,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
     const pathname = usePathname()
     const router = useRouter()
     const totalItems = useCartStore((state) => state.totalItems(tenant?.id))
-    
+
     const t = navDict[locale]
 
     // Slug-aware prefix: all tenant links must be relative to /{slug}/...
@@ -71,7 +71,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
         setMounted(true)
 
         const handleScroll = () => {
-            if (window.scrollY > 150) {
+            if (window.scrollY > 10) {
                 setIsScrolled(true)
             } else {
                 setIsScrolled(false)
@@ -91,11 +91,11 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                 {/* Logo / Brand — goes to tenant home or platform root */}
                 <Link href={tenant ? `${p}` : '/'} className={styles.logo}>
                     {logoUrl ? (
-                        <img 
-                            src={logoUrl} 
-                            alt={storeName} 
-                            className={`${styles.logoImg} ${isScrolled ? styles.shrunk : ''}`} 
-                            style={{ objectFit: 'contain' }} 
+                        <img
+                            src={logoUrl}
+                            alt={storeName}
+                            className={`${styles.logoImg} ${isScrolled ? styles.shrunk : ''}`}
+                            style={{ objectFit: 'contain' }}
                         />
                     ) : (
                         <span>{storeName}</span>
@@ -159,7 +159,7 @@ export default function Navbar({ user, tenant, locale = 'id' }: NavbarProps) {
                     )}
 
                     <LanguageSwitcher currentLocale={locale} />
-                    
+
                     {/* Mobile hamburger */}
                     <button className={styles.hamburger} onClick={() => setIsMenuOpen(!isMenuOpen)}>
                         {isMenuOpen ? <X size={24} /> : <Menu size={24} />}

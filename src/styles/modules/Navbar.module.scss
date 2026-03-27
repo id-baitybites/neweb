@@ -4,17 +4,18 @@
 
 .navbar {
     background-color: color-mix(in srgb, var(--color-secondary) 20%, transparent);
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid transparent;
     padding: 1.25rem 0;
-    position: fixed;
+    position: sticky;
     top: 0;
     width: 100%;
     z-index: 1000;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
     &.scrolled {
+        position: fixed;
         background-color: var(--color-secondary);
         padding: 0.75rem 0;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -30,7 +31,7 @@
     .logo {
         font-size: 1.5rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--color-muted);
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -38,7 +39,7 @@
 
         .logoImg {
             display: block;
-            height: 54px;
+            height: 64px;
             width: auto;
             max-width: 220px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
