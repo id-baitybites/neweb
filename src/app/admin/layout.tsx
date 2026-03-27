@@ -11,7 +11,8 @@ import {
     Bell,
     ShoppingCart,
     ClipboardList,
-    Receipt
+    Receipt,
+    Users
 } from 'lucide-react'
 import styles from '@/styles/modules/Admin.module.scss'
 import { getCurrentUser } from '@/actions/auth'
@@ -60,6 +61,7 @@ export default async function AdminLayout({
                     <Link href={`${prefix}/admin`}><LayoutDashboard size={20} /> {t.sidebar.dashboard}</Link>
                     <Link href={`${prefix}/admin/products`}><ShoppingCart size={20} /> {t.sidebar.products}</Link>
                     <Link href={`${prefix}/admin/orders`}><ClipboardList size={20} /> {t.sidebar.orders}</Link>
+                    <Link href={`${prefix}/admin/customers`}><Users size={20} /> {t.sidebar.customers}</Link>
                     <Link href={`${prefix}/admin/pos`}><Receipt size={20} /> {t.sidebar.pos}</Link>
                     <Link href={`${prefix}/admin/kitchen`}><Utensils size={20} /> {t.sidebar.kitchen}</Link>
                     <Link href={`${prefix}/admin/inventory`}><Package size={20} /> {t.sidebar.inventory}</Link>

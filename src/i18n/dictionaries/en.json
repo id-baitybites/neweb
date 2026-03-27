@@ -83,6 +83,7 @@
       "dashboard": "Dashboard",
       "products": "Products",
       "orders": "Orders",
+      "customers": "Customers",
       "pos": "Cashier / POS",
       "kitchen": "Kitchen Display",
       "inventory": "Inventory",
