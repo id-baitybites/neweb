@@ -65,7 +65,7 @@ export async function loginWithGoogle(idToken: string) {
         if (!user) throw new Error('User creation failed');
 
         // Update lastLogin tracking
-        await prisma.user.update({
+        await (prisma.user.update as any)({
             where: { id: user.id },
             data: { lastLogin: new Date() }
         });

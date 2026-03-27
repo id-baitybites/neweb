@@ -37,7 +37,7 @@ export const login = async (formData: FormData) => {
     console.log(`[Login] Success: User ${user.email} Role ${user.role}`)
     
     // Update lastLogin tracking
-    await prisma.user.update({
+    await (prisma.user.update as any)({
         where: { id: user.id },
         data: { lastLogin: new Date() }
     })

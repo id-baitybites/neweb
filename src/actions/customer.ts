@@ -44,12 +44,12 @@ export const getAdminCustomers = async () => {
 
         // Calculate stats
         const total = customers.length
-        const active = customers.filter(c => c.isActive).length
+        const active = customers.filter(c => (c as any).isActive).length
         const inactive = total - active
         
         const today = new Date()
         today.setHours(0, 0, 0, 0)
-        const loggedInToday = customers.filter(c => c.lastLogin && new Date(c.lastLogin) >= today).length
+        const loggedInToday = customers.filter(c => (c as any).lastLogin && new Date((c as any).lastLogin) >= today).length
 
         return { 
             success: true, 
