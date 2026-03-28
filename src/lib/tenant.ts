@@ -102,7 +102,14 @@ export async function resolveTenant(): Promise<TenantData | null> {
 
     // 4. Fallback: first active tenant (dev/single-tenant mode)
     // Prevent fallback on the main platform domain so the multi-tenant landing page shows up.
-    const isPlatformDomain = domain === 'bitespace.netlify.app' || domain === 'bitespace.vercel.app' || domain === 'localhost:7277' || domain === 'localhost'
+    const PLATFORM_DOMAINS = [
+        'bitespace.netlify.app',
+        'bitespace.vercel.app',
+        'localhost:7277',
+        'localhost'
+    ];
+    const isPlatformDomain = PLATFORM_DOMAINS.includes(domain);
+    
     if (!isPlatformDomain) {
         const fallback = await prisma.tenant.findFirst({
             where: { isActive: true },

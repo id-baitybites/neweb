@@ -749,8 +749,11 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
                                 </div>
                                 <div style={{ gridColumn: 'span 2' }}>
                                     <label style={labelStyle}>Callback URL (Webhook)</label>
-                                    <div style={{ ...inputStyle, background: '#0f0f0f', color: '#888', wordBreak: 'break-all', fontSize: '0.8rem' }}>
-                                        https://dashboard.bitespace.id/api/qris/callback/{tenant.slug}
+                                    <div style={{ ...inputStyle, background: '#0f0f0f', color: '#888', wordBreak: 'break-all', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <Globe size={12} />
+                                        <span>
+                                            {typeof window !== 'undefined' ? window.location.origin : 'https://bitespace.id'}/api/qris/callback/{tenant.slug}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

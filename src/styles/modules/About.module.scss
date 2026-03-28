@@ -1,0 +1,212 @@
+@use "../variables.scss" as *;
+
+.aboutWrapper {
+    min-height: 100vh;
+    padding: 8rem 1rem;
+    position: relative;
+    overflow: hidden;
+    background: #fafafa;
+}
+
+.blob {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    z-index: 0;
+    animation: float 20s infinite alternate;
+}
+
+.blob1 {
+    top: -100px;
+    right: -100px;
+    background: #4f46e5;
+}
+
+.blob2 {
+    bottom: -200px;
+    left: -100px;
+    background: #FF69B4;
+    animation-delay: -5s;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(100px, 50px) rotate(30deg); }
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 6rem;
+
+    .chip {
+        display: inline-block;
+        padding: 0.5rem 1.25rem;
+        background: rgba(79, 70, 229, 0.08);
+        color: #4f46e5;
+        border-radius: 100px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1.5rem;
+    }
+
+    h1 {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 800;
+        color: #111827;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        margin-bottom: 1.5rem;
+        
+        span {
+            color: #4f46e5;
+        }
+    }
+
+    p {
+        font-size: 1.25rem;
+        color: #4b5563;
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+}
+
+.mainCard {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 5rem;
+    border-radius: 40px;
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 4rem;
+
+    @media (max-width: 768px) {
+        padding: 2.5rem;
+    }
+
+    .quoteSection {
+        border-left: 4px solid #4f46e5;
+        padding: 2rem 3rem;
+        background: rgba(79, 70, 229, 0.03);
+        border-radius: 0 20px 20px 0;
+        margin: 3rem 0;
+        font-style: italic;
+        font-size: 1.2rem;
+        color: #374151;
+        line-height: 1.6;
+        
+        @media (max-width: 768px) {
+            padding: 1.5rem;
+        }
+    }
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 4rem;
+}
+
+.valueCard {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 24px;
+    border: 1px solid rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        border-color: rgba(79,70,229,0.2);
+    }
+
+    .iconBox {
+        width: 56px;
+        height: 56px;
+        background: rgba(79, 70, 229, 0.1);
+        color: #4f46e5;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        color: #6b7280;
+        line-height: 1.6;
+        font-size: 1rem;
+    }
+}
+
+.cta {
+    text-align: center;
+    margin-top: 6rem;
+    padding: 5rem;
+    background: #111827;
+    border-radius: 40px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+
+    .ctaBlob {
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 300px;
+        height: 300px;
+        background: #4f46e5;
+        filter: blur(100px);
+        opacity: 0.4;
+    }
+
+    h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        color: white;
+    }
+
+    p {
+        color: #9ca3af;
+        margin-bottom: 2.5rem;
+        font-size: 1.1rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2.5rem;
+        background: #4f46e5;
+        color: white;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: all 0.2s;
+        
+        &:hover {
+            background: #4338ca;
+            transform: scale(1.05);
+        }
+    }
+}

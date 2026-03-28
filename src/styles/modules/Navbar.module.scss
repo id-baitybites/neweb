@@ -57,7 +57,8 @@
         align-items: center;
 
         a {
-            color: rgba(255, 255, 255, 0.85);
+            // color: rgba(255, 255, 255, 0.85);
+            color: var(--color-primary);
             font-weight: 600;
             transition: color 0.2s;
 
