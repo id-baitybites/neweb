@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 import "@/styles/globals.scss";
 import Navbar from "@/components/Navbar";
@@ -27,8 +28,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [user, tenant, locale] = await Promise.all([getCurrentUser(), resolveTenant(), getLocale()]);
-  console.log(`[RootLayout] Path: ${tenant ? tenant.slug : 'PLATFORM'}, User: ${user?.email}, Role: ${user?.role}, Locale: ${locale}`)
+  const [user, tenant, locale, headersList] = await Promise.all([
+    getCurrentUser(), 
+    resolveTenant(), 
+    getLocale(),
+    headers()
+  ]);
+  
+  const pathname = headersList.get('x-forwarded-path') || "";
+  const segments = pathname.split('/').filter(Boolean);
+  console.log(`[RootLayout] Path: ${pathname || (tenant ? tenant.slug : 'PLATFORM')}, User: ${user?.email}, Role: ${user?.role}, Locale: ${locale}`)
 
   const themeCSS = tenant ? buildThemeCSS(tenant.theme) : "";
 
@@ -44,11 +53,11 @@ export default async function RootLayout({
         {tenant?.theme?.font && tenant.theme.font !== "Inter" && (
           <link
             rel="stylesheet"
-            href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(tenant.theme.font)}:wght@400;500;600;700&display=swap`}
+            href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(tenant.theme.font.replace(/\s+/g, '+'))}:wght@400;500;600;700&display=swap`}
           />
         )}
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} style={tenant?.theme?.font ? { fontFamily: `'${tenant.theme.font}', sans-serif` } : undefined}>
         <Script
           src={process.env.MIDTRANS_IS_PRODUCTION === 'true' 
             ? "https://app.midtrans.com/snap/snap.js" 

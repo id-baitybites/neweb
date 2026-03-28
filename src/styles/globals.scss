@@ -10,7 +10,7 @@ html,
 body {
     max-width: 100vw;
     overflow-x: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: var(--font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
     background-color: $color-background;
     color: $color-text;
 }
@@ -24,7 +24,7 @@ button {
     cursor: pointer;
     border: none;
     background: transparent;
-    font-family: inherit;
+    font-family: var(--font-family, inherit);
 }
 
 h1,

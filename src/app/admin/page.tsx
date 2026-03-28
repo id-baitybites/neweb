@@ -62,54 +62,102 @@ export default async function AdminDashboardPage() {
     })
 
     return (
-        <div>
+        <div className={styles.adminPage}>
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
                     <div className={styles.label}>{t.total_revenue}</div>
-                    <div className={styles.value}><DollarSign size={20} style={{ color: '#4CAF50' }} /> {formatCurrency(revenue)}</div>
-                    <div style={{ color: '#4CAF50', fontSize: '0.8rem', marginTop: '0.5rem' }}>{t.revenue_week}</div>
+                    <div className={styles.value}>
+                        <div className={`${styles.iconBox} ${styles.statActive}`}>
+                            <DollarSign size={24} />
+                        </div>
+                        {formatCurrency(revenue)}
+                    </div>
+                    <div style={{ color: '#10b981', fontSize: '0.85rem', marginTop: '1rem', fontWeight: 600 }}>
+                        {t.revenue_week}
+                    </div>
                 </div>
 
                 <div className={styles.statCard}>
                     <div className={styles.label}>{t.total_orders}</div>
-                    <div className={styles.value}><ShoppingCart size={20} style={{ color: '#2196F3' }} /> {ordersCount}</div>
-                    <div style={{ color: '#2196F3', fontSize: '0.8rem', marginTop: '0.5rem' }}>{t.new_orders.replace('{count}', recentOrders.length.toString())}</div>
+                    <div className={styles.value}>
+                        <div className={`${styles.iconBox} ${styles.statTotal}`}>
+                            <ShoppingCart size={24} />
+                        </div>
+                        {ordersCount}
+                    </div>
+                    <div style={{ color: '#3b82f6', fontSize: '0.85rem', marginTop: '1rem', fontWeight: 600 }}>
+                        {t.new_orders.replace('{count}', recentOrders.length.toString())}
+                    </div>
                 </div>
 
                 <div className={styles.statCard}>
                     <div className={styles.label}>{t.total_products}</div>
-                    <div className={styles.value}><TrendingUp size={20} style={{ color: '#9C27B0' }} /> {productsCount}</div>
-                    <div style={{ color: '#9C27B0', fontSize: '0.8rem', marginTop: '0.5rem' }}>{t.your_menu}</div>
+                    <div className={styles.value}>
+                        <div className={`${styles.iconBox} ${styles.statToday}`}>
+                            <TrendingUp size={24} />
+                        </div>
+                        {productsCount}
+                    </div>
+                    <div style={{ color: '#8b5cf6', fontSize: '0.85rem', marginTop: '1rem', fontWeight: 600 }}>
+                        {t.your_menu}
+                    </div>
                 </div>
 
                 <div className={styles.statCard}>
                     <div className={styles.label}>{t.inventory_items}</div>
-                    <div className={styles.value}><Package size={20} style={{ color: '#FF9800' }} /> {inventoryCount}</div>
-                    <div style={{ color: '#64748B', fontSize: '0.8rem', marginTop: '0.5rem' }}>{t.monitor_stock}</div>
+                    <div className={styles.value}>
+                        <div className={`${styles.iconBox} ${styles.statInactive}`}>
+                            <Package size={24} />
+                        </div>
+                        {inventoryCount}
+                    </div>
+                    <div style={{ color: '#f59e0b', fontSize: '0.85rem', marginTop: '1rem', fontWeight: 600 }}>
+                        {t.monitor_stock}
+                    </div>
                 </div>
             </div>
 
-            <div style={{ background: 'white', padding: '2rem', borderRadius: '15px', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
-                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: 800 }}>{t.recent_orders}</h3>
+            <div className={styles.tableCard}>
+                <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid #f1f5f9' }}>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>{t.recent_orders}</h3>
+                </div>
                 
-                {recentOrders.length === 0 ? (
-                    <p style={{ color: '#888' }}>{t.no_orders}</p>
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {recentOrders.map(order => (
-                            <div key={order.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', border: '1px solid #F1F5F9', borderRadius: '10px' }}>
-                                <div>
-                                    <div style={{ fontWeight: 700 }}>#{order.id.slice(-6)}</div>
-                                    <div style={{ fontSize: '0.85rem', color: '#64748B' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontWeight: 700, color: '#4F46E5' }}>{formatCurrency(order.total || 0)}</div>
-                                    <div style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', background: '#F1F5F9', borderRadius: '4px', display: 'inline-block' }}>{order.status}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                <div style={{ padding: '1rem' }}>
+                    {recentOrders.length === 0 ? (
+                        <p style={{ color: '#64748b', padding: '1rem' }}>{t.no_orders}</p>
+                    ) : (
+                        <div className={styles.tableWrapper}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tanggal</th>
+                                        <th>Status</th>
+                                        <th className={styles.alignRight}>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {recentOrders.map(order => (
+                                        <tr key={order.id}>
+                                            <td style={{ fontWeight: 700, fontFamily: 'monospace' }}>#{order.id.slice(-6).toUpperCase()}</td>
+                                            <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                            <td>
+                                                <span className={`${styles.badge} ${
+                                                    order.status === 'READY' ? styles.statusActive : styles.companyBadge
+                                                }`}>
+                                                    {order.status}
+                                                </span>
+                                            </td>
+                                            <td className={`${styles.alignRight} ${styles.valueSmall}`} style={{ fontWeight: 800, color: '#4F46E5' }}>
+                                                {formatCurrency(order.total || 0)}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

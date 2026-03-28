@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { updateTenantSettings } from '@/actions/tenant';
 import { uploadImageAction } from '@/actions/upload';
 import { toast } from 'sonner';
-import { Palette, Type, Globe, Truck, Calendar, Save, Upload, Image as ImageIcon, CheckCircle2, Loader2, Instagram, Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
+import { Palette, Type, Globe, Truck, Calendar, Save, Upload, Image as ImageIcon, CheckCircle2, Loader2, Instagram, Phone, Mail, MapPin, MessageCircle, QrCode, CreditCard, Info } from 'lucide-react';
 
 export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { tenant: any, adminDict: any, storeDict: any }) {
     const t = adminDict.settings;
@@ -15,6 +15,7 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
     const [theme, setTheme] = useState(tenant.theme);
     const [config, setConfig] = useState(tenant.config);
     const [isHeroUploading, setIsHeroUploading] = useState(false);
+    const [isQrisUploading, setIsQrisUploading] = useState(false);
 
     const THEME_PRESETS = [
         { name: t.preset_indigo || 'Modern Indigo', colors: { primary: '#4F46E5', secondary: '#334155', accent: '#818CF8', background: '#F8FAFC' } },
@@ -24,10 +25,46 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
         { name: t.preset_coffee || 'Coffee', colors: { primary: '#92400E', secondary: '#451A03', accent: '#D97706', background: '#FFFBEB' } },
     ];
 
+    const CATEGORY_FEES: Record<string, number> = {
+        'Regular': 0.7,
+        'Micro': 0.3,
+        'Non-Profit': 0.0,
+        'Education': 0.1,
+    };
+
+    const MARGIN = 0.3;
+
+    const calculateTotalFee = (category: string) => {
+        const base = CATEGORY_FEES[category] ?? 0.7;
+        return (base + MARGIN).toFixed(1);
+    };
+
     const applyPreset = (colors: any) => {
         setTheme({ ...theme, ...colors });
         toast.info(t.toast_preset || 'Preset applied! Check the live preview.');
     };
+
+    // Calculation constants for simulation
+    const amount = 100000;
+    const catFee = CATEGORY_FEES[config.qris?.category || 'Regular'] ?? 0.7;
+    const marginVal = parseFloat(config.qris?.margin || '0.3');
+    const totalFeeVal = parseFloat((catFee + marginVal).toFixed(2));
+    const calculatedFee = (amount * totalFeeVal) / 100;
+    const bearer = config.qris?.feeBearer || 'Merchant';
+
+    let customerPays = amount;
+    let netReceived = amount;
+
+    if (bearer === 'Merchant') {
+        netReceived = amount - calculatedFee;
+        customerPays = amount;
+    } else if (bearer === 'Customer') {
+        customerPays = amount + calculatedFee;
+        netReceived = amount;
+    } else if (bearer === 'Split') {
+        customerPays = amount + (calculatedFee / 2);
+        netReceived = amount - (calculatedFee / 2);
+    }
 
     const handleHeroBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -49,6 +86,29 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
             toast.error(t.toast_hero_fatal || 'Unexpected error during hero background upload.');
         } finally {
             setIsHeroUploading(false);
+        }
+    }
+
+    const handleQrisUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsQrisUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const result = await uploadImageAction(formData, 'payments');
+            if (result.success && result.url) {
+                setConfig({ ...config, qrisUrl: result.url });
+                toast.success(t.toast_qris_success || 'QRIS code uploaded successfully.');
+            } else {
+                toast.error(result.error || t.toast_qris_error || 'Failed to upload QRIS code.');
+            }
+        } catch (error) {
+            toast.error(t.toast_qris_fatal || 'Unexpected error during QRIS upload.');
+        } finally {
+            setIsQrisUploading(false);
         }
     }
 
@@ -446,6 +506,256 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
                                 <input type="number" name="minPreOrderDays" value={config.minPreOrderDays} onChange={e => setConfig({ ...config, minPreOrderDays: Number(e.target.value) })} style={{ width: '100%', padding: '0.8rem 0.8rem 0.8rem 2.5rem', background: '#0f0f0f', border: '1px solid #2a2a2a', borderRadius: '8px', color: 'white' }} />
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Payment Settings */}
+                <div style={{ background: '#1a1a1a', padding: '2rem', borderRadius: '15px', border: '1px solid #2a2a2a' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid #2a2a2a', paddingBottom: '1rem', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{ background: 'rgba(233, 30, 99, 0.1)', color: '#E91E63', padding: '0.5rem', borderRadius: '8px' }}>
+                                <CreditCard size={20} />
+                            </div>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>{t.payment_settings || 'Payment & QRIS Setup'}</h3>
+                        </div>
+                        <a 
+                            href="#" 
+                            onClick={(e) => { e.preventDefault(); toast.info('Panduan setup dapat dilihat pada file /docs/QRIS_SETUP_GUIDE.md'); }}
+                            style={{ fontSize: '0.75rem', color: '#888', display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none', background: 'rgba(255,255,255,0.05)', padding: '0.4rem 0.8rem', borderRadius: '6px' }}
+                        >
+                            <Info size={14} /> Panduan Setup
+                        </a>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                        
+                        {/* 1. Merchant Info */}
+                        <div>
+                            <h4 style={{ fontSize: '0.9rem', color: '#E91E63', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.25rem' }}>1. Merchant Information</h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                                <div style={{ gridColumn: 'span 2' }}>
+                                    <label style={labelStyle}>Merchant Name</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Nama merchant yang muncul di QRIS"
+                                        value={config.qris?.merchantName || ''}
+                                        onChange={e => setConfig({ ...config, qris: { ...config.qris, merchantName: e.target.value } })}
+                                        style={inputStyle}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>NMID</label>
+                                    <input
+                                        type="text"
+                                        placeholder="National Merchant ID (ID10...)"
+                                        value={config.qris?.nmid || ''}
+                                        onChange={e => setConfig({ ...config, qris: { ...config.qris, nmid: e.target.value } })}
+                                        style={inputStyle}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Merchant ID</label>
+                                    <input
+                                        type="text"
+                                        placeholder="ID dari Provider"
+                                        value={config.qris?.merchantId || ''}
+                                        onChange={e => setConfig({ ...config, qris: { ...config.qris, merchantId: e.target.value } })}
+                                        style={inputStyle}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 2. QRIS Setup */}
+                        <div>
+                            <h4 style={{ fontSize: '0.9rem', color: '#E91E63', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.25rem' }}>2. QRIS & Provider Setup</h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                                <div>
+                                    <label style={labelStyle}>QRIS Provider</label>
+                                    <select
+                                        value={config.qris?.qrisProvider || ''}
+                                        onChange={e => setConfig({ ...config, qris: { ...config.qris, qrisProvider: e.target.value } })}
+                                        style={inputStyle}
+                                    >
+                                        <option value="">-- Select Provider --</option>
+                                        <option value="Midtrans">Midtrans</option>
+                                        <option value="Xendit">Xendit</option>
+                                        <option value="GoBiz">GoBiz (Gojek/GoPay)</option>
+                                        <option value="ShopeePay">ShopeePay</option>
+                                        <option value="Other">Other / Manual</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>QRIS Type</label>
+                                    <select
+                                        value={config.qris?.qrType || 'Static'}
+                                        onChange={e => setConfig({ ...config, qris: { ...config.qris, qrType: e.target.value } })}
+                                        style={inputStyle}
+                                    >
+                                        <option value="Static">Static (Upload Image)</option>
+                                        <option value="Dynamic">Dynamic (API Generation)</option>
+                                    </select>
+                                </div>
+
+                                {config.qris?.qrType !== 'Dynamic' && (
+                                    <div style={{ gridColumn: 'span 2' }}>
+                                        <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '1rem' }}>Upload kode QRIS statis Anda jika tidak menggunakan integrasi API dinamis.</p>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                                            <div style={{ width: '100px', aspectRatio: '1', background: '#0f0f0f', borderRadius: '8px', border: '1px solid #2a2a2a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {config.qrisUrl ? <img src={config.qrisUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <QrCode size={30} color="#333" />}
+                                            </div>
+                                            <label style={{ 
+                                                cursor: 'pointer', background: '#2a2a2a', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.85rem' 
+                                            }}>
+                                                {isQrisUploading ? 'Uploading...' : 'Upload QR Image'}
+                                                <input type="file" accept="image/*" onChange={handleQrisUpload} style={{ display: 'none' }} />
+                                            </label>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* 3. Fee Configuration */}
+                        <div>
+                            <h4 style={{ fontSize: '0.9rem', color: '#E91E63', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.25rem' }}>3. Fee Configuration</h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                                <div>
+                                    <label style={labelStyle}>Merchant Category (MDR Rate)</label>
+                                    <select
+                                        value={config.qris?.category || 'Regular'}
+                                        onChange={e => {
+                                            const cat = e.target.value;
+                                            const margin = parseFloat(config.qris?.margin || '0.3');
+                                            const baseMdr = CATEGORY_FEES[cat] ?? 0.7;
+                                            const total = (baseMdr + margin).toFixed(1);
+                                            setConfig({ ...config, qris: { ...config.qris, category: cat, feeValue: `${total}%` } });
+                                        }}
+                                        style={inputStyle}
+                                    >
+                                        <option value="Regular">Regular (MDR 0.7%)</option>
+                                        <option value="Micro">Micro Business / UMI (MDR 0.3%)</option>
+                                        <option value="Non-Profit">Social / Non-Profit (MDR 0%)</option>
+                                        <option value="Education">Education (MDR 0.1%)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Platform Fee (Margin %)</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        value={config.qris?.margin || '0.3'}
+                                        onChange={e => {
+                                            const margin = parseFloat(e.target.value || '0');
+                                            const cat = config.qris?.category || 'Regular';
+                                            const baseMdr = CATEGORY_FEES[cat] ?? 0.7;
+                                            const total = (baseMdr + margin).toFixed(1);
+                                            setConfig({ ...config, qris: { ...config.qris, margin: e.target.value, feeValue: `${total}%` } });
+                                        }}
+                                        style={inputStyle}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Fee Type</label>
+                                    <select
+                                        value={config.qris?.feeType || 'percentage'}
+                                        onChange={e => setConfig({ ...config, qris: { ...config.qris, feeType: e.target.value } })}
+                                        style={inputStyle}
+                                    >
+                                        <option value="percentage">Percentage (%)</option>
+                                        <option value="flat">Flat Fee</option>
+                                        <option value="hybrid">Hybrid (Flat + %)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Fee Bearer</label>
+                                    <select
+                                        value={config.qris?.feeBearer || 'Merchant'}
+                                        onChange={e => setConfig({ ...config, qris: { ...config.qris, feeBearer: e.target.value } })}
+                                        style={inputStyle}
+                                    >
+                                        <option value="Merchant">Merchant (Deducted from Sale)</option>
+                                        <option value="Customer">Customer (Added to Total)</option>
+                                        <option value="Split">Split 50/50</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Simulation Box */}
+                            <div style={{ background: '#0f0f0f', padding: '1.5rem', borderRadius: '12px', border: '1px solid #2a2a2a' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#FF69B4' }}>🧮 Perhitungan Biaya (Simulasi Rp 100.000)</span>
+                                    <div style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                                        MDR ({CATEGORY_FEES[config.qris?.category || 'Regular']?.toFixed(1)}%) + Platform ({marginVal.toFixed(1)}%) = <b>{totalFeeVal}%</b>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', textAlign: 'center' }}>
+                                    <div>
+                                        <div style={{ fontSize: '0.7rem', color: '#555', marginBottom: '0.25rem' }}>Biaya (Fee)</div>
+                                        <div style={{ color: '#ef4444', fontWeight: 700 }}>
+                                            Rp {calculatedFee.toLocaleString('id-ID')}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '0.7rem', color: '#555', marginBottom: '0.25rem' }}>Pelanggan Bayar</div>
+                                        <div style={{ color: 'white', fontWeight: 700 }}>
+                                            Rp {customerPays.toLocaleString('id-ID')}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '0.7rem', color: '#555', marginBottom: '0.25rem' }}>Net Diterima</div>
+                                        <div style={{ color: '#4CAF50', fontWeight: 700 }}>
+                                            Rp {netReceived.toLocaleString('id-ID')}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style={{ fontSize: '0.7rem', color: '#555', marginTop: '1.25rem', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', borderLeft: '3px solid #E91E63' }}>
+                                    💡 <b>Impact:</b> Karena ditanggung oleh <b>{config.qris?.feeBearer || 'Merchant'}</b>, maka {config.qris?.feeBearer === 'Merchant' ? 'Margin profit Anda akan terpotong Rp ' + calculatedFee.toLocaleString('id-ID') : config.qris?.feeBearer === 'Customer' ? 'Harga akhir di keranjang akan bertambah Rp ' + calculatedFee.toLocaleString('id-ID') : 'Biaya dibagi rata Rp ' + (calculatedFee / 2).toLocaleString('id-ID') + ' antara Anda & pelanggan'}.
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. API & Integration */}
+                        <div>
+                            <h4 style={{ fontSize: '0.9rem', color: '#E91E63', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.25rem' }}>4. API Configuration & Webhooks</h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                                <div style={{ gridColumn: 'span 2' }}>
+                                    <label style={labelStyle}>API Server Key {config.qris?.qrisProvider ? `(${config.qris?.qrisProvider})` : ''}</label>
+                                    <input
+                                        type="password"
+                                        placeholder="Enter your server/API key"
+                                        value={config.qris?.apiKey || ''}
+                                        onChange={e => setConfig({ ...config, qris: { ...config.qris, apiKey: e.target.value } })}
+                                        style={inputStyle}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Environment</label>
+                                    <select
+                                        value={config.qris?.environment || 'Sandbox'}
+                                        onChange={e => setConfig({ ...config, qris: { ...config.qris, environment: e.target.value } })}
+                                        style={inputStyle}
+                                    >
+                                        <option value="Sandbox">Sandbox (Testing)</option>
+                                        <option value="Production">Production (Live)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Callback Status</label>
+                                    <div style={{ ...inputStyle, background: '#0f0f0f', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '0.85rem', color: '#4CAF50' }}>● Connected</span>
+                                        <button type="button" onClick={() => toast.success('Webhook test sent!')} style={{ background: '#222', border: 'none', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', cursor: 'pointer' }}>Test</button>
+                                    </div>
+                                </div>
+                                <div style={{ gridColumn: 'span 2' }}>
+                                    <label style={labelStyle}>Callback URL (Webhook)</label>
+                                    <div style={{ ...inputStyle, background: '#0f0f0f', color: '#888', wordBreak: 'break-all', fontSize: '0.8rem' }}>
+                                        https://dashboard.bitespace.id/api/qris/callback/{tenant.slug}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
