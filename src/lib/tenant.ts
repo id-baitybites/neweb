@@ -23,6 +23,7 @@ export interface TenantTheme {
         phone?: string
         address?: string
     }
+    [key: string]: any; // Support index signature for dynamic access
 }
 
 export interface TenantConfig {
@@ -31,6 +32,21 @@ export interface TenantConfig {
     language: string
     deliveryFee: number
     minPreOrderDays: number
+    qrisUrl?: string      // Added for manual QRIS upload
+    qris?: {
+        merchantName?: string
+        nmid?: string
+        merchantId?: string
+        qrisProvider?: string
+        qrType?: string
+        category?: string
+        margin?: string
+        feeType?: string
+        feeBearer?: string
+        feeValue?: string
+        apiKey?: string
+        environment?: string
+    }
 }
 
 export interface TenantData {

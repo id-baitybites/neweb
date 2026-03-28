@@ -1,12 +1,40 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateTenantSettings } from '@/actions/tenant';
 import { uploadImageAction } from '@/actions/upload';
 import { toast } from 'sonner';
-import { Palette, Type, Globe, Truck, Calendar, Save, Upload, Image as ImageIcon, CheckCircle2, Loader2, Instagram, Phone, Mail, MapPin, MessageCircle, QrCode, CreditCard, Info } from 'lucide-react';
+import { Palette, Type, Globe, Save, Upload, Image as ImageIcon, Loader2, Instagram, Phone, Mail, MapPin, MessageCircle, Truck, Calendar, CreditCard, Info, QrCode, CheckCircle2 } from 'lucide-react';
 
-export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { tenant: any, adminDict: any, storeDict: any }) {
+import { TenantData } from '@/lib/tenant';
+
+interface TenantProps {
+    tenant: TenantData;
+    adminDict: any;
+    storeDict: any;
+}
+
+const THEME_PRESETS_DATA = (t: any) => [
+    { name: t.preset_indigo || 'Modern Indigo', colors: { primary: '#4F46E5', secondary: '#334155', accent: '#818CF8', background: '#F8FAFC' } },
+    { name: t.preset_forest || 'Forest Green', colors: { primary: '#059669', secondary: '#064E3B', accent: '#34D399', background: '#F0FDF4' } },
+    { name: t.preset_pink || 'Sweet Pink', colors: { primary: '#DB2777', secondary: '#500724', accent: '#F472B6', background: '#FFF1F2' } },
+    { name: t.preset_midnight || 'Midnight', colors: { primary: '#9333EA', secondary: '#0F172A', accent: '#C084FC', background: '#0F172A' } },
+    { name: t.preset_coffee || 'Coffee', colors: { primary: '#92400E', secondary: '#451A03', accent: '#D97706', background: '#FFFBEB' } },
+];
+
+export const CATEGORY_FEES: Record<string, number> = {
+    'Regular': 0.7,
+    'Micro': 0.3,
+    'Non-Profit': 0.0,
+    'Education': 0.1,
+};
+
+const SIMULATION_BASE_AMOUNT = 100000;
+
+
+export default function TenantSettingsForm({ tenant, adminDict, storeDict }: TenantProps) {
+    const router = useRouter();
     const t = adminDict.settings;
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -17,123 +45,66 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
     const [isHeroUploading, setIsHeroUploading] = useState(false);
     const [isQrisUploading, setIsQrisUploading] = useState(false);
 
-    const THEME_PRESETS = [
-        { name: t.preset_indigo || 'Modern Indigo', colors: { primary: '#4F46E5', secondary: '#334155', accent: '#818CF8', background: '#F8FAFC' } },
-        { name: t.preset_forest || 'Forest Green', colors: { primary: '#059669', secondary: '#064E3B', accent: '#34D399', background: '#F0FDF4' } },
-        { name: t.preset_pink || 'Sweet Pink', colors: { primary: '#DB2777', secondary: '#500724', accent: '#F472B6', background: '#FFF1F2' } },
-        { name: t.preset_midnight || 'Midnight', colors: { primary: '#9333EA', secondary: '#0F172A', accent: '#C084FC', background: '#0F172A' } },
-        { name: t.preset_coffee || 'Coffee', colors: { primary: '#92400E', secondary: '#451A03', accent: '#D97706', background: '#FFFBEB' } },
-    ];
+    const THEME_PRESETS = useMemo(() => THEME_PRESETS_DATA(t), [t]);
 
-    const CATEGORY_FEES: Record<string, number> = {
-        'Regular': 0.7,
-        'Micro': 0.3,
-        'Non-Profit': 0.0,
-        'Education': 0.1,
-    };
+    // Optimized simulation calculations (memoized to avoid recalculating on typing other fields)
+    const simulation = useMemo(() => {
+        const catFee = CATEGORY_FEES[config.qris?.category || 'Regular'] ?? 0.7;
+        const marginVal = parseFloat(config.qris?.margin || '0.3');
+        const totalFeeVal = parseFloat((catFee + marginVal).toFixed(2));
+        const calculatedFee = (SIMULATION_BASE_AMOUNT * totalFeeVal) / 100;
+        const bearer = config.qris?.feeBearer || 'Merchant';
 
-    const MARGIN = 0.3;
+        let customerPays = SIMULATION_BASE_AMOUNT;
+        let netReceived = SIMULATION_BASE_AMOUNT;
 
-    const calculateTotalFee = (category: string) => {
-        const base = CATEGORY_FEES[category] ?? 0.7;
-        return (base + MARGIN).toFixed(1);
-    };
+        if (bearer === 'Merchant') {
+            netReceived = SIMULATION_BASE_AMOUNT - calculatedFee;
+            customerPays = SIMULATION_BASE_AMOUNT;
+        } else if (bearer === 'Customer') {
+            customerPays = SIMULATION_BASE_AMOUNT + calculatedFee;
+            netReceived = SIMULATION_BASE_AMOUNT;
+        } else if (bearer === 'Split') {
+            customerPays = SIMULATION_BASE_AMOUNT + (calculatedFee / 2);
+            netReceived = SIMULATION_BASE_AMOUNT - (calculatedFee / 2);
+        }
+
+        return { calculatedFee, customerPays, netReceived, totalFeeVal, marginVal };
+    }, [config.qris?.category, config.qris?.margin, config.qris?.feeBearer]);
+
+    const { calculatedFee, customerPays, netReceived, totalFeeVal, marginVal } = simulation;
 
     const applyPreset = (colors: any) => {
         setTheme({ ...theme, ...colors });
         toast.info(t.toast_preset || 'Preset applied! Check the live preview.');
     };
 
-    // Calculation constants for simulation
-    const amount = 100000;
-    const catFee = CATEGORY_FEES[config.qris?.category || 'Regular'] ?? 0.7;
-    const marginVal = parseFloat(config.qris?.margin || '0.3');
-    const totalFeeVal = parseFloat((catFee + marginVal).toFixed(2));
-    const calculatedFee = (amount * totalFeeVal) / 100;
-    const bearer = config.qris?.feeBearer || 'Merchant';
-
-    let customerPays = amount;
-    let netReceived = amount;
-
-    if (bearer === 'Merchant') {
-        netReceived = amount - calculatedFee;
-        customerPays = amount;
-    } else if (bearer === 'Customer') {
-        customerPays = amount + calculatedFee;
-        netReceived = amount;
-    } else if (bearer === 'Split') {
-        customerPays = amount + (calculatedFee / 2);
-        netReceived = amount - (calculatedFee / 2);
-    }
-
-    const handleHeroBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'backgrounds' | 'payments' | 'logos') => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        setIsHeroUploading(true);
+        const setLoader = type === 'backgrounds' ? setIsHeroUploading : type === 'payments' ? setIsQrisUploading : setIsUploading;
+        setLoader(true);
+
         const formData = new FormData();
         formData.append('file', file);
 
         try {
-            const result = await uploadImageAction(formData, 'backgrounds');
+            const result = await uploadImageAction(formData, type);
             if (result.success && result.url) {
-                setTheme({ ...theme, heroBgUrl: result.url });
-                toast.success(t.toast_hero_success || 'Hero background uploaded successfully.');
+                if (type === 'backgrounds') setTheme({ ...theme, heroBgUrl: result.url });
+                else if (type === 'payments') setConfig({ ...config, qrisUrl: result.url });
+                else setLogoUrl(result.url);
+                toast.success(t[`toast_${type.slice(0, -1)}_success`] || 'Upload successful.');
             } else {
-                toast.error(result.error || t.toast_hero_error || 'Failed to upload hero background.');
+                toast.error(result.error || t[`toast_${type.slice(0, -1)}_error`] || 'Upload failed.');
             }
         } catch (error) {
-            toast.error(t.toast_hero_fatal || 'Unexpected error during hero background upload.');
+            toast.error('Unexpected error during upload.');
         } finally {
-            setIsHeroUploading(false);
+            setLoader(false);
         }
-    }
-
-    const handleQrisUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setIsQrisUploading(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const result = await uploadImageAction(formData, 'payments');
-            if (result.success && result.url) {
-                setConfig({ ...config, qrisUrl: result.url });
-                toast.success(t.toast_qris_success || 'QRIS code uploaded successfully.');
-            } else {
-                toast.error(result.error || t.toast_qris_error || 'Failed to upload QRIS code.');
-            }
-        } catch (error) {
-            toast.error(t.toast_qris_fatal || 'Unexpected error during QRIS upload.');
-        } finally {
-            setIsQrisUploading(false);
-        }
-    }
-
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setIsUploading(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const result = await uploadImageAction(formData, 'logos');
-            if (result.success && result.url) {
-                setLogoUrl(result.url);
-                toast.success(t.toast_logo_success || 'Logo uploaded successfully.');
-            } else {
-                toast.error(result.error || t.toast_logo_error || 'Failed to upload logo.');
-            }
-        } catch (error) {
-            toast.error(t.toast_logo_fatal || 'Unexpected error during logo upload.');
-        } finally {
-            setIsUploading(false);
-        }
-    }
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -146,8 +117,10 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
         try {
             const result = await updateTenantSettings(formData);
             if (result.success) {
-                toast.success(t.toast_save_success || 'Store settings updated successfully! Page will refresh.');
-                setTimeout(() => window.location.reload(), 1500); 
+                toast.success(t.toast_save_success);
+                // Refresh data and reload gracefully
+                router.refresh(); 
+                setTimeout(() => window.location.reload(), 2000); 
             } else {
                 toast.error(result.error || t.toast_save_error);
             }
@@ -244,7 +217,7 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
                                     transition: 'background 0.2s'
                                 }}>
                                     {isUploading ? <><div className="spinner" /> {t.uploading}</> : <><Upload size={14} /> {t.change_logo}</>}
-                                    <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} disabled={isUploading} />
+                                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'logos')} style={{ display: 'none' }} disabled={isUploading} />
                                 </label>
                             </div>
 
@@ -474,7 +447,7 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
                                 transition: 'background 0.2s'
                             }}>
                                 {isHeroUploading ? <><div className="spinner" /> Uploading...</> : <><Upload size={14} /> Change Image</>}
-                                <input type="file" accept="image/*" onChange={handleHeroBgUpload} style={{ display: 'none' }} disabled={isHeroUploading} />
+                                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'backgrounds')} style={{ display: 'none' }} disabled={isHeroUploading} />
                             </label>
                             {theme.heroBgUrl && (
                                 <button type="button" onClick={() => setTheme({ ...theme, heroBgUrl: '' })} style={{ width: '100%', marginTop: '0.5rem', background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.85rem', cursor: 'pointer', padding: '0.5rem' }}>
@@ -608,7 +581,7 @@ export default function TenantSettingsForm({ tenant, adminDict, storeDict }: { t
                                                 cursor: 'pointer', background: '#2a2a2a', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.85rem' 
                                             }}>
                                                 {isQrisUploading ? 'Uploading...' : 'Upload QR Image'}
-                                                <input type="file" accept="image/*" onChange={handleQrisUpload} style={{ display: 'none' }} />
+                                                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'payments')} style={{ display: 'none' }} />
                                             </label>
                                         </div>
                                     </div>
