@@ -482,6 +482,34 @@
     "testimonies_title": "Apa Kata Pelanggan Kami",
     "testimonies_desc": "Cerita nyata dari mereka yang mencintai hidangan kami."
   },
+  "help": {
+    "title": "Pusat Bantuan {name}",
+    "subtitle": "Temukan jawaban untuk pertanyaan Anda atau hubungi tim dukungan kami.",
+    "search_placeholder": "Cari bantuan...",
+    "categories": {
+      "order": "Pemesanan & Pembayaran",
+      "delivery": "Pengirirman & Pengambilan",
+      "account": "Akun & Keamanan",
+      "business": "Kerjasama Bisnis"
+    },
+    "faqs": [
+      {
+        "q": "Bagaimana cara melakukan pemesanan?",
+        "a": "Anda dapat memilih produk yang diinginkan, menambahkannya ke keranjang, dan mengikuti proses checkout yang aman."
+      },
+      {
+        "q": "Metode pembayaran apa yang tersedia?",
+        "a": "Kami mendukung berbagai metode pembayaran termasuk QRIS, Transfer Bank, dan dompet digital melalui sistem pembayaran yang terintegrasi."
+      },
+      {
+        "q": "Berapa lama waktu persiapan pesanan?",
+        "a": "Waktu persiapan bervariasi tergantung produk, namun rata-rata kami membutuhkan 1-2 hari untuk memastikan kualitas terbaik."
+      }
+    ],
+    "contact_title": "Masih butuh bantuan?",
+    "contact_desc": "Tim kami siap membantu Anda kapan saja.",
+    "btn_contact": "Hubungi Kami"
+  },
   "nav": {
     "home": "Beranda",
     "products": "Produk",

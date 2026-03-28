@@ -24,6 +24,7 @@ model Tenant {
   inventory   Inventory[]
   orders      Order[]
   products    Product[]
+  shipments   Shipment[]
   testimonies Testimony[]
   users       User[]
 }
@@ -190,4 +191,73 @@ enum OrderStatus {
 enum DeliveryMethod {
   PICKUP
   DELIVERY
+}
+
+// ─── BITESHIP SHIPMENT MODULE ─────────────────────────────────────────────────
+
+model Shipment {
+  id              String   @id @default(cuid())
+  tenantId        String
+  orderId         String?  // optional: link to internal Order
+  
+  // Biteship references
+  biteshipOrderId String?  @unique
+  trackingId      String?
+  waybillId       String?
+  courierCode     String?
+  courierName     String?
+  serviceType     String?
+  serviceLabel    String?
+
+  // Sender
+  senderName      String
+  senderPhone     String
+  senderAddress   String
+  senderCity      String?
+  senderPostal    String?
+  senderLat       Float?
+  senderLng       Float?
+
+  // Receiver
+  receiverName    String
+  receiverPhone   String
+  receiverAddress String
+  receiverCity    String?
+  receiverPostal  String?
+  receiverLat     Float?
+  receiverLng     Float?
+
+  // Package
+  weightGrams     Int
+  itemDescription String?
+  itemValue       Float?
+
+  // Status
+  status          ShipmentStatus @default(PENDING)
+  price           Float?
+  estimatedDay    Int?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([trackingId])
+}
+
+enum ShipmentStatus {
+  PENDING
+  CONFIRMED
+  ALLOCATING
+  PICKING_UP
+  PICKED
+  DROPPING_OFF
+  DELIVERED
+  RETURN_IN_PROGRESS
+  RETURNED
+  CANCELLED
+  DISPOSED
+  ON_HOLD
 }

@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/actions/auth'
 import { getDictionary } from '@/i18n'
 import pkg from '../../package.json'
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { ArrowRight, Search, ShieldCheck, Store, Zap, Smartphone, Globe, Instagram, Facebook, MessageCircle, Mail, Phone, MapPin } from 'lucide-react'
 import ProductCard from '@/components/ProductCard'
 import Testimonies from '@/components/Testimonies'
@@ -15,21 +16,25 @@ export default async function Home() {
   const tenant = await resolveTenant()
   const user = await getCurrentUser()
   const dict = await getDictionary()
-  // Determine current locale from i18n cookie
   const locale = dict.locale
 
   if (tenant) {
-    // Get top 4 products (favorite products)
-    // @ts-ignore
+    // Determine slug-aware path prefix for tenant links.
+    // On a custom domain, bare paths work (domain identifies tenant).
+    // On a shared domain (e.g. localhost, bitespace.netlify.app), we must
+    // prefix every internal link with /{slug} so the middleware can set
+    // the x-tenant-slug header and resolveTenant() works on linked pages.
+    const headersList = await headers()
+    const host = (headersList.get('x-forwarded-host') || headersList.get('host') || '').split(':')[0]
+    const isOnCustomDomain = !!(tenant.domain && host === tenant.domain)
+    const tp = isOnCustomDomain ? '' : `/${tenant.slug}` // tenantPath prefix
     const products = await prisma.product.findMany({
       where: { tenantId: tenant.id, isActive: true },
-      orderBy: { stock: 'desc' }, // Dummy logic for "favorite"
+      orderBy: { stock: 'desc' },
       take: 4,
-      // @ts-ignore
       include: { category: true }
     })
 
-    // Get approved testimonies
     const testimonies = await prisma.testimony.findMany({
       where: { tenantId: tenant.id, isPublished: true },
       include: { user: { select: { name: true, email: true } } },
@@ -37,31 +42,34 @@ export default async function Home() {
       take: 6
     })
 
+    const dynamicStyles = {
+        '--primary-color': tenant.theme.primary,
+        '--primary-22': `${tenant.theme.primary}22`
+    } as React.CSSProperties
+
     return (
-      <div style={{ backgroundColor: '#F8F9FA' }}>
+      <div className={styles.tenantWrapper} style={dynamicStyles}>
         {/* HERO SECTION */}
-        <HeroParallax
-          bgUrl={tenant.theme.heroBgUrl}
-        >
-          <div className="container" style={{ position: 'relative', zIndex: 1, textShadow: tenant.theme.heroBgUrl ? '0 2px 10px rgba(0,0,0,0.5)' : undefined, color: tenant.theme.heroBgUrl ? 'white' : undefined }}>
-            <div className={styles.chip} style={tenant.theme.heroBgUrl ? { background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', color: 'white' } : undefined}>
-              <ShieldCheck size={16} style={{ marginRight: '0.5rem' }} />
+        <HeroParallax bgUrl={tenant.theme.heroBgUrl}>
+          <div className={`${styles.heroInner} container ${tenant.theme.heroBgUrl ? styles.darkText : ''}`}>
+            <div className={`${styles.chip} ${tenant.theme.heroBgUrl ? styles.customBg : ''}`}>
+              <ShieldCheck size={16} />
               {dict.tenant.hero_chip.replace('{name}', tenant.name)}
             </div>
 
-            <h1 style={tenant.theme.heroBgUrl ? { color: 'white' } : undefined}>
+            <h1>
               {locale === 'en'
                 ? (tenant.theme.heroTitle_en || tenant.theme.heroTitle || dict.tenant.hero_title)
                 : (tenant.theme.heroTitle || dict.tenant.hero_title)}
             </h1>
 
-            <p style={tenant.theme.heroBgUrl ? { color: 'rgba(255,255,255,0.9)' } : undefined}>
+            <p>
               {locale === 'en'
                 ? (tenant.theme.heroDesc_en || tenant.theme.heroDesc || dict.tenant.hero_desc.replace('{name}', tenant.name))
                 : (tenant.theme.heroDesc || dict.tenant.hero_desc.replace('{name}', tenant.name))}
             </p>
 
-            <div className={styles.actions} style={{ justifyContent: 'center' }}>
+            <div className={styles.actions}>
               <Link href="/products" className={styles.btnSolid}>
                 {dict.tenant.btn_order} <ArrowRight size={18} />
               </Link>
@@ -89,8 +97,8 @@ export default async function Home() {
             </div>
 
             {products.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '4rem', color: '#A0AEC0' }}>
-                <p style={{ marginBottom: '1rem' }}>{dict.tenant.no_products}</p>
+              <div className={styles.noProducts}>
+                <p>{dict.tenant.no_products}</p>
               </div>
             )}
           </div>
@@ -108,14 +116,14 @@ export default async function Home() {
         </section>
 
         {/* FOOTER */}
-        <footer className={styles.footer} style={{ borderTop: `4px solid ${tenant.theme.primary}22` }}>
+        <footer className={styles.footer} style={{ borderTop: `4px solid var(--primary-22)` }}>
           <div className={styles.container}>
             <div className={styles.brand}>
-              <h3 style={{ color: tenant.theme.primary }}>{tenant.name}</h3>
+              <h3 style={{ color: 'var(--primary-color)' }}>{tenant.name}</h3>
               <p>{tenant.theme.heroDesc || dict.tenant.footer_welcome.replace('{name}', tenant.name)}</p>
               
               {(tenant.theme.socialLinks?.instagram || tenant.theme.socialLinks?.whatsapp || tenant.theme.socialLinks?.tiktok) && (
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                <div className={styles.socialIcons}>
                   {tenant.theme.socialLinks?.instagram && (
                     <a href={`https://instagram.com/${tenant.theme.socialLinks.instagram}`} target="_blank" style={{ color: '#E1306C' }}><Instagram size={20} /></a>
                   )}
@@ -132,27 +140,27 @@ export default async function Home() {
             <div className={styles.links}>
               <h4>{dict.tenant.company}</h4>
               <ul>
-                <li><Link href="/about">{dict.tenant.about_us}</Link></li>
-                <li><Link href="/products">{dict.tenant.products}</Link></li>
+                <li><Link href={`${tp}/about`}>{dict.tenant.about_us}</Link></li>
+                <li><Link href={`${tp}/products`}>{dict.tenant.products}</Link></li>
               </ul>
             </div>
 
             <div className={styles.links}>
               <h4>{dict.tenant.contact}</h4>
-              <ul style={{ color: '#718096', fontSize: '0.9rem' }}>
+              <ul className={styles.contactList}>
                 {tenant.theme.contact?.email && (
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <li>
                     <Mail size={14} /> {tenant.theme.contact.email}
                   </li>
                 )}
                 {tenant.theme.contact?.phone && (
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <li>
                     <Phone size={14} /> {tenant.theme.contact.phone}
                   </li>
                 )}
                 {tenant.theme.contact?.address && (
-                  <li style={{ display: 'flex', alignItems: 'start', gap: '0.5rem' }}>
-                    <MapPin size={14} style={{ marginTop: '0.2rem', flexShrink: 0 }} /> {tenant.theme.contact.address}
+                  <li className={styles.address}>
+                    <MapPin size={14} /> {tenant.theme.contact.address}
                   </li>
                 )}
               </ul>
@@ -161,15 +169,16 @@ export default async function Home() {
             <div className={styles.links}>
               <h4>{dict.tenant.support}</h4>
               <ul>
-                <li><a href="#">{dict.tenant.help_center}</a></li>
-                <li><a href="#">{dict.tenant.contact_support}</a></li>
+                <li><Link href={`${tp}/terms`}>{dict.tenant.tos}</Link></li>
+                <li><Link href={`${tp}/privacy`}>{dict.tenant.privacy}</Link></li>
+                <li><Link href={`${tp}/help`}>{dict.tenant.help_center}</Link></li>
               </ul>
             </div>
           </div>
 
           <div className={styles.bottom}>
             &copy; {new Date().getFullYear()} {tenant.name}. {dict.tenant.all_rights_reserved} 
-            <div style={{ opacity: 0.3, fontSize: '0.7rem', marginTop: '0.5rem' }}>Powered by Bitespace v{pkg.version}</div>
+            <div className={styles.poweredBy}>Powered by Bitespace v{pkg.version}</div>
           </div>
         </footer>
       </div>
@@ -185,8 +194,7 @@ export default async function Home() {
 
   return (
     <div className={styles.platformWrap}>
-
-      {/* ── HERO ─────────────────────────────────────────── */}
+      {/* HERO */}
       <section className={styles.platformHero}>
         <div className={`${styles.orb} ${styles.orb1}`} />
         <div className={`${styles.orb} ${styles.orb2}`} />
@@ -216,7 +224,6 @@ export default async function Home() {
             </Link>
           </div>
 
-          {/* Stats */}
           <div className={styles.statsBar}>
             <div className={styles.stat}>
               <div className={styles.statNum}>{allTenants.length}+</div>
@@ -236,57 +243,21 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── FEATURES ─────────────────────────────────────── */}
+      {/* FEATURES */}
       <section id="features" className={styles.platformSection}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="container">
           <p className={styles.sectionLabel}>{dict.platform.label_features}</p>
           <h2 className={styles.sectionTitle}>{dict.platform.features_title}</h2>
           <p className={styles.sectionDesc}>{dict.platform.features_desc}</p>
 
           <div className={styles.featuresGrid}>
             {[
-              {
-                icon: <Store size={26} />,
-                iconBg: 'rgba(99,102,241,0.15)',
-                iconColor: '#818cf8',
-                title: dict.platform.feat1_title,
-                desc: dict.platform.feat1_desc,
-              },
-              {
-                icon: <Zap size={26} />,
-                iconBg: 'rgba(20,184,166,0.15)',
-                iconColor: '#2dd4bf',
-                title: dict.platform.feat2_title,
-                desc: dict.platform.feat2_desc,
-              },
-              {
-                icon: <Smartphone size={26} />,
-                iconBg: 'rgba(251,113,133,0.15)',
-                iconColor: '#fb7185',
-                title: dict.platform.feat3_title,
-                desc: dict.platform.feat3_desc,
-              },
-              {
-                icon: <Globe size={26} />,
-                iconBg: 'rgba(251,191,36,0.15)',
-                iconColor: '#fbbf24',
-                title: dict.platform.feat4_title,
-                desc: dict.platform.feat4_desc,
-              },
-              {
-                icon: <ShieldCheck size={26} />,
-                iconBg: 'rgba(52,211,153,0.15)',
-                iconColor: '#34d399',
-                title: dict.platform.feat5_title,
-                desc: dict.platform.feat5_desc,
-              },
-              {
-                icon: <ArrowRight size={26} />,
-                iconBg: 'rgba(168,85,247,0.15)',
-                iconColor: '#c084fc',
-                title: dict.platform.feat6_title,
-                desc: dict.platform.feat6_desc,
-              },
+              { icon: <Store size={26} />, iconBg: 'rgba(99,102,241,0.15)', iconColor: '#818cf8', title: dict.platform.feat1_title, desc: dict.platform.feat1_desc },
+              { icon: <Zap size={26} />, iconBg: 'rgba(20,184,166,0.15)', iconColor: '#2dd4bf', title: dict.platform.feat2_title, desc: dict.platform.feat2_desc },
+              { icon: <Smartphone size={26} />, iconBg: 'rgba(251,113,133,0.15)', iconColor: '#fb7185', title: dict.platform.feat3_title, desc: dict.platform.feat3_desc },
+              { icon: <Globe size={26} />, iconBg: 'rgba(251,191,36,0.15)', iconColor: '#fbbf24', title: dict.platform.feat4_title, desc: dict.platform.feat4_desc },
+              { icon: <ShieldCheck size={26} />, iconBg: 'rgba(52,211,153,0.15)', iconColor: '#34d399', title: dict.platform.feat5_title, desc: dict.platform.feat5_desc },
+              { icon: <ArrowRight size={26} />, iconBg: 'rgba(168,85,247,0.15)', iconColor: '#c084fc', title: dict.platform.feat6_title, desc: dict.platform.feat6_desc },
             ].map((f, i) => (
               <div key={i} className={styles.featureCard}>
                 <div className={styles.featureIcon} style={{ background: f.iconBg, color: f.iconColor }}>
@@ -300,9 +271,9 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── MERCHANTS ────────────────────────────────────── */}
+      {/* MERCHANTS */}
       <section id="merchants" className={`${styles.platformSection} ${styles.altBg}`}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="container">
           <p className={styles.sectionLabel}>{dict.platform.label_merchants}</p>
           <h2 className={styles.sectionTitle}>{dict.platform.merchants_title}</h2>
           <p className={styles.sectionDesc}>{dict.platform.merchants_desc}</p>
@@ -327,15 +298,15 @@ export default async function Home() {
               ))}
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'rgba(255,255,255,0.25)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px' }}>
-              <p style={{ marginBottom: '1.25rem', fontSize: '1rem' }}>{dict.platform.no_merchants}</p>
+            <div className={styles.noProducts}>
+              <p>{dict.platform.no_merchants}</p>
               <Link href="/onboarding" style={{ color: '#818cf8', fontWeight: 700, textDecoration: 'none' }}>{dict.platform.btn_create_first}</Link>
             </div>
           )}
         </div>
       </section>
 
-      {/* ── FOOTER ───────────────────────────────────────── */}
+      {/* PLATFORM FOOTER */}
       <footer className={styles.platformFooter}>
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>
@@ -355,8 +326,8 @@ export default async function Home() {
             <div className={styles.col}>
               <h5>{dict.platform.footer.legal}</h5>
               <ul>
-                <li><a href="#">{dict.platform.footer.tos}</a></li>
-                <li><a href="#">{dict.platform.footer.privacy}</a></li>
+                <li><Link href="/terms">{dict.platform.footer.tos}</Link></li>
+                <li><Link href="/privacy">{dict.platform.footer.privacy}</Link></li>
               </ul>
             </div>
           </div>
@@ -372,5 +343,3 @@ export default async function Home() {
     </div>
   )
 }
-
-

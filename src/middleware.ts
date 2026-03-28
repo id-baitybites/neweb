@@ -4,7 +4,7 @@ import { jwtVerify } from 'jose'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'bitespace-super-secret-key-2024'
 
-const RESERVED_PATHS = ['admin', 'super-admin', 'api', 'login', 'register', '_next', 'profile', 'cart', 'checkout', 'favicon.ico', 'product', 'products', 'order', 'about', 'pricing', 'onboarding'];
+const RESERVED_PATHS = ['admin', 'super-admin', 'api', 'login', 'register', '_next', 'profile', 'cart', 'checkout', 'favicon.ico', 'product', 'products', 'order', 'about', 'pricing', 'onboarding', 'terms', 'privacy', 'help'];
 
 const resolveSlugFromPath = (pathname: string): string | null => {
     const segments = pathname.split('/').filter(Boolean);

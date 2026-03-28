@@ -2,22 +2,23 @@ import { resolveTenant } from '@/lib/tenant'
 import type { Metadata } from 'next'
 import { getDictionary } from '@/i18n'
 import { headers } from 'next/headers'
-import styles from '@/styles/modules/About.module.scss'
-import { TenantAbout } from '@/components/support/TenantAbout'
-import { PlatformAbout } from '@/components/support/PlatformAbout'
+import styles from '@/styles/modules/Help.module.scss'
+import { TenantHelp } from '@/components/support/TenantHelp'
+import { PlatformHelp } from '@/components/support/PlatformHelp'
 
 export async function generateMetadata(): Promise<Metadata> {
     const dict = await getDictionary()
     const tenant = await resolveTenant()
-    const t = dict.about
+    const t = dict.help
     return {
         title: tenant 
             ? t.title.replace('{name}', tenant.name) 
-            : `SaaS Platform Vision | Bitespace`,
+            : `Merchant Support Center | Bitespace`,
+        description: t.subtitle,
     }
 }
 
-export default async function AboutPage() {
+export default async function HelpCenterPage() {
     const tenant = await resolveTenant()
     const dict = await getDictionary()
     const isIndo = dict.locale === 'id'
@@ -26,7 +27,6 @@ export default async function AboutPage() {
     const dynamicStyles = {
         '--primary-color': primaryColor,
         '--primary-color-15': `${primaryColor}15`,
-        '--primary-color-03': `${primaryColor}03`,
         '--primary-color-20': `${primaryColor}20`
     } as React.CSSProperties
 
@@ -39,17 +39,17 @@ export default async function AboutPage() {
     }
 
     return (
-        <div className={styles.aboutWrapper} style={dynamicStyles}>
+        <div className={styles.helpWrapper} style={dynamicStyles}>
             <div className={`${styles.blob} ${styles.blob1}`} />
             <div className={`${styles.blob} ${styles.blob2}`} />
 
             {tenant ? (
-                <TenantAbout tenant={tenant} isIndo={isIndo} dict={dict} tenantPath={tenantPath} />
+                <TenantHelp tenant={tenant} dict={dict} tenantPath={tenantPath} />
             ) : (
-                <PlatformAbout isIndo={isIndo} />
+                <PlatformHelp dict={dict} />
             )}
 
-            <footer className={styles.aboutFooter}>
+            <footer className={styles.helpFooter}>
                 &copy; {new Date().getFullYear()} {tenant?.name || 'Bitespace Platform'}. {isIndo ? 'Seluruh hak cipta dilindungi.' : 'All rights reserved.'}
             </footer>
         </div>

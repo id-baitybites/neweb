@@ -482,6 +482,34 @@
     "testimonies_title": "What Our Customers Say",
     "testimonies_desc": "Real stories from people who love our treats."
   },
+  "help": {
+    "title": "{name} Help Center",
+    "subtitle": "Find answers to your questions or reach out to our support team.",
+    "search_placeholder": "Search for help...",
+    "categories": {
+      "order": "Orders & Payments",
+      "delivery": "Shipping & Pickup",
+      "account": "Account & Security",
+      "business": "Business Partnerships"
+    },
+    "faqs": [
+      {
+        "q": "How do I place an order?",
+        "a": "You can select the products you want, add them to your cart, and follow the secure checkout process."
+      },
+      {
+        "q": "What payment methods are available?",
+        "a": "We support various payment methods including QRIS, Bank Transfers, and Digital Wallets through our integrated payment system."
+      },
+      {
+        "q": "How long does order preparation take?",
+        "a": "Preparation time varies by product, but on average we need 1-2 days to ensure the best quality."
+      }
+    ],
+    "contact_title": "Still need help?",
+    "contact_desc": "Our team is here to help you anytime.",
+    "btn_contact": "Contact Support"
+  },
   "nav": {
     "home": "Home",
     "products": "Products",

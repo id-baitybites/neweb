@@ -32,7 +32,7 @@ export interface TenantConfig {
     language: string
     deliveryFee: number
     minPreOrderDays: number
-    qrisUrl?: string      // Added for manual QRIS upload
+    qrisUrl?: string
     qris?: {
         merchantName?: string
         nmid?: string
@@ -47,12 +47,22 @@ export interface TenantConfig {
         apiKey?: string
         environment?: string
     }
+    biteship?: {
+        apiKey?: string          // Per-tenant Biteship API key (sandbox or production)
+        environment?: 'sandbox' | 'production'
+        warehouseName?: string   // Default sender name
+        warehousePhone?: string  // Default sender phone
+        warehouseAddress?: string
+        warehousePostal?: string
+        preferredCouriers?: string  // comma-separated e.g. "jne,jnt,sicepat"
+    }
 }
 
 export interface TenantData {
     id: string
     slug: string
     name: string
+    domain: string | null
     logoUrl: string | null
     faviconUrl: string | null
     theme: TenantTheme
@@ -142,6 +152,7 @@ function normalizeTenant(tenant: any): TenantData {
         id: tenant.id,
         slug: tenant.slug,
         name: tenant.name,
+        domain: tenant.domain ?? null,
         logoUrl: tenant.logoUrl,
         faviconUrl: tenant.faviconUrl,
         theme: { ...DEFAULT_THEME, ...(tenant.theme as object) },
